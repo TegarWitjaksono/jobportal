@@ -196,14 +196,24 @@ class Dashboard extends Component
             $this->showProfileModal = true;
         } else {
             // Simpan data Blind Test ke sesi server
-            $blindTestData = ['total_questions' => $this->total_blind_tests, 'correct_answers' => $correctCount, 'score' => $score, 'details' => $this->blind_test_answers];
-            session(['guest_test_data.blind_test' => $blindTestData]);
-            $this->testResults = [
-                'bmi' => session('guest_test_data.bmi'),
-                'blind' => $blindTestData,
+            $blindTestData = [
+                'total_questions' => $this->total_blind_tests,
+                'correct_answers' => $correctCount,
+                'score' => $score,
+                'details' => $this->blind_test_answers,
             ];
+
+            $results = [
+                'bmi' => session('guest_test_data.bmi'),
+                'blind_test' => $blindTestData,
+            ];
+
+            session(['guest_test_data' => $results]);
+            $this->testResults = $results;
             $this->showBlindTestModal = false;
             $this->showResultModal = true;
+
+            $this->dispatch('store-test-results', $results);
         }
     }
     }
@@ -246,7 +256,15 @@ class Dashboard extends Component
     public function closeResultModal()
     {
         $this->showResultModal = false;
-        $this->dispatch('prompt-auth-after-test');
+
+        $meetsBmi = isset($this->testResults['bmi']) &&
+            ($this->testResults['bmi']['kategori'] === 'Normal');
+        $meetsBlind = isset($this->testResults['blind_test']) &&
+            ($this->testResults['blind_test']['score'] >= 60);
+
+        if ($meetsBmi && $meetsBlind) {
+            $this->dispatch('prompt-auth-after-test');
+        }
     }
 
     private function resetBlindTest()
@@ -341,10 +359,19 @@ class Dashboard extends Component
         ]);
     }
 
-    protected $listeners = ['start-guest-test-flow' => 'startGuestTestFlow'];
+    protected $listeners = [
+        'start-guest-test-flow' => 'startGuestTestFlow',
+        'show-cached-results' => 'showCachedResults',
+    ];
 
     public function startGuestTestFlow($data = [])
     {
+        if (session()->has('guest_test_data')) {
+            $this->testResults = session('guest_test_data');
+            $this->showResultModal = true;
+            return;
+        }
+
         if (isset($data['jobId'])) {
             $this->selectedLowongan = Lowongan::find($data['jobId']);
             // Simpan ID lowongan di sesi untuk tamu
@@ -353,9 +380,17 @@ class Dashboard extends Component
         $this->showBmiTestModal = true;
     }
 
+    public function showCachedResults($data)
+    {
+        if (!$data) return;
+
+        $this->testResults = $data;
+        $this->showResultModal = true;
+    }
+
     public function importTestData($data)
     {
-        if (!Auth::check() || !isset($data['bmi']) || !isset($data['blind'])) return;
+        if (!Auth::check() || !isset($data['bmi']) || !isset($data['blind_test'])) return;
         
         $user = Auth::user();
         $kandidat = $user->kandidat ?? Kandidat::create(['user_id' => $user->id]);
@@ -365,8 +400,8 @@ class Dashboard extends Component
         }
 
         // Import Blind test data
-        if (!$kandidat->blind_score && $data['blind']) {
-            $kandidat->blind_score = $data['blind']['score'];
+        if (!$kandidat->blind_score && $data['blind_test']) {
+            $kandidat->blind_score = $data['blind_test']['score'];
         }
 
         $kandidat->save();

@@ -327,18 +327,29 @@
                     @if(isset($testResults['bmi']))
                         <p class="mb-2">Skor BMI: {{ $testResults['bmi']['score'] }} ({{ $testResults['bmi']['kategori'] }})</p>
                     @endif
-                    @if(isset($testResults['blind']))
-                        <p class="mb-0">Skor Tes Buta Warna: {{ $testResults['blind']['score'] }}%</p>
+                    @if(isset($testResults['blind_test']))
+                        <p class="mb-0">Skor Tes Buta Warna: {{ $testResults['blind_test']['score'] }}%</p>
                     @endif
-                    @if(isset($testResults['bmi']) && $testResults['bmi']['kategori'] !== 'Normal')
+                    @php
+                        $bmiInvalid = isset($testResults['bmi']) && $testResults['bmi']['kategori'] !== 'Normal';
+                        $blindInvalid = isset($testResults['blind_test']) && $testResults['blind_test']['score'] < 60;
+                    @endphp
+                    @if($bmiInvalid)
                         <div class="alert alert-danger mt-3">Hasil BMI Anda tidak memenuhi syarat pendaftaran.</div>
                     @endif
-                    @if(isset($testResults['blind']) && $testResults['blind']['score'] < 60)
+                    @if($blindInvalid)
                         <div class="alert alert-danger">Hasil tes buta warna Anda tidak memenuhi syarat pendaftaran.</div>
+                    @endif
+                    @if($bmiInvalid || $blindInvalid)
+                        <div class="alert alert-warning mt-3">Anda tidak dapat melanjutkan tahap registrasi.</div>
                     @endif
                 </div>
                 <div class="modal-footer p-3 bg-light">
-                    <button type="button" class="btn btn-primary" wire:click="closeResultModal">Lanjutkan</button>
+                    @if(!$bmiInvalid && !$blindInvalid)
+                        <button type="button" class="btn btn-primary" wire:click="closeResultModal">Lanjutkan</button>
+                    @else
+                        <button type="button" class="btn btn-secondary" wire:click="closeResultModal">Tutup</button>
+                    @endif
                 </div>
             </div>
         </div>
@@ -600,11 +611,44 @@
             });
         }
 
+        function promptAuth() {
+            const cached = localStorage.getItem('guestTestResults');
+            if (cached) {
+                const data = JSON.parse(cached);
+                const bmiInvalid = data.bmi && data.bmi.kategori !== 'Normal';
+                const blindInvalid = data.blind_test && data.blind_test.score < 60;
+
+                if (bmiInvalid || blindInvalid) {
+                    Swal.fire({
+                        title: 'Tidak memenuhi syarat',
+                        text: 'Anda tidak dapat melanjutkan registrasi.',
+                        icon: 'error'
+                    });
+                    return;
+                }
+            }
+
+            showAuthPrompt();
+        }
+
         document.addEventListener('livewire:initialized', () => {
             // Menunggu sinyal 'prompt-auth-after-test' dari backend
             @this.on('prompt-auth-after-test', () => {
                 showAuthPrompt(); // Tampilkan pop-up
             });
+
+            @this.on('store-test-results', (data) => {
+                localStorage.setItem('guestTestResults', JSON.stringify(data));
+            });
+
+            @this.on('clear-test-data', () => {
+                localStorage.removeItem('guestTestResults');
+            });
+
+            const cached = localStorage.getItem('guestTestResults');
+            if (cached) {
+                Livewire.dispatch('show-cached-results', JSON.parse(cached));
+            }
         });
     </script>
     @endpush
