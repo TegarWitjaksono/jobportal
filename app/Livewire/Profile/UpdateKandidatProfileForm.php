@@ -30,7 +30,7 @@ class UpdateKandidatProfileForm extends Component
      */
     public function mount()
     {
-        $user = Auth::user()->load('kandidat.bmiTest', 'kandidat.blindTest');
+        $user = Auth::user()->load('kandidat');
         $this->kandidat = $user->kandidat;
 
         if ($this->kandidat) {

@@ -6,8 +6,6 @@ use App\Models\LamarLowongan;
 use Livewire\Component;
 use App\Models\Lowongan;
 use App\Models\Kandidat;
-use App\Models\BmiTest;
-use App\Models\BlindTest;
 use Illuminate\Support\Facades\Auth;
 use Livewire\WithPagination;
 
@@ -19,6 +17,7 @@ class Dashboard extends Component
     public $showProfileModal = false;
     public $showBmiTestModal = false;
     public $showBlindTestModal = false;
+    public $showResultModal = false;
     public $selectedLowongan;
     
     // Properti untuk form kandidat
@@ -49,8 +48,9 @@ class Dashboard extends Component
     public $blind_test_answers = [];
     public $blind_score;
     public $current_blind_test = 1;
-    public $total_blind_tests = 5; 
+    public $total_blind_tests = 5;
     public $blind_test_options = [];
+    public $testResults = [];
 
     protected $correct_blind_test_answers = [ 1 => '8', 2 => '29', 3 => '5', 4 => '6', 5 => '42' ];
 
@@ -141,8 +141,8 @@ class Dashboard extends Component
             // Alur untuk pengguna yang sudah login (tetap sama)
             $user = Auth::user();
             if (!$user->kandidat) $this->showProfileModal = true;
-            elseif (!$user->kandidat->bmiTest) $this->showBmiTestModal = true;
-            elseif (!$user->kandidat->blindTest) $this->showBlindTestModal = true;
+            elseif (!$user->kandidat->bmi_score) $this->showBmiTestModal = true;
+            elseif (!$user->kandidat->blind_score) $this->showBlindTestModal = true;
             else $this->showJobModal = true;
         } else {
             // Alur untuk pengguna tamu: langsung mulai tes
@@ -161,10 +161,7 @@ class Dashboard extends Component
 
         if (Auth::check()) {
             $kandidat = Auth::user()->kandidat ?? Kandidat::create(['user_id' => Auth::id()]);
-            BmiTest::updateOrCreate(
-                ['kandidat_id' => $kandidat->id],
-                array_merge($validatedData, ['score' => $score, 'kategori' => $kategori])
-            );
+            $kandidat->update(['bmi_score' => $score]);
         } else {
             // Simpan data BMI ke sesi server untuk tamu
             $bmiData = array_merge($validatedData, ['score' => $score, 'kategori' => $kategori]);
@@ -193,23 +190,22 @@ class Dashboard extends Component
             $score = round(($correctCount / $this->total_blind_tests) * 100, 0);
 
             if (Auth::check()) {
-                $kandidat = Auth::user()->kandidat ?? Kandidat::create(['user_id' => Auth::id()]);
-                BlindTest::updateOrCreate(
-                    ['kandidat_id' => $kandidat->id],
-                    ['total_questions' => $this->total_blind_tests, 'correct_answers' => $correctCount, 'score' => $score, 'details' => $this->blind_test_answers]
-                );
-                $this->showBlindTestModal = false;
-                $this->showProfileModal = true;
-            } else {
-                // Simpan data Blind Test ke sesi server
-                $blindTestData = ['total_questions' => $this->total_blind_tests, 'correct_answers' => $correctCount, 'score' => $score, 'details' => $this->blind_test_answers];
-                session(['guest_test_data.blind_test' => $blindTestData]);
-
-                $this->showBlindTestModal = false;
-                // Kirim sinyal ke frontend bahwa tes sudah selesai
-                $this->dispatch('prompt-auth-after-test');
-            }
+            $kandidat = Auth::user()->kandidat ?? Kandidat::create(['user_id' => Auth::id()]);
+            $kandidat->update(['blind_score' => $score]);
+            $this->showBlindTestModal = false;
+            $this->showProfileModal = true;
+        } else {
+            // Simpan data Blind Test ke sesi server
+            $blindTestData = ['total_questions' => $this->total_blind_tests, 'correct_answers' => $correctCount, 'score' => $score, 'details' => $this->blind_test_answers];
+            session(['guest_test_data.blind_test' => $blindTestData]);
+            $this->testResults = [
+                'bmi' => session('guest_test_data.bmi'),
+                'blind' => $blindTestData,
+            ];
+            $this->showBlindTestModal = false;
+            $this->showResultModal = true;
         }
+    }
     }
 
     public function showProfileForm()
@@ -244,6 +240,22 @@ class Dashboard extends Component
         // Kembali ke dashboard tanpa melanjutkan proses
         if ($this->selectedLowongan) {
             $this->selectedLowongan = null;
+        }
+    }
+
+    public function closeResultModal()
+    {
+        $this->showResultModal = false;
+
+        $bmiOk = isset($this->testResults['bmi'])
+            && ($this->testResults['bmi']['kategori'] ?? '') === 'Normal';
+        $blindOk = isset($this->testResults['blind'])
+            && ($this->testResults['blind']['score'] ?? 0) >= 60;
+
+        if ($bmiOk && $blindOk) {
+            $this->dispatch('prompt-auth-after-test');
+        } else {
+            $this->dispatch('show-ineligible-modal');
         }
     }
 
@@ -357,22 +369,17 @@ class Dashboard extends Component
         
         $user = Auth::user();
         $kandidat = $user->kandidat ?? Kandidat::create(['user_id' => $user->id]);
-        
         // Import BMI test data
-        if (!$kandidat->bmiTest && $data['bmi']) {
-            BmiTest::create(array_merge(
-                ['kandidat_id' => $kandidat->id],
-                $data['bmi']
-            ));
+        if (!$kandidat->bmi_score && $data['bmi']) {
+            $kandidat->bmi_score = $data['bmi']['score'];
         }
-        
+
         // Import Blind test data
-        if (!$kandidat->blindTest && $data['blind']) {
-            BlindTest::create(array_merge(
-                ['kandidat_id' => $kandidat->id],
-                $data['blind']
-            ));
+        if (!$kandidat->blind_score && $data['blind']) {
+            $kandidat->blind_score = $data['blind']['score'];
         }
+
+        $kandidat->save();
         
         // Clear local storage after import
         $this->dispatch('clear-test-data');

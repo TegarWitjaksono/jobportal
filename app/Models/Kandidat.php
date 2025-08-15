@@ -33,8 +33,8 @@ class Kandidat extends Model
         'jenis_kelamin',
         'status_perkawinan',
         'agama',
-        // 'bmi_score',
-        // 'blind_score',
+        'bmi_score',
+        'blind_score',
         'no_telpon_alternatif',
         'pengalaman_kerja',
         'pendidikan',
@@ -85,30 +85,12 @@ class Kandidat extends Model
     }
 
     /**
-     * Relasi dengan hasil BMI Test
-     * Satu kandidat memiliki satu hasil BMI Test
-     */
-    public function bmiTest()
-    {
-        return $this->hasOne(BmiTest::class);
-    }
-
-    /**
-     * Relasi dengan hasil Blind Test
-     * Satu kandidat memiliki satu hasil Blind Test
-     */
-    public function blindTest()
-    {
-        return $this->hasOne(BlindTest::class);
-    }
-
-    /**
      * Check apakah kandidat sudah menyelesaikan semua tes yang diperlukan
      * @return bool
      */
     public function hasCompletedAllTests()
     {
-        return $this->bmiTest()->exists() && $this->blindTest()->exists();
+        return $this->hasCompletedBmiTest() && $this->hasCompletedBlindTest();
     }
 
     /**
@@ -117,7 +99,7 @@ class Kandidat extends Model
      */
     public function hasCompletedBmiTest()
     {
-        return $this->bmiTest()->exists();
+        return !is_null($this->bmi_score);
     }
 
     /**
@@ -126,7 +108,7 @@ class Kandidat extends Model
      */
     public function hasCompletedBlindTest()
     {
-        return $this->blindTest()->exists();
+        return !is_null($this->blind_score);
     }
 
     /**
@@ -135,10 +117,12 @@ class Kandidat extends Model
      */
     public function getBmiCategoryAttribute()
     {
-        if (!$this->bmiTest) {
+        if (is_null($this->bmi_score)) {
             return null;
         }
-        return $this->bmiTest->kategori;
+
+        $score = (float) $this->bmi_score;
+        return ($score < 18.5) ? 'Kurus' : (($score <= 24.9) ? 'Normal' : 'Gemuk');
     }
 
     /**
@@ -147,10 +131,28 @@ class Kandidat extends Model
      */
     public function getBlindTestPercentageAttribute()
     {
-        if (!$this->blindTest) {
+        return $this->blind_score ? (int) $this->blind_score : null;
+    }
+
+    /**
+     * Get Blind test status
+     * @return string|null
+     */
+    public function getBlindTestStatusAttribute()
+    {
+        if (is_null($this->blind_score)) {
             return null;
         }
-        return $this->blindTest->score;
+
+        $score = (int) $this->blind_score;
+        if ($score >= 80) {
+            return 'Excellent';
+        } elseif ($score >= 60) {
+            return 'Good';
+        } elseif ($score >= 40) {
+            return 'Fair';
+        }
+        return 'Poor';
     }
     public function lamarLowongans()
     {

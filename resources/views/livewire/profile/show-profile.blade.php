@@ -56,59 +56,59 @@
                                         </h6>
                                     </div>
 
-                                    @if ($kandidat->bmiTest || $kandidat->blindTest)
+                                    @if ($kandidat->bmi_score || $kandidat->blind_score)
 
-                                        @if ($kandidat->bmiTest)
+                                        @if ($kandidat->bmi_score)
                                         <div class="col-md-6 mb-3">
                                             <h6 class="text-muted mb-0">Skor BMI</h6>
-                                            <p class="fw-medium fs-5">{{ $kandidat->bmiTest->score }}</p>
+                                            <p class="fw-medium fs-5">{{ $kandidat->bmi_score }}</p>
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <h6 class="text-muted mb-0">Kategori BMI</h6>
                                             {{-- =================== INDIKATOR WARNA BMI =================== --}}
                                             <p class="fs-5">
-                                                @switch($kandidat->bmiTest->kategori)
+                                                @switch($kandidat->bmi_category)
                                                     @case('Kurus')
-                                                        <span class="badge bg-soft-warning">{{ $kandidat->bmiTest->kategori }}</span>
+                                                        <span class="badge bg-soft-warning">{{ $kandidat->bmi_category }}</span>
                                                         @break
                                                     @case('Normal')
-                                                        <span class="badge bg-soft-success">{{ $kandidat->bmiTest->kategori }}</span>
+                                                        <span class="badge bg-soft-success">{{ $kandidat->bmi_category }}</span>
                                                         @break
                                                     @case('Gemuk')
-                                                        <span class="badge bg-soft-danger">{{ $kandidat->bmiTest->kategori }}</span>
+                                                        <span class="badge bg-soft-danger">{{ $kandidat->bmi_category }}</span>
                                                         @break
                                                     @default
-                                                        <span class="badge bg-soft-secondary">{{ $kandidat->bmiTest->kategori }}</span>
+                                                        <span class="badge bg-soft-secondary">{{ $kandidat->bmi_category }}</span>
                                                 @endswitch
                                             </p>
                                             {{-- ========================================================= --}}
                                         </div>
                                         @endif
 
-                                        @if ($kandidat->blindTest)
+                                        @if ($kandidat->blind_score)
                                         <div class="col-md-6 mb-3">
                                             <h6 class="text-muted mb-0">Skor Tes Buta Warna</h6>
-                                            <p class="fw-medium fs-5">{{ $kandidat->blindTest->score }}%</p>
+                                            <p class="fw-medium fs-5">{{ $kandidat->blind_score }}%</p>
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <h6 class="text-muted mb-0">Status Tes Buta Warna</h6>
                                             {{-- =================== INDIKATOR WARNA BUTA WARNA =================== --}}
                                             <p class="fs-5">
-                                                @switch($kandidat->blindTest->status)
+                                                @switch($kandidat->blind_test_status)
                                                     @case('Excellent')
-                                                        <span class="badge bg-soft-success">{{ $kandidat->blindTest->status }}</span>
+                                                        <span class="badge bg-soft-success">{{ $kandidat->blind_test_status }}</span>
                                                         @break
                                                     @case('Good')
-                                                        <span class="badge bg-soft-primary">{{ $kandidat->blindTest->status }}</span>
+                                                        <span class="badge bg-soft-primary">{{ $kandidat->blind_test_status }}</span>
                                                         @break
                                                     @case('Fair')
-                                                        <span class="badge bg-soft-warning">{{ $kandidat->blindTest->status }}</span>
+                                                        <span class="badge bg-soft-warning">{{ $kandidat->blind_test_status }}</span>
                                                         @break
                                                     @case('Poor')
-                                                        <span class="badge bg-soft-danger">{{ $kandidat->blindTest->status }}</span>
+                                                        <span class="badge bg-soft-danger">{{ $kandidat->blind_test_status }}</span>
                                                         @break
                                                     @default
-                                                        <span class="badge bg-soft-secondary">{{ $kandidat->blindTest->status }}</span>
+                                                        <span class="badge bg-soft-secondary">{{ $kandidat->blind_test_status }}</span>
                                                 @endswitch
                                             </p>
                                             {{-- ============================================================== --}}

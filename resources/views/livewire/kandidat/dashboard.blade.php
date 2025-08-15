@@ -314,6 +314,38 @@
     <div class="modal-backdrop fade show"></div>
     @endif
 
+    {{-- MODAL RESULT TEST: Tampilkan Hasil Tes dari Cache --}}
+    @if($showResultModal)
+    <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);" tabindex="-1" wire:ignore.self>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded shadow-lg">
+                <div class="modal-header p-4">
+                    <h5 class="modal-title fw-bold">Hasil Tes</h5>
+                    <button type="button" class="btn-close" wire:click="closeResultModal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    @if(isset($testResults['bmi']))
+                        <p class="mb-2">Skor BMI: {{ $testResults['bmi']['score'] }} ({{ $testResults['bmi']['kategori'] }})</p>
+                    @endif
+                    @if(isset($testResults['blind']))
+                        <p class="mb-0">Skor Tes Buta Warna: {{ $testResults['blind']['score'] }}%</p>
+                    @endif
+                    @if(isset($testResults['bmi']) && $testResults['bmi']['kategori'] !== 'Normal')
+                        <div class="alert alert-danger mt-3">Hasil BMI Anda tidak memenuhi syarat pendaftaran.</div>
+                    @endif
+                    @if(isset($testResults['blind']) && $testResults['blind']['score'] < 60)
+                        <div class="alert alert-danger">Hasil tes buta warna Anda tidak memenuhi syarat pendaftaran.</div>
+                    @endif
+                </div>
+                <div class="modal-footer p-3 bg-light">
+                    <button type="button" class="btn btn-primary" wire:click="closeResultModal">Lanjutkan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+    @endif
+
     {{-- MODAL PROFILE: Untuk Lengkapi Data Profil --}}
     @if($showProfileModal)
     <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);" tabindex="-1" wire:ignore.self>
@@ -452,26 +484,26 @@
                             </div>
                             
                             {{-- Data Hasil Tes (Tampilkan jika sudah ada) --}}
-                            @if(Auth::user()->kandidat && (Auth::user()->kandidat->bmiTest || Auth::user()->kandidat->blindTest))
+                            @if(Auth::user()->kandidat && (Auth::user()->kandidat->bmi_score || Auth::user()->kandidat->blind_score))
                             <div class="col-12 mb-4 mt-4">
                                 <h6 class="fw-bold text-primary border-bottom pb-2">Hasil Tes</h6>
                             </div>
                             
-                            @if(Auth::user()->kandidat->bmiTest)
+                            @if(Auth::user()->kandidat->bmi_score)
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">BMI Score</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" value="{{ Auth::user()->kandidat->bmiTest->score }}" readonly>
-                                    <span class="input-group-text">{{ Auth::user()->kandidat->bmiTest->kategori }}</span>
+                                    <input type="text" class="form-control" value="{{ Auth::user()->kandidat->bmi_score }}" readonly>
+                                    <span class="input-group-text">{{ Auth::user()->kandidat->bmi_category }}</span>
                                 </div>
                             </div>
                             @endif
-                            
-                            @if(Auth::user()->kandidat->blindTest)
+
+                            @if(Auth::user()->kandidat->blind_score)
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Blind Test Score</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" value="{{ Auth::user()->kandidat->blindTest->score }}" readonly>
+                                    <input type="text" class="form-control" value="{{ Auth::user()->kandidat->blind_score }}" readonly>
                                     <span class="input-group-text">%</span>
                                 </div>
                             </div>
@@ -544,7 +576,7 @@
     @push('scripts')
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // Fungsi untuk menampilkan pop-up pilihan otentikasi
+        // Fungsi pop-up untuk login/register ketika tes memenuhi syarat
         function showAuthPrompt() {
             Swal.fire({
                 title: 'Tes Selesai!',
@@ -559,19 +591,37 @@
                 allowOutsideClick: false
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Arahkan ke halaman register
                     window.location.href = "{{ route('register') }}";
                 } else if (result.dismiss === Swal.DismissReason.cancel) {
-                    // Arahkan ke halaman login
                     window.location.href = "{{ route('login') }}";
                 }
             });
         }
 
+        // Fungsi utilitas untuk dipanggil dari elemen HTML
+        function promptAuth() {
+            showAuthPrompt();
+        }
+
+        // Fungsi pop-up ketika tes tidak memenuhi syarat
+        function showIneligiblePrompt() {
+            Swal.fire({
+                title: 'Tes Tidak Memenuhi Syarat',
+                text: 'Anda tidak dapat melanjutkan registrasi karena hasil tes tidak memenuhi syarat.',
+                icon: 'error',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#dc3545',
+                allowOutsideClick: false
+            });
+        }
+
         document.addEventListener('livewire:initialized', () => {
-            // Menunggu sinyal 'prompt-auth-after-test' dari backend
             @this.on('prompt-auth-after-test', () => {
-                showAuthPrompt(); // Tampilkan pop-up
+                showAuthPrompt();
+            });
+
+            @this.on('show-ineligible-modal', () => {
+                showIneligiblePrompt();
             });
         });
     </script>
