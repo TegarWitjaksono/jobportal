@@ -47,7 +47,7 @@
                         </div>
                         
                         <form wire:submit.prevent="updateKandidatProfile" class="card-body p-4">
-                            @if ($this->kandidat && ($this->kandidat->bmiTest || $this->kandidat->blindTest))
+                            @if ($this->kandidat && ($this->kandidat->bmi_score || $this->kandidat->blind_score))
                                 <div class="row">
                                     <div class="col-12 mb-4">
                                         <h6 class="fw-bold text-primary border-bottom pb-2">
@@ -58,15 +58,15 @@
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">{{ __('Skor BMI') }}</label>
                                         <div class="input-group">
-                                            <input type="text" class="form-control" value="{{ $this->kandidat->bmiTest->score }}" readonly>
-                                            <span class="input-group-text">{{ $this->kandidat->bmiTest->kategori }}</span>
+                                            <input type="text" class="form-control" value="{{ $this->kandidat->bmi_score }}" readonly>
+                                            <span class="input-group-text">{{ $this->kandidat->bmi_category }}</span>
                                         </div>
                                     </div>
 
                                     <div class="col-md-6 mb-3">
                                         <label class="form-label">{{ __('Skor Tes Buta Warna') }}</label>
                                         <div class="input-group">
-                                            <input type="text" class="form-control" value="{{ $this->kandidat->blindTest->score }}" readonly>
+                                            <input type="text" class="form-control" value="{{ $this->kandidat->blind_score }}" readonly>
                                             <span class="input-group-text">%</span>
                                         </div>
                                     </div>
