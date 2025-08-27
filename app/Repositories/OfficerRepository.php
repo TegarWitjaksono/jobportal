@@ -83,7 +83,12 @@ class OfficerRepository implements OfficerRepositoryInterface
 
     public function getUniquePositions()
     {
-        return $this->model->select('jabatan')->distinct()->orderBy('jabatan')->pluck('jabatan');
+        $positions = $this->model->select('jabatan')->distinct()->pluck('jabatan')->toArray();
+        if (!in_array('Recruiter', $positions)) {
+            $positions[] = 'Recruiter';
+        }
+        sort($positions);
+        return collect($positions);
     }
 
     public function getUniqueLocations()
