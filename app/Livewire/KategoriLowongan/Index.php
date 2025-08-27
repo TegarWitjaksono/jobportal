@@ -4,12 +4,9 @@ namespace App\Livewire\KategoriLowongan;
 use Livewire\Component;
 use App\Models\KategoriLowongan;
 use App\Repositories\Interfaces\KategoriLowonganRepositoryInterface;
-use App\Traits\Exportable;
 
 class Index extends Component
 {
-    use Exportable;
-
     public $kategoriLowongans;
     protected $kategoriRepo;
     public $notificationStatus;
@@ -59,13 +56,5 @@ class Index extends Component
     {
         $this->notificationStatus = 'success';
         $this->notificationMessage = 'Category successfully deactivated.';
-    }
-
-    public function exportPdf()
-    {
-        $kategoris = $this->kategoriRepo->getActive();
-        return $this->downloadPdf('kategori-lowongan.pdf', 'exports.kategori-lowongan', [
-            'kategoriLowongans' => $kategoris,
-        ]);
     }
 }

@@ -27,22 +27,19 @@ trait Exportable
 
     public function downloadPdf(string $filename, string $view, array $data = [])
     {
-        $html = view($view, $data)->render();
-
-        // Ensure the rendered HTML is valid UTF-8 to prevent "Malformed UTF-8" errors
-        $html = mb_convert_encoding($html, 'UTF-8', 'UTF-8');
-
-        if (class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
-            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html);
-            return $pdf->download($filename);
-        }
-
+        // Placeholder implementation; integrate PDF library as needed
         $headers = [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => "attachment; filename={$filename}",
         ];
 
-        return response($html, 200, $headers);
+        $html = view($view, $data)->render();
+        $callback = function () use ($html) {
+            // This is a placeholder; real PDF generation requires a dedicated library
+            echo $html;
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }
 
