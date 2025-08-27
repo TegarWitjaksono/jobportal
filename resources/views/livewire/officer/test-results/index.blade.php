@@ -25,9 +25,9 @@
                                 <div class="col-md-4">
                                     <div class="position-relative">
                                         <i class="mdi mdi-magnify position-absolute top-50 start-0 translate-middle-y ms-2 text-muted"></i>
-                                        <input type="text"
-                                               wire:model.live.debounce.300ms="search"
-                                               class="form-control ps-5"
+                                        <input type="text" 
+                                               wire:model.live.debounce.300ms="search" 
+                                               class="form-control ps-5" 
                                                placeholder="Cari berdasarkan nama atau email...">
                                     </div>
                                 </div>
@@ -45,14 +45,6 @@
                                             <option value="asc">Menaik</option>
                                         </select>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div class="row mb-4">
-                                <div class="col-12 text-end">
-                                    <button wire:click="exportPdf" class="btn btn-outline-primary">
-                                        <i class="mdi mdi-file-pdf-box"></i> Export PDF
-                                    </button>
                                 </div>
                             </div>
 

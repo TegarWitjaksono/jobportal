@@ -5,11 +5,10 @@ namespace App\Livewire\Officer\TestResults;
 use Livewire\Component;
 use App\Models\TestResult;
 use Livewire\WithPagination;
-use App\Traits\Exportable;
 
 class Index extends Component
 {
-    use WithPagination, Exportable;
+    use WithPagination;
 
     protected $paginationTheme = 'bootstrap';
 
@@ -73,30 +72,6 @@ class Index extends Component
             'lulus' => $lulus,
             'tidakLulus' => $tidakLulus,
             'rataRataSkor' => $rataRataSkor,
-        ]);
-    }
-
-    public function exportPdf()
-    {
-        $query = TestResult::with('user')
-            ->when($this->search, function ($query) {
-                $query->whereHas('user', function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('email', 'like', '%' . $this->search . '%');
-                });
-            });
-
-        if ($this->sortField === 'user_name') {
-            $results = $query->join('users', 'test_results.user_id', '=', 'users.id')
-                ->select('test_results.*')
-                ->orderBy('users.name', $this->sortDirection)
-                ->get();
-        } else {
-            $results = $query->orderBy($this->sortField, $this->sortDirection)->get();
-        }
-
-        return $this->downloadPdf('test-results.pdf', 'exports.test-results', [
-            'results' => $results,
         ]);
     }
 }
