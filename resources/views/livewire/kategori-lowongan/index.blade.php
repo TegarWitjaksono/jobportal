@@ -54,7 +54,12 @@
                     <div class="card border-0 rounded shadow">
                         <div class="card-header bg-white d-flex justify-content-between align-items-center">
                             <h5 class="card-title mb-0">{{ __('Category Vacancies') }}</h5>
-                            <button class="btn btn-primary btn-sm" wire:click="$dispatch('showCreateModal')">{{ __('Add Category') }}</button>
+                            <div class="d-flex">
+                                <button wire:click="exportPdf" type="button" class="btn btn-soft-danger btn-sm me-2">
+                                    <i class="mdi mdi-file-pdf-box me-1"></i> Export PDF
+                                </button>
+                                <button class="btn btn-primary btn-sm" wire:click="$dispatch('showCreateModal')">{{ __('Add Category') }}</button>
+                            </div>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">

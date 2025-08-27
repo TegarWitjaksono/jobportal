@@ -6,10 +6,12 @@ use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\Interfaces\LowonganRepositoryInterface;
 use App\Repositories\Interfaces\KategoriLowonganRepositoryInterface;
+use App\Traits\Exportable;
+use App\Models\Lowongan;
 
 class Index extends Component
 {
-    use WithPagination;
+    use WithPagination, Exportable;
 
     protected $paginationTheme = 'bootstrap';
     protected $lowonganRepo;
@@ -186,5 +188,21 @@ class Index extends Component
     {
         $this->notificationStatus = 'success';
         $this->notificationMessage = 'Job vacancy successfully archived.';
+    }
+
+    public function exportPdf()
+    {
+        $lowongans = Lowongan::query()
+            ->when($this->statusFilter, fn($q) => $q->where('status', $this->statusFilter))
+            ->when($this->kategoriFilter, fn($q) => $q->where('kategori_lowongan_id', $this->kategoriFilter))
+            ->when($this->namaPosisiFilter, fn($q) => $q->where('nama_posisi', 'like', '%' . $this->namaPosisiFilter . '%'))
+            ->when($this->tanggalMulaiFilter, fn($q) => $q->whereDate('tanggal_posting', '>=', $this->tanggalMulaiFilter))
+            ->when($this->tanggalAkhirFilter, fn($q) => $q->whereDate('tanggal_berakhir', '<=', $this->tanggalAkhirFilter))
+            ->with('kategoriLowongan')
+            ->get();
+
+        return $this->downloadPdf('lowongan.pdf', 'exports.lowongan', [
+            'lowongans' => $lowongans,
+        ]);
     }
 }
