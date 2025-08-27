@@ -65,6 +65,9 @@
                     <div class="card border-0 rounded shadow">
                         <!-- Filter Form -->
                         <div class="m-4">
+                            <div class="d-flex justify-content-end mb-3">
+                                <a href="{{ route('Lowongan.Create') }}" class="btn btn-primary btn-sm">{{ __('Add Job Vacancy') }}</a>
+                            </div>
                             <div class="row g-2">
                                 <div class="col-md-2">
                                     <select wire:model.live="statusFilter" class="form-select">
