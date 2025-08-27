@@ -66,6 +66,9 @@
                         <!-- Filter Form -->
                         <div class="m-4">
                             <div class="d-flex justify-content-end mb-3">
+                                <button wire:click="exportPdf" type="button" class="btn btn-soft-danger btn-sm me-2">
+                                    <i class="mdi mdi-file-pdf-box me-1"></i> Export PDF
+                                </button>
                                 <a href="{{ route('Lowongan.Create') }}" class="btn btn-primary btn-sm">{{ __('Add Job Vacancy') }}</a>
                             </div>
                             <div class="row g-2">
