@@ -58,17 +58,9 @@
                     </div>
                 </div>
                 <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                    <div class="btn-group" role="group">
-                        <button wire:click="exportExcel" type="button" class="btn btn-soft-success">
-                            <i class="mdi mdi-file-excel-outline me-1"></i> Export Excel
-                        </button>
-                        <button wire:click="exportPdf" type="button" class="btn btn-soft-danger">
-                            <i class="mdi mdi-file-pdf-box me-1"></i> Export PDF
-                        </button>
-                        <button wire:click="create" class="btn btn-primary">
-                            <i class="mdi mdi-plus-circle-outline me-1"></i> Tambah Soal
-                        </button>
-                    </div>
+                    <button wire:click="create" class="btn btn-primary">
+                        <i class="mdi mdi-plus-circle-outline me-1"></i> Tambah Soal
+                    </button>
                 </div>
             </div>
 

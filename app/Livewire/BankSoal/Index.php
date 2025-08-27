@@ -8,11 +8,10 @@ use App\Models\KategoriSoal;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
-use App\Traits\Exportable;
 
 class Index extends Component
 {
-    use WithPagination, WithFileUploads, Exportable;
+    use WithPagination, WithFileUploads;
 
     protected $paginationTheme = 'bootstrap';
 
@@ -223,31 +222,6 @@ class Index extends Component
 
         $soal->delete();
         session()->flash('message', 'Soal berhasil dihapus.');
-    }
-
-    public function exportExcel()
-    {
-        $rows = Soal::with('kategori')->get()->map(function ($s) {
-            return [
-                $s->soal,
-                $s->kategori->nama_kategori,
-                $s->pilihan_1,
-                $s->pilihan_2,
-                $s->pilihan_3,
-                $s->pilihan_4,
-                $s->jawaban,
-                $s->status ? 'Aktif' : 'Nonaktif',
-            ];
-        });
-
-        $headings = ['Soal','Kategori','Pilihan 1','Pilihan 2','Pilihan 3','Pilihan 4','Jawaban','Status'];
-        return $this->downloadCsv('bank-soal.csv', $headings, $rows);
-    }
-
-    public function exportPdf()
-    {
-        $soals = Soal::with('kategori')->get();
-        return $this->downloadPdf('bank-soal.pdf', 'exports.bank-soal', ['soals' => $soals]);
     }
 
     private function resetForm()
