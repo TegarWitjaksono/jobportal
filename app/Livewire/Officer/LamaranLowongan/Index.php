@@ -8,10 +8,11 @@ use App\Models\LamarLowongan;
 use App\Models\User;
 use App\Models\ProgressRekrutmen;
 use Illuminate\Support\Facades\Log;
+use App\Traits\Exportable;
 
 class Index extends Component
 {
-    use WithPagination;
+    use WithPagination, Exportable;
 
     public $search = '';
 
@@ -193,5 +194,25 @@ class Index extends Component
         $this->resultModal = false;
         $this->resultCatatan = null;
         $this->resultDokumen = null;
+    }
+
+    public function exportPdf()
+    {
+        $lamarans = LamarLowongan::with(['kandidat.user', 'lowongan'])
+            ->when($this->search, function ($q) {
+                $q->where(function ($query) {
+                    $query->whereHas('lowongan', function ($qq) {
+                        $qq->where('nama_posisi', 'like', '%' . $this->search . '%');
+                    })->orWhereHas('kandidat.user', function ($qq) {
+                        $qq->where('name', 'like', '%' . $this->search . '%');
+                    });
+                });
+            })
+            ->latest()
+            ->get();
+
+        return $this->downloadPdf('lamaran-lowongan.pdf', 'exports.lamaran-lowongan', [
+            'lamaranList' => $lamarans,
+        ]);
     }
 }
