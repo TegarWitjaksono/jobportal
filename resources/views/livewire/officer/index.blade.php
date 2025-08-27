@@ -1,4 +1,7 @@
 <div>
+    @php
+        $isRecruiter = strtolower(optional(auth()->user()->officer)->jabatan) === 'recruiter';
+    @endphp
     <!-- Notification Area -->
     <div style="position: fixed; top: 20px; right: 20px; z-index: 1050; min-width: 300px;">
         @if($notificationStatus === 'success')
@@ -52,7 +55,9 @@
                     <div class="card border-0 rounded shadow">
                         <div class="card-header bg-white d-flex justify-content-between align-items-center">
                             <h5 class="card-title mb-0">{{ __('Officer List') }}</h5>
-                            <a href="#" wire:click.prevent="openCreateModal" class="btn btn-primary btn-sm">{{ __('Add New Officer') }}</a>
+                            @if(!$isRecruiter)
+                                <a href="#" wire:click.prevent="openCreateModal" class="btn btn-primary btn-sm">{{ __('Add New Officer') }}</a>
+                            @endif
                         </div>
                         <!-- Filter Section -->
                        <div class="card-body border-bottom">
@@ -158,7 +163,9 @@
                                                     <div class="py-4">
                                                         <img src="{{ asset('images/empty.svg') }}" alt="No Data" class="img-fluid" style="max-height: 120px;">
                                                         <p class="text-muted my-3">{{ __('No officer records found') }}</p>
-                                                        <a href="#" wire:click.prevent="openCreateModal" class="btn btn-sm btn-primary">{{ __('Add Your First Officer') }}</a>
+                                                        @if(!$isRecruiter)
+                                                            <a href="#" wire:click.prevent="openCreateModal" class="btn btn-sm btn-primary">{{ __('Add Your First Officer') }}</a>
+                                                        @endif
                                                     </div>
                                                 </td>
                                             </tr>
@@ -175,7 +182,9 @@
                             </div>
 
                             <!-- Include the create modal component -->
-                            @livewire('officer.create-modal')
+                            @if(!$isRecruiter)
+                                @livewire('officer.create-modal')
+                            @endif
                             @livewire('officer.action-modal')
                         </div>
                     </div>
