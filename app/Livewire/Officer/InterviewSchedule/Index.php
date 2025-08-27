@@ -8,10 +8,11 @@ use Livewire\WithFileUploads;
 use App\Models\ProgressRekrutmen;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use App\Traits\Exportable;
 
 class Index extends Component
 {
-    use WithPagination, WithFileUploads;
+    use WithPagination, WithFileUploads, Exportable;
 
     public $resultModal = false;
     public $resultProgressId;
@@ -96,5 +97,28 @@ class Index extends Component
             Log::error('Gagal menyimpan hasil interview: ' . $e->getMessage());
             session()->flash('error', 'Terjadi kesalahan saat menyimpan data.');
         }
+    }
+
+    public function exportPdf()
+    {
+        $interviews = ProgressRekrutmen::with(['lamarlowongan.kandidat.user', 'lamarlowongan.lowongan'])
+            ->where('status', 'interview')
+            ->where('officer_id', auth()->id())
+            ->where('is_interview', true)
+            ->when($this->search, function ($q) {
+                $q->where(function ($query) {
+                    $query->whereHas('lamarlowongan.lowongan', function ($qq) {
+                        $qq->where('nama_posisi', 'like', '%' . $this->search . '%');
+                    })->orWhereHas('lamarlowongan.kandidat.user', function ($qq) {
+                        $qq->where('name', 'like', '%' . $this->search . '%');
+                    });
+                });
+            })
+            ->orderBy('waktu_pelaksanaan')
+            ->get();
+
+        return $this->downloadPdf('interview-schedule.pdf', 'exports.interview-schedule', [
+            'interviews' => $interviews,
+        ]);
     }
 }
