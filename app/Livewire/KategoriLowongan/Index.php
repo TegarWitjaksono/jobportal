@@ -4,6 +4,8 @@ namespace App\Livewire\KategoriLowongan;
 use Livewire\Component;
 use App\Models\KategoriLowongan;
 use App\Repositories\Interfaces\KategoriLowonganRepositoryInterface;
+use Dompdf\Dompdf;   // <-- Impor Dompdf
+use Dompdf\Options; // <-- Impor Options
 
 class Index extends Component
 {
@@ -34,6 +36,37 @@ class Index extends Component
     {
         $this->kategoriLowongans = $this->kategoriRepo->getActive();
         return view('livewire.kategori-lowongan.index');
+    }
+
+    /**
+     * Fungsi baru untuk membuat dan mengunduh file PDF.
+     */
+    public function exportPdf()
+    {
+        // Ambil semua data aktif dari repository
+        $kategoriLowongans = $this->kategoriRepo->getActive();
+
+        // Render view template PDF menjadi HTML
+        $html = view('livewire.kategori-lowongan.pdf-export', compact('kategoriLowongans'))->render();
+
+        // Konfigurasi Dompdf
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true); // Penting agar base64 image berfungsi
+
+        // Buat instance Dompdf
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        // Buat nama file yang dinamis
+        $fileName = 'daftar-kategori-lowongan-' . now()->format('Y-m-d') . '.pdf';
+
+        // Kirim response agar browser mengunduh file PDF
+        return response()->streamDownload(function () use ($dompdf) {
+            echo $dompdf->output();
+        }, $fileName);
     }
 
     public function openEditModal($id)

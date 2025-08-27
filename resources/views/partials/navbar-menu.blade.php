@@ -12,6 +12,7 @@
             <li><a href="{{ route('officers.index') }}" class="{{ request()->routeIs('officers.index') ? 'active' : '' }}">{{ __('Officers') }}</a></li>
             <li><a href="{{ route('kategori-lowongan.Index') }}" class="{{ request()->routeIs('kategori-lowongan.*') ? 'active' : '' }}">{{ __('Kategori Lowongan') }}</a></li>
             <li><a href="{{ route('Lowongan.Index') }}" class="{{ request()->routeIs('Lowongan.*') ? 'active' : '' }}">{{ __('Lowongan') }}</a></li>
+            <li><a href="{{ route('kandidat.index') }}" class="{{ request()->routeIs('kandidat.*') ? 'active' : '' }}">{{ __('Kandidat') }}</a></li>
             <li><a href="{{ route('lamaran-lowongan.index') }}" class="{{ request()->routeIs('lamaran-lowongan.index') ? 'active' : '' }}">{{ __('Lamaran') }}</a></li>
             <li><a href="{{ route('jadwal-interview.index') }}" class="{{ request()->routeIs('jadwal-interview.index') ? 'active' : '' }}">{{ __('Jadwal Interview') }}</a></li>
             <li><a href="{{ route('test-results.index') }}" class="{{ request()->routeIs('test-results.*') ? 'active' : '' }}">{{ __('Hasil Test CBT') }}</a></li>

@@ -5,6 +5,8 @@ namespace App\Livewire\Officer\Kandidat;
 use Livewire\Component;
 use App\Models\Kandidat;
 use Livewire\WithPagination;
+use Dompdf\Dompdf; // <-- Impor Dompdf
+use Dompdf\Options; // <-- Impor Options
 
 class Index extends Component
 {
@@ -22,9 +24,10 @@ class Index extends Component
         'no_telpon' => '',
     ];
 
-    public function render()
+    // Fungsi untuk membangun query dasar, agar tidak duplikasi kode
+    private function getKandidatQuery()
     {
-        $query = Kandidat::query()
+        return Kandidat::query()
             ->with('user')
             ->when($this->search, function($query) {
                 $query->where(function($q) {
@@ -36,10 +39,44 @@ class Index extends Component
                       });
                 });
             });
+    }
 
+    public function render()
+    {
         return view('livewire.officer.kandidat.index', [
-            'kandidats' => $query->paginate(10)
+            'kandidats' => $this->getKandidatQuery()->paginate(10) // Gunakan query builder
         ]);
+    }
+
+    /**
+     * Fungsi baru untuk menangani ekspor PDF.
+     */
+    public function exportPdf()
+    {
+        // Ambil semua data yang cocok dengan filter, tanpa paginasi
+        $kandidats = $this->getKandidatQuery()->get();
+
+        // Render view template PDF dengan data kandidat
+        $html = view('livewire.officer.kandidat.pdf-export', compact('kandidats'))->render();
+
+        // Konfigurasi Dompdf
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true); // Memungkinkan gambar eksternal
+
+        // Buat instance Dompdf
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait'); // Atur ukuran kertas dan orientasi
+        $dompdf->render();
+
+        // Buat nama file yang dinamis
+        $fileName = 'daftar-kandidat-' . now()->format('Y-m-d_H-i-s') . '.pdf';
+        
+        // Kirim response untuk mengunduh file PDF di browser
+        return response()->streamDownload(function () use ($dompdf) {
+            echo $dompdf->output();
+        }, $fileName);
     }
 
     public function showDetail($id)

@@ -33,6 +33,11 @@
                         </button>
                     </div>
                 </div>
+                <div class="col-md-6 mt-3 mt-md-0 text-md-end">
+                    <button class="btn btn-secondary" wire:click="exportPdf">
+                        <i class="mdi mdi-file-pdf-box"></i> Export to PDF
+                    </button>
+                </div>
             </div>
 
             <!-- Tabel Kandidat -->
