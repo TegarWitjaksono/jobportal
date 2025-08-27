@@ -29,6 +29,9 @@ trait Exportable
     {
         $html = view($view, $data)->render();
 
+        // Ensure the rendered HTML is valid UTF-8 to prevent "Malformed UTF-8" errors
+        $html = mb_convert_encoding($html, 'UTF-8', 'UTF-8');
+
         if (class_exists(\Barryvdh\DomPDF\Facade\Pdf::class)) {
             $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadHTML($html);
             return $pdf->download($filename);
