@@ -56,7 +56,7 @@
                             <h5 class="fw-bold">Tes Seleksi</h5>
                             <p class="text-muted">Kerjakan tes seleksi yang tersedia untuk melanjutkan proses rekrutmen.</p>
                             @auth
-                                <a href="{{ route('cbt.index') }}" class="read-more">Mulai Tes <i class="mdi mdi-arrow-right"></i></a>
+                                <a href="{{ route('cbt.dashboard') }}" class="read-more">Mulai Tes <i class="mdi mdi-arrow-right"></i></a>
                             @else
                                 <a href="javascript:void(0)" onclick="promptAuth()" class="read-more">Mulai Tes <i class="mdi mdi-arrow-right"></i></a>
                             @endauth
@@ -146,8 +146,8 @@
             {{-- Link paginasi --}}
             <div class="row">
                 <div class="col-12 mt-4">
-                    <div class="d-flex justify-content-center">
-                        {{ $lowonganTerbaru->links() }}
+                    <div class="d-flex justify-content-end">
+                        {{ $lowonganTerbaru->withQueryString()->links('pagination::bootstrap-5') }}
                     </div>
                 </div>
             </div>
@@ -286,8 +286,18 @@
 
                     <div class="text-center mb-4">
                         <h6>Soal {{ $current_blind_test }} dari {{ $total_blind_tests }}</h6>
-                        <img src="{{ asset('images/colorblind/test-' . $current_blind_test . '.jpg') }}" 
-                            alt="Color Blind Test Image" class="img-fluid rounded shadow" style="max-width: 300px;">
+                        @php
+                            $fileName = 'bt' . $current_blind_test . '.jpg';
+                            $fullPath = public_path('storage/image/colorblind/' . $fileName);
+                            $imgSrc = file_exists($fullPath)
+                                ? asset('storage/image/colorblind/' . $fileName)
+                                : null;
+                        @endphp
+                        @if($imgSrc)
+                            <img src="{{ $imgSrc }}" alt="Color Blind Test Image" class="img-fluid rounded shadow" style="max-width: 300px;">
+                        @else
+                            <div class="alert alert-warning p-2 d-inline-block">Gambar tidak ditemukan di storage/image/colorblind ({{ $fileName }})</div>
+                        @endif
                     </div>
 
                     <div class="alert alert-info">
@@ -661,3 +671,4 @@
     @endguest
     @endpush
 </div>
+

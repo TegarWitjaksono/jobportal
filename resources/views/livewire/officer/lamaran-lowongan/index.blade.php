@@ -34,6 +34,11 @@
                         </button>
                     </div>
                 </div>
+                <div class="col-md-6 mt-3 mt-md-0 text-md-end">
+                    <button class="btn btn-secondary" wire:click="exportPdf">
+                        <i class="mdi mdi-file-pdf-box"></i> Export to PDF
+                    </button>
+                </div>
             </div>
 
             @if (session()->has('success'))
@@ -396,10 +401,24 @@
                 </div>
                 <div class="modal-body">
                     @if($resultCatatan)
-                        <p>{{ $resultCatatan }}</p>
+                        <p class="mb-3">{{ $resultCatatan }}</p>
                     @endif
+
                     @if($resultDokumen)
-                        <a href="{{ asset('storage/' . $resultDokumen) }}" target="_blank">Dokumen Pendukung</a>
+                        @php
+                            $url = \Illuminate\Support\Facades\Storage::url($resultDokumen);
+                            $ext = strtolower(pathinfo($resultDokumen, PATHINFO_EXTENSION));
+                        @endphp
+                        <div class="mb-2 fw-semibold">Dokumen Pendukung:</div>
+                        @if(in_array($ext, ['jpg','jpeg','png','gif','webp']))
+                            <img src="{{ $url }}" alt="Dokumen Pendukung" class="img-fluid rounded border" style="max-height: 400px;">
+                        @elseif($ext === 'pdf')
+                            <iframe src="{{ $url }}" width="100%" height="500px" style="border:1px solid #e5e7eb; border-radius:6px;"></iframe>
+                        @else
+                            <a href="{{ $url }}" target="_blank" class="btn btn-soft-primary">
+                                <i class="mdi mdi-file-download-outline me-1"></i> Lihat / Unduh Dokumen
+                            </a>
+                        @endif
                     @endif
                 </div>
                 <div class="modal-footer">

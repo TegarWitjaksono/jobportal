@@ -41,6 +41,11 @@
                         </button>
                     </div>
                 </div>
+                <div class="col-md-6 mt-3 mt-md-0 text-md-end">
+                    <button class="btn btn-secondary" wire:click="exportPdf">
+                        <i class="mdi mdi-file-pdf-box"></i> Export to PDF
+                    </button>
+                </div>
             </div>
 
             @if (session()->has('success'))
@@ -86,15 +91,25 @@
                                         </td>
                                         <td>{{ optional($progress->waktu_pelaksanaan)->format('d M Y H:i') }}</td>
                                         <td>
+                                            @php $hasResult = !empty($progress->catatan) || !empty($progress->dokumen_pendukung); @endphp
                                             @if($progress->link_zoom)
-                                                <a href="{{ $progress->link_zoom }}" target="_blank" class="d-block small text-primary">
-                                                    <i class="mdi mdi-video me-1"></i> Link Zoom
-                                                </a>
+                                                @if(!$hasResult)
+                                                    <a href="{{ $progress->link_zoom }}" target="_blank" class="d-block small text-primary">
+                                                        <i class="mdi mdi-video me-1"></i> Link Zoom
+                                                    </a>
+                                                @else
+                                                    <span class="d-block small text-muted"><i class="mdi mdi-video-off-outline me-1"></i> Link Zoom nonaktif</span>
+                                                @endif
                                             @endif
                                         </td>
                                         <td>
+                                            @php $hasResult = !empty($progress->catatan) || !empty($progress->dokumen_pendukung); @endphp
                                             <button class="btn btn-outline-primary btn-sm" wire:click="openResultModal({{ $progress->id }})">
-                                                <i class="mdi mdi-upload"></i> Hasil Interview
+                                                @if($hasResult)
+                                                    <i class="mdi mdi-eye-outline"></i> Lihat Hasil Interview
+                                                @else
+                                                    <i class="mdi mdi-upload"></i> Hasil Interview
+                                                @endif
                                             </button>
                                         </td>
                                     </tr>
@@ -133,6 +148,21 @@
                             <label class="form-label">Dokumen Pendukung</label>
                             <input type="file" class="form-control" wire:model="resultDokumen">
                             @error('resultDokumen') <div class="small text-danger">{{ $message }}</div> @enderror
+                            @if($existingResultDokumen)
+                                @php $url = Storage::url($existingResultDokumen); $ext = strtolower(pathinfo($existingResultDokumen, PATHINFO_EXTENSION)); @endphp
+                                <div class="mt-2">
+                                    <div class="small text-muted mb-1">Dokumen saat ini:</div>
+                                    @if(in_array($ext, ['jpg','jpeg','png','gif','webp']))
+                                        <img src="{{ $url }}" alt="Dokumen" class="img-fluid rounded border" style="max-height: 220px;">
+                                    @elseif($ext === 'pdf')
+                                        <iframe src="{{ $url }}" width="100%" height="240" style="border:1px solid #e5e7eb; border-radius:6px;"></iframe>
+                                    @else
+                                        <a href="{{ $url }}" target="_blank" class="btn btn-sm btn-soft-primary">
+                                            <i class="mdi mdi-file-download-outline me-1"></i> Lihat Dokumen
+                                        </a>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                     </div>
                     <div class="modal-footer">

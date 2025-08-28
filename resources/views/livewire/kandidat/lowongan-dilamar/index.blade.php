@@ -201,17 +201,22 @@
                                                         @if($latestInterview->officer)
                                                             <div class="small text-muted">Interviewer: {{ $latestInterview->officer->name }}</div>
                                                         @endif
+                                                        @php $hasInterviewResult = !empty($latestInterview->catatan) || !empty($latestInterview->dokumen_pendukung); @endphp
                                                         @if($latestInterview->link_zoom && !$doneStatuses->contains('psikotes'))
-                                                            <a href="{{ $latestInterview->link_zoom }}" target="_blank" rel="noopener"
-                                                               class="btn btn-sm btn-primary mt-1">
-                                                                <i class="mdi mdi-video me-1"></i>Join Zoom
-                                                            </a>
+                                                            @if(!$hasInterviewResult)
+                                                                <a href="{{ $latestInterview->link_zoom }}" target="_blank" rel="noopener"
+                                                                   class="btn btn-sm btn-primary mt-1">
+                                                                    <i class="mdi mdi-video me-1"></i>Join Zoom
+                                                                </a>
+                                                            @else
+                                                                <span class="badge bg-soft-secondary mt-1"><i class="mdi mdi-video-off-outline me-1"></i> Link Zoom nonaktif</span>
+                                                            @endif
                                                         @endif
                                                 </div>
                                             @endif
                                             @if($showCbtLink)
                                                 <div class="mt-2">
-                                                    <a href="{{ route('cbt.index') }}" class="btn btn-sm btn-outline-primary">
+                                                    <a href="{{ route('cbt.dashboard') }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">
                                                         <i class="mdi mdi-pencil me-1"></i>Mulai Psikotes
                                                     </a>
                                                 </div>

@@ -6,19 +6,13 @@
     <script>
     // Inisialisasi Cleave.js pada input dengan id 'salary-range'
         var cleave = new Cleave('#salary-range', {
-            // Hanya izinkan angka dan tanda hubung (-)
-            // Ini akan secara otomatis menolak input selain angka dan tanda hubung
-            blocks: [10], // Batasi panjang karakter
+            blocks: [10],
             delimiter: '',
-            numericOnly: false // Izinkan tanda hubung
+            numericOnly: false
         });
 
-        // Dengarkan perubahan pada input
         document.querySelector('#salary-range').addEventListener('input', function(e) {
-            // Dapatkan nilai bersih dari input (hanya angka dan tanda hubung)
             let rawValue = e.target.value;
-            
-            // Kirim nilai bersih ke properti 'range_gaji' di komponen Livewire
             @this.set('range_gaji', rawValue);
         });
     </script>

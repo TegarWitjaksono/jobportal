@@ -8,6 +8,8 @@ use Livewire\WithFileUploads;
 use App\Models\ProgressRekrutmen;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class Index extends Component
 {
@@ -17,14 +19,15 @@ class Index extends Component
     public $resultProgressId;
     public $resultCatatan;
     public $resultDokumen;
+    public $existingResultDokumen;
 
     public $search = '';
 
     protected $listeners = ['refreshSchedule' => '$refresh'];
 
-    public function render()
+    private function getInterviewsQuery()
     {
-        $interviews = ProgressRekrutmen::with(['lamarlowongan.kandidat.user', 'lamarlowongan.lowongan'])
+        return ProgressRekrutmen::with(['lamarlowongan.kandidat.user', 'lamarlowongan.lowongan'])
             ->where('status', 'interview')
             ->where('officer_id', auth()->id())
             ->where('is_interview', true)
@@ -37,8 +40,12 @@ class Index extends Component
                     });
                 });
             })
-            ->orderBy('waktu_pelaksanaan')
-            ->paginate(10);
+            ->orderBy('waktu_pelaksanaan');
+    }
+
+    public function render()
+    {
+        $interviews = $this->getInterviewsQuery()->paginate(10);
 
         return view('livewire.officer.interview-schedule.index', [
             'interviews' => $interviews,
@@ -53,7 +60,9 @@ class Index extends Component
     public function openResultModal($progressId)
     {
         $this->resultProgressId = $progressId;
-        $this->resultCatatan = '';
+        $progress = ProgressRekrutmen::findOrFail($progressId);
+        $this->resultCatatan = $progress->catatan;
+        $this->existingResultDokumen = $progress->dokumen_pendukung;
         $this->resultDokumen = null;
         $this->resultModal = true;
     }
@@ -82,6 +91,7 @@ class Index extends Component
             }
 
             $progress->save();
+            $this->existingResultDokumen = $progress->dokumen_pendukung;
 
             $this->reset([
                 'resultModal',
@@ -96,5 +106,29 @@ class Index extends Component
             Log::error('Gagal menyimpan hasil interview: ' . $e->getMessage());
             session()->flash('error', 'Terjadi kesalahan saat menyimpan data.');
         }
+    }
+
+    /**
+     * Export jadwal interview menjadi PDF berdasarkan filter saat ini.
+     */
+    public function exportPdf()
+    {
+        $interviews = $this->getInterviewsQuery()->get();
+
+        $html = view('livewire.officer.interview-schedule.pdf-export', compact('interviews'))->render();
+
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $fileName = 'jadwal-interview-' . now()->format('Y-m-d_H-i-s') . '.pdf';
+        return response()->streamDownload(function () use ($dompdf) {
+            echo $dompdf->output();
+        }, $fileName);
     }
 }

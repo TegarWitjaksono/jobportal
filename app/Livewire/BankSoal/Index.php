@@ -92,9 +92,21 @@ class Index extends Component
     }
 
 
+    public function mount()
+    {
+        // Ambil kategori dari querystring jika ada untuk filter awal
+        $kategori = request()->query('kategori');
+        if ($kategori) {
+            $this->id_kategori_soal = $kategori;
+        }
+    }
+
     public function render()
     {
         $query = Soal::with('kategori')
+            ->when($this->id_kategori_soal, function ($q) {
+                $q->where('id_kategori_soal', $this->id_kategori_soal);
+            })
             ->when($this->search, function ($q) {
                 $q->where(function ($sub) {
                     // 1) search inside question text

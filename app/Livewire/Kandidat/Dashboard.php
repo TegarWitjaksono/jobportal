@@ -52,14 +52,12 @@ class Dashboard extends Component
     public $blind_test_options = [];
     public $testResults = [];
 
-    protected $correct_blind_test_answers = [ 1 => '8', 2 => '29', 3 => '5', 4 => '6', 5 => '42' ];
+    protected $correct_blind_test_answers = [ 1 => '14', 2 => '16', 3 => '7', 4 => '2', 5 => '8' ];
 
-    protected $all_blind_test_options = [
-        1 => ['A' => '3', 'B' => '8', 'C' => '5', 'D' => 'Tidak ada'],
-        2 => ['A' => '70', 'B' => '79', 'C' => '29', 'D' => 'Tidak ada'],
-        3 => ['A' => '5', 'B' => '3', 'C' => '6', 'D' => 'Tidak ada'],
-        4 => ['A' => '6', 'B' => '8', 'C' => '5', 'D' => 'Tidak ada'],
-        5 => ['A' => '47', 'B' => '42', 'C' => '72', 'D' => 'Tidak ada'],
+    // Pool angka untuk membentuk opsi acak
+    protected $answers_pool = [
+        '1','2','3','4','5','6','7','8','9','10',
+        '12','14','16','18','20','21','24','26','28','30'
     ];
 
     protected function rules()
@@ -95,8 +93,8 @@ class Dashboard extends Component
     ];
     public function mount()
     {
-        // Inisialisasi opsi untuk soal pertama
-        $this->blind_test_options = $this->all_blind_test_options[$this->current_blind_test];
+        // Inisialisasi opsi untuk soal pertama (acak)
+        $this->blind_test_options = $this->generateBlindOptions($this->current_blind_test);
         
         // Load existing profile data if available
         $user = Auth::user();
@@ -179,7 +177,7 @@ class Dashboard extends Component
         
         if ($this->current_blind_test < $this->total_blind_tests) {
             $this->current_blind_test++;
-            $this->blind_test_options = $this->all_blind_test_options[$this->current_blind_test];
+            $this->blind_test_options = $this->generateBlindOptions($this->current_blind_test);
         } else {
             $correctCount = 0;
             foreach ($this->blind_test_answers as $number => $answer) {
@@ -271,7 +269,7 @@ class Dashboard extends Component
     {
         $this->reset(['blind_test_answers', 'blind_score']);
         $this->current_blind_test = 1;
-        $this->blind_test_options = $this->all_blind_test_options[$this->current_blind_test];
+        $this->blind_test_options = $this->generateBlindOptions($this->current_blind_test);
     }
 
     public function closeProfileForm()
@@ -355,7 +353,7 @@ class Dashboard extends Component
                 ->where('tanggal_berakhir', '>=', now())
                 ->with('kategoriLowongan')
                 ->latest('tanggal_posting')
-                ->paginate(6)
+                ->paginate(8)
         ]);
     }
 
@@ -409,4 +407,26 @@ class Dashboard extends Component
         // Clear local storage after import
         $this->dispatch('clear-test-data');
     }
+
+    private function generateBlindOptions(int $testNumber): array
+    {
+        $correct = $this->correct_blind_test_answers[$testNumber] ?? null;
+        if (!$correct) return [];
+
+        // Pilih 3 angka berbeda dari pool yang bukan jawaban benar
+        $pool = array_values(array_diff($this->answers_pool, [$correct]));
+        shuffle($pool);
+        $distractors = array_slice($pool, 0, 3);
+
+        $values = array_merge([$correct], $distractors);
+        shuffle($values);
+
+        $labels = ['A','B','C','D'];
+        $options = [];
+        foreach ($labels as $i => $label) {
+            $options[$label] = $values[$i] ?? '';
+        }
+        return $options;
+    }
 }
+

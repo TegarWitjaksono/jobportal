@@ -66,8 +66,15 @@ class ListWithDetail extends Component
             $this->selectedCategory,
             $this->selectedLocation,
             $this->isRemote,
-            $this->salaryRange
+            $this->salaryRange,
+            5
         );
+
+        // Pastikan base URL pagination mengarah ke halaman browse, bukan endpoint Livewire
+        if (method_exists($lowongans, 'withPath')) {
+            $lowongans->withPath(route('jobs.browse'));
+        }
+
 
         if (!$this->selectedJob && $lowongans->count() > 0) {
             $this->selectedJob = $lowongans->first();

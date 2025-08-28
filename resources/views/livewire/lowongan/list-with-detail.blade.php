@@ -37,7 +37,7 @@
                 <!-- Filter Form -->
                 <div class="col-12 mb-4">
                     <div class="card p-4 rounded shadow">
-                        <div class="row">
+                        <div class="row align-items-stretch">
                             <div class="col-md-4 col-12">
                                 <div class="mb-3">
                                     <label class="form-label">Search</label>
@@ -105,16 +105,19 @@
 
                 <!-- Detail and List -->
                 <div class="col-12">
-                    <div class="row">
-                        <div class="col-lg-6 mb-4 mb-lg-0">
+                    <div class="row align-items-stretch">
+                        <div class="col-lg-6 mb-4 mb-lg-0 d-flex">
                             @if($selectedJob)
-                                <div class="card rounded shadow border-0 h-100">
+                                <div class="card rounded shadow border-0 h-100 w-100 job-detail">
                                     <div class="card-body">
+                                        @if(!empty($selectedJob->foto))
+                                            <img src="{{ asset('storage/image/lowongan/' . $selectedJob->foto) }}" alt="{{ $selectedJob->nama_posisi }}" class="cover img-fluid rounded mb-3">
+                                        @endif
                                         <h5 class="fw-bold mb-1">{{ $selectedJob->nama_posisi }}</h5>
                                         <p class="text-muted mb-2">{{ $selectedJob->kategoriLowongan->nama_kategori ?? 'Uncategorized' }}</p>
                                         <p class="text-muted mb-2"><i class="mdi mdi-map-marker-outline me-1"></i>{{ $selectedJob->lokasi_penugasan }} - {{ $selectedJob->is_remote ? 'Remote' : 'On-site' }}</p>
                                         <p class="text-muted mb-3"><i class="mdi mdi-cash me-1"></i>{{ $selectedJob->formatted_gaji }}</p>
-                                        <p class="mb-4">{{ $selectedJob->deskripsi }}</p>
+                                        <div class="mb-4 job-description">{{ strip_tags($selectedJob->deskripsi) }}</div>
                                         <a href="{{ route('login', ['redirect' => url()->current(), 'job_id' => $selectedJob->id]) }}" class="btn btn-primary">Apply Now</a>
                                     </div>
                                 </div>
@@ -129,26 +132,37 @@
                                 @foreach($lowongans as $job)
                                     <div class="job-box card rounded shadow border-0 overflow-hidden mb-3 cursor-pointer" wire:click="selectJob({{ $job->id }})">
                                         <div class="p-3">
-                                            <div class="d-flex align-items-center">
+                                            <div class="d-flex align-items-start gap-3">
                                                 <div class="flex-shrink-0">
-                                                    <div class="bg-light rounded p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                                        @if($job->kategoriLowongan && $job->kategoriLowongan->logo)
-                                                            <img src="{{ asset('storage/image/logo/kategori-lowongan/'.$job->kategoriLowongan->logo) }}" alt="{{ $job->kategoriLowongan->nama_kategori }}" style="max-width: 40px; max-height: 40px;">
+                                                    @php
+                                                        $thumb = null;
+                                                        if (!empty($job->foto)) {
+                                                            $thumb = asset('storage/image/lowongan/' . $job->foto);
+                                                        } elseif ($job->kategoriLowongan && $job->kategoriLowongan->logo) {
+                                                            $thumb = asset('storage/image/logo/kategori-lowongan/' . $job->kategoriLowongan->logo);
+                                                        }
+                                                    @endphp
+                                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 64px; height: 64px; overflow: hidden;">
+                                                        @if($thumb)
+                                                            <img src="{{ $thumb }}" alt="{{ $job->nama_posisi }}" style="width: 100%; height: 100%; object-fit: cover;">
                                                         @else
-                                                            <i data-feather="award" class="fea icon-md"></i>
+                                                            <i data-feather="image" class="fea icon-md"></i>
                                                         @endif
                                                     </div>
                                                 </div>
-                                                <div class="ms-3">
-                                                    <h6 class="mb-0">{{ $job->nama_posisi }}</h6>
-                                                    <small class="text-muted">{{ $job->lokasi_penugasan }}</small>
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1">{{ $job->nama_posisi }}</h6>
+                                                    <small class="text-muted d-block mb-1"><i class="mdi mdi-map-marker-outline me-1"></i>{{ $job->lokasi_penugasan }}</small>
+                                                    @if(!empty($job->deskripsi))
+                                                        <div class="text-muted small">{{ \Illuminate\Support\Str::words(strip_tags($job->deskripsi), 16, '...') }}</div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 @endforeach
                                 <div class="d-flex justify-content-center mt-4">
-                                    {{ $lowongans->links() }}
+                                    {{ $lowongans->withQueryString()->links('pagination::bootstrap-5') }}
                                 </div>
                             @endif
                         </div>
@@ -158,6 +172,12 @@
         </div>
     </section>
     <!-- End -->
+
+    <style>
+    .job-detail .cover { width: 100%; max-height: 240px; object-fit: cover; display: block; }
+    .job-detail .job-description { white-space: pre-line; word-break: break-word; overflow-wrap: anywhere; }
+    .job-list-scroll { scrollbar-gutter: stable; }
+    </style>
 
     @push('scripts')
     <script>

@@ -8,6 +8,8 @@ use App\Models\LamarLowongan;
 use App\Models\User;
 use App\Models\ProgressRekrutmen;
 use Illuminate\Support\Facades\Log;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class Index extends Component
 {
@@ -41,9 +43,9 @@ class Index extends Component
         $this->officerList = User::where('role', 'officer')->get();
     }
 
-    public function render()
+    private function getLamaranQuery()
     {
-        $lamaran = LamarLowongan::with(['kandidat.user', 'lowongan', 'progressRekrutmen.officer'])
+        return LamarLowongan::with(['kandidat.user', 'lowongan', 'progressRekrutmen.officer'])
             ->when($this->search, function ($q) {
                 $q->where(function ($query) {
                     $query->whereHas('lowongan', function ($qq) {
@@ -53,8 +55,12 @@ class Index extends Component
                     });
                 });
             })
-            ->latest()
-            ->paginate(10);
+            ->latest();
+    }
+
+    public function render()
+    {
+        $lamaran = $this->getLamaranQuery()->paginate(10);
 
         return view('livewire.officer.lamaran-lowongan.index', [
             'lamaranList' => $lamaran
@@ -193,5 +199,33 @@ class Index extends Component
         $this->resultModal = false;
         $this->resultCatatan = null;
         $this->resultDokumen = null;
+    }
+
+    /**
+     * Export data lamaran ke PDF mengikuti filter saat ini.
+     */
+    public function exportPdf()
+    {
+        // Ambil semua data sesuai filter (tanpa paginasi)
+        $lamarans = $this->getLamaranQuery()->get();
+
+        // Render view PDF dengan data
+        $html = view('livewire.officer.lamaran-lowongan.pdf-export', compact('lamarans'))->render();
+
+        // Konfigurasi Dompdf
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $fileName = 'daftar-lamaran-lowongan-' . now()->format('Y-m-d_H-i-s') . '.pdf';
+
+        return response()->streamDownload(function () use ($dompdf) {
+            echo $dompdf->output();
+        }, $fileName);
     }
 }

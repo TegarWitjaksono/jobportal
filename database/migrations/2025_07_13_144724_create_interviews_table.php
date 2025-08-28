@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('interviews', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('progress_rekrutmen_id')->constrained('progress_rekrutmens')->onDelete('cascade');
+            $table->foreignId('progress_rekrutmen_id')->constrained('progress_rekrutmen')->onDelete('cascade');
             $table->string('nama_sesi_interview');
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->text('catatan')->nullable();

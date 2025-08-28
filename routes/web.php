@@ -31,6 +31,12 @@ Route::middleware([
         ->middleware('role:officer,manager,recruiter,coordinator')
         ->name('Lowongan.Edit');
 
+    // CKEditor image upload for Lowongan description
+    Route::post('/ckeditor/upload', [App\Http\Controllers\UploadController::class, 'ckeditor'])
+        ->middleware('role:officer,manager,recruiter,coordinator')
+        ->name('ckeditor.upload');
+
+
     // Bank Soal & Kategori Soal - manager, coordinator
     Route::get('/bank-soal', App\Livewire\BankSoal\Index::class)
         ->middleware('role:officer,manager,coordinator')
@@ -72,6 +78,8 @@ Route::middleware([
         ->name('kandidat.lowongan-dilamar');
     Route::get('/cbt', App\Livewire\Cbt\Index::class)->name('cbt.index');
     Route::get('/cbt/test', App\Livewire\Cbt\Test::class)->name('cbt.test');
+    Route::get('/cbt/dashboard', App\Livewire\Cbt\Dashboard::class)->name('cbt.dashboard');
     Route::get('/profile', App\Livewire\Profile\ShowProfile::class)->name('profile.show');
     Route::get('/profile/edit', App\Livewire\Profile\UpdateKandidatProfileForm::class)->name('profile.edit');
 });
+
