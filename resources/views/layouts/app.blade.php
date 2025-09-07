@@ -72,8 +72,34 @@
 	    <link href="{{ asset('css/bootstrap.min.css') }}" type="text/css" rel="stylesheet" />
         <link href="{{ asset('css/tobii.min.css') }}" rel="stylesheet" type="text/css" />
         <link href="{{ asset('css/materialdesignicons.min.css') }}" rel="stylesheet" type="text/css" />
-	    <!-- Custom  Css -->
-	    <link href="{{ asset('css/style.min.css') }}" rel="stylesheet" type="text/css" id="theme-opt" />
+    <!-- Custom  Css -->
+    <link href="{{ asset('css/style.min.css') }}" rel="stylesheet" type="text/css" id="theme-opt" />
+        <style>
+            .btn.btn-icon { display: inline-flex; align-items: center; justify-content: center; }
+            .btn.btn-icon .icons, .btn.btn-icon svg.icons { display: block; }
+            .btn.btn-icon.dropdown-toggle::after { display: none; }
+            #topnav .navigation-menu { display: flex; align-items: center; gap: .5rem; margin-bottom: 0; }
+            #topnav .navigation-menu > li { display: flex; align-items: center; }
+            #topnav .navigation-menu > li > a { display: flex; align-items: center; height: 36px; padding-top: 0; padding-bottom: 0; }
+            #topnav .navigation-menu > li > .menu-arrow { align-self: center; }
+            /* Align top-level caret with text, override theme absolute pos */
+            #topnav .navigation-menu .has-submenu > .menu-arrow {
+                position: static !important;
+                right: auto; top: auto;
+                display: inline-block;
+                margin-left: .375rem;
+                vertical-align: middle;
+                align-self: center;
+            }
+            #topnav .buy-button { height: 74px; line-height: initial !important; display: flex; align-items: center; gap: .5rem; }
+            #topnav .buy-button > li { display: flex; align-items: center; }
+            #topnav .buy-button .btn.btn-icon { width: 36px; height: 36px; padding: 0; }
+            /* Fine-tune vertical alignment of right icon buttons on desktop */
+            @media (min-width: 992px) {
+                #topnav .buy-button .btn.btn-icon { transform: translateY(4px); }
+                #topnav.nav-sticky .buy-button .btn.btn-icon { transform: translateY(2px); }
+            }
+        </style>
         <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/40.1.0/classic/ckeditor.css">
         @livewireStyles
 	</head>
@@ -102,10 +128,10 @@
                     </div>
                 </div>
 
-                <ul class="buy-button list-inline mb-0">
-                    <li class="list-inline-item ps-1 mb-0">
-                        <div class="dropdown">
-                            <button type="button" class="dropdown-toggle btn btn-sm btn-icon btn-pills btn-primary" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <ul class="buy-button list-inline mb-0 d-flex align-items-center gap-2">
+                    <li class="list-inline-item ps-1 mb-0 align-middle">
+                        <div class="dropdown d-inline-flex align-items-center gap-2">
+                            <button type="button" class="dropdown-toggle btn btn-sm btn-icon btn-pills btn-primary d-flex align-items-center justify-content-center" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i data-feather="search" class="icons"></i>
                             </button>
                             <div class="dropdown-menu dd-menu dropdown-menu-end bg-white rounded border-0 mt-3 p-0" style="width: 240px;">
@@ -121,16 +147,26 @@
                         </div>
                     </li>
 
-                    <li class="list-inline-item ps-1 mb-0">
-                        <div class="dropdown dropdown-primary">
-                            <button type="button" class="dropdown-toggle btn btn-sm btn-icon btn-pills btn-primary" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <img src="images/team/01.jpg" class="img-fluid rounded-pill" alt="">
+                    @auth
+                    <li class="list-inline-item ps-1 mb-0 align-middle">
+                        <div class="dropdown dropdown-primary d-inline-flex align-items-center gap-2">
+                            <button type="button" class="dropdown-toggle btn btn-sm btn-icon btn-pills btn-primary d-flex align-items-center justify-content-center" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <img src="images/team/01.jpg" class="rounded-pill" alt="Avatar" style="width:20px;height:20px;object-fit:cover;display:block;">
                             </button>
+                            
                             <div class="dropdown-menu dd-menu dropdown-menu-end bg-white rounded shadow border-0 mt-3">
-                                <a href="candidate-profile.html" class="dropdown-item fw-medium fs-6"><i data-feather="user" class="fea icon-sm me-2 align-middle"></i>Profile</a>
-                                <a href="candidate-profile-setting.html" class="dropdown-item fw-medium fs-6"><i data-feather="settings" class="fea icon-sm me-2 align-middle"></i>Settings</a>
+                                <a href="{{ route('profile.show') }}" class="dropdown-item fw-medium fs-6 d-flex align-items-center">
+                                    <i data-feather="user" class="fea icon-sm me-2 align-middle"></i>
+                                    <span>Profile</span>
+                                    
+                                </a>
+                                <a href="#" class="dropdown-item fw-medium fs-6">
+                                    <i data-feather="settings" class="fea icon-sm me-2 align-middle"></i>Settings
+                                </a>
                                 <div class="dropdown-divider border-top"></div>
-                                <a href="lock-screen.html" class="dropdown-item fw-medium fs-6"><i data-feather="lock" class="fea icon-sm me-2 align-middle"></i>Lockscreen</a>
+                                <a href="lock-screen.html" class="dropdown-item fw-medium fs-6">
+                                    <i data-feather="lock" class="fea icon-sm me-2 align-middle"></i>Lockscreen
+                                </a>
                                 <form method="POST" action="{{ route('logout') }}" x-data class="d-inline w-100">
                                     @csrf
                                     <button type="submit" class="dropdown-item fw-medium fs-6 border-0 bg-transparent p-0 ps-3 py-2 w-100 text-start"
@@ -141,6 +177,15 @@
                             </div>
                         </div>
                     </li>
+                    @endauth
+                    @guest
+                    <li class="list-inline-item ps-1 mb-0">
+                        <a href="javascript:void(0)" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#guestAuthModal">
+                            <i data-feather="log-in" class="fea icon-sm me-1 align-middle"></i>
+                            Login
+                        </a>
+                    </li>
+                    @endguest
                 </ul>
 
                 <div id="navigation">
@@ -267,6 +312,49 @@
                 </div><!--end navigation-->
             </div>
         </header>
+
+        @guest
+        <!-- Guest Auth Modal -->
+        <div class="modal fade" id="guestAuthModal" tabindex="-1" aria-labelledby="guestAuthModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="guestAuthModalLabel">Masuk atau Tes Awal</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="text-muted mb-2">Pilih salah satu untuk melanjutkan. Untuk pengguna baru, tes BMI & buta warna wajib sebelum membuat akun.</div>
+                        <div class="row g-3 mt-1">
+                            <div class="col-6">
+                                <div class="h-100 p-3 border rounded">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge bg-soft-primary text-primary me-2"><i class="mdi mdi-account-check-outline"></i></span>
+                                        <h6 class="mb-0">Saya sudah punya akun</h6>
+                                    </div>
+                                    <p class="text-muted small mb-3">Masuk untuk melanjutkan lamaran dan menyimpan progres.</p>
+                                    <a href="{{ route('login') }}" class="btn btn-soft-primary w-100">
+                                        <i class="mdi mdi-login me-1"></i> Login
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="h-100 p-3 border rounded">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge bg-soft-success text-success me-2"><i class="mdi mdi-clipboard-text-outline"></i></span>
+                                        <h6 class="mb-0">Belum punya akun</h6>
+                                    </div>
+                                    <p class="text-muted small mb-3">Selesaikan Blind Test & BMI Test agar bisa mendaftar.</p>
+                                    <a href="{{ route('dashboard') }}?start_test=1" class="btn btn-primary w-100">
+                                        <i class="mdi mdi-clipboard-text-outline me-1"></i> Mulai Tes (Blind & BMI)
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endguest
         <!-- Navbar End -->
 
         {{ $slot }}

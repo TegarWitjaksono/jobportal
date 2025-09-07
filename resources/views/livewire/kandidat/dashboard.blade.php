@@ -660,6 +660,12 @@
             if (cached) {
                 Livewire.dispatch('show-cached-results', JSON.parse(cached));
             }
+
+            // Auto-start guest test flow when requested via query string
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('start_test') === '1') {
+                Livewire.dispatch('start-guest-test-flow');
+            }
         });
     </script>
     @else

@@ -2,6 +2,7 @@
         <!-- Navbar STart -->
         <header id="topnav" class="defaultscroll sticky" x-data="{
             settingsOpen:false,
+            authPromptOpen:false,
             dark:false,
             init(){
                 const saved=localStorage.getItem('theme');
@@ -31,10 +32,10 @@
                     </div>
                 </div>
 
-                <ul class="buy-button list-inline mb-0">
-                    <li class="list-inline-item ps-1 mb-0">
-                        <div class="dropdown">
-                            <button type="button" class="dropdown-toggle btn btn-sm btn-icon btn-pills btn-primary" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <ul class="buy-button list-inline mb-0 d-flex align-items-center gap-2">
+                    <li class="list-inline-item ps-1 mb-0 align-middle">
+                        <div class="dropdown d-inline-flex align-items-center gap-2">
+                            <button type="button" class="dropdown-toggle btn btn-sm btn-icon btn-pills btn-primary d-flex align-items-center justify-content-center" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i data-feather="search" class="icons"></i>
                             </button>
                             <div class="dropdown-menu dd-menu dropdown-menu-end bg-white rounded border-0 mt-3 p-0" style="width: 240px;">
@@ -51,17 +52,18 @@
                     </li>
 
                     @auth
-                    <li class="list-inline-item ps-1 mb-0">
-                        <div class="dropdown dropdown-primary">
-                            <button type="button" class="dropdown-toggle btn btn-sm btn-icon btn-pills btn-primary" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <img src="images/team/01.jpg" class="img-fluid rounded-pill" alt="">
+                    <li class="list-inline-item ps-1 mb-0 align-middle">
+                        <div class="dropdown dropdown-primary d-inline-flex align-items-center gap-2">
+                            <button type="button" class="dropdown-toggle btn btn-sm btn-icon btn-pills btn-primary d-flex align-items-center justify-content-center" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <img src="images/team/01.jpg" class="rounded-pill" alt="Avatar" style="width:20px;height:20px;object-fit:cover;display:block;">
                             </button>
                             <div class="dropdown-menu dd-menu dropdown-menu-end bg-white rounded shadow border-0 mt-3">
-                                @php $role = strtolower(auth()->user()->role ?? ''); @endphp
-                                <a href="{{ $role === 'kandidat' ? route('profile.show') : route('officers.index') }}" class="dropdown-item fw-medium fs-6">
-                                    <i data-feather="user" class="fea icon-sm me-2 align-middle"></i>Profile
+                                <a href="{{ auth()->user()->is_kandidat ? route('profile.show') : route('officers.index') }}" class="dropdown-item fw-medium fs-6 d-flex align-items-center">
+                                    <i data-feather="user" class="fea icon-sm me-2 align-middle"></i>
+                                    <span>Profile</span>
+                                    
                                 </a>
-                                @if($role === 'kandidat')
+                                @if(auth()->user()->is_kandidat)
                                     <a href="#" @click.prevent="settingsOpen=true" class="dropdown-item fw-medium fs-6">
                                         <i data-feather="settings" class="fea icon-sm me-2 align-middle"></i>Settings
                                     </a>
@@ -81,7 +83,10 @@
                     @endauth
                     @guest
                     <li class="list-inline-item ps-1 mb-0">
-                        <a href="{{ route('login') }}" class="btn btn-sm btn-primary">Login</a>
+                        <a href="javascript:void(0)" class="btn btn-sm btn-primary" @click="authPromptOpen=true">
+                            <i data-feather="log-in" class="fea icon-sm me-1 align-middle"></i>
+                            Login
+                        </a>
                     </li>
                     @endguest
                 </ul>
@@ -115,3 +120,43 @@
             <style>[x-cloak]{display:none!important}</style>
         </div>
 
+        <!-- Auth Prompt Modal (Guest) -->
+        @guest
+        <div x-cloak x-show="authPromptOpen" class="fixed inset-0 z-50 d-flex align-items-center justify-content-center">
+            <div class="position-fixed top-0 start-0 end-0 bottom-0 bg-dark bg-opacity-50" @click="authPromptOpen=false"></div>
+            <div class="position-relative bg-white dark:bg-gray-800 rounded shadow p-4" style="width: 100%; max-width: 720px;">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
+                    <h6 class="mb-0">Masuk atau Tes Awal</h6>
+                    <button class="btn btn-sm btn-light" @click="authPromptOpen=false">&times;</button>
+                </div>
+                <div class="mb-2 text-muted">Pilih salah satu untuk melanjutkan. Untuk pengguna baru, tes BMI & buta warna wajib sebelum membuat akun.</div>
+
+                <div class="row g-3 mt-1">
+                    <div class="col-6">
+                        <div class="h-100 p-3 border rounded">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-soft-primary text-primary me-2"><i class="mdi mdi-account-check-outline"></i></span>
+                                <h6 class="mb-0">Saya sudah punya akun</h6>
+                            </div>
+                            <p class="text-muted small mb-3">Masuk untuk melanjutkan lamaran dan menyimpan progres.</p>
+                            <a href="{{ route('login') }}" class="btn btn-soft-primary w-100">
+                                <i class="mdi mdi-login me-1"></i> Login
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="h-100 p-3 border rounded">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-soft-success text-success me-2"><i class="mdi mdi-clipboard-text-outline"></i></span>
+                                <h6 class="mb-0">Belum punya akun</h6>
+                            </div>
+                            <p class="text-muted small mb-3">Selesaikan Blind Test & BMI Test agar bisa mendaftar.</p>
+                            <a href="{{ route('dashboard', [], false) }}?start_test=1" class="btn btn-primary w-100">
+                                <i class="mdi mdi-clipboard-text-outline me-1"></i> Mulai Tes (Blind & BMI)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @endguest

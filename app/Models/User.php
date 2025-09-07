@@ -91,4 +91,46 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(Kandidat::class, 'user_id');
     }
+
+    // Accessor: normalized role (lowercase)
+    public function getNormalizedRoleAttribute(): string
+    {
+        return strtolower($this->role ?? '');
+    }
+
+    // Accessor: whether user is kandidat
+    public function getIsKandidatAttribute(): bool
+    {
+        return $this->normalized_role === 'kandidat';
+    }
+
+    // Accessor: whether user is officer
+    public function getIsOfficerAttribute(): bool
+    {
+        return $this->normalized_role === 'officer';
+    }
+
+    // Accessor: role badge label, e.g. "Kandidat" or "Officer (Manager)"
+    public function getRoleBadgeLabelAttribute(): string
+    {
+        if ($this->is_officer) {
+            $jabatan = optional($this->officer)->jabatan;
+            $formatted = $jabatan ? ' (' . ucfirst(strtolower($jabatan)) . ')' : '';
+            return 'Officer' . $formatted;
+        }
+
+        if ($this->is_kandidat) {
+            return 'Kandidat';
+        }
+
+        return ucfirst($this->normalized_role ?: 'User');
+    }
+
+    // Accessor: role badge class for styling
+    public function getRoleBadgeClassAttribute(): string
+    {
+        if ($this->is_officer) return 'bg-soft-warning text-warning';
+        if ($this->is_kandidat) return 'bg-soft-success text-success';
+        return 'bg-soft-secondary text-muted';
+    }
 }

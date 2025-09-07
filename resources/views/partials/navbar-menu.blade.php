@@ -1,13 +1,12 @@
 <div id="navigation">
     <!-- Navigation Menu-->
-    <ul class="navigation-menu nav-right nav-light">
+    <ul class="navigation-menu nav-right nav-light align-items-center">
         @php $role = auth()->check() ? auth()->user()->role : null; @endphp
 
         @if($role === 'kandidat')
             <li><a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">{{ __('Dashboard') }}</a></li>
             <li><a href="{{ route('jobs.browse') }}" class="{{ request()->routeIs('jobs.*') ? 'active' : '' }}">{{ __('Jobs') }}</a></li>
             <li><a href="{{ route('kandidat.lowongan-dilamar') }}" class="{{ request()->routeIs('kandidat.lowongan-dilamar') ? 'active' : '' }}">{{ __('Lamaran Saya') }}</a></li>
-            <li><a href="{{ route('profile.show') }}" class="{{ request()->routeIs('profile.*') ? 'active' : '' }}">{{ __('Profil') }}</a></li>
         @elseif($role === 'officer')
             <li><a href="{{ route('officers.index') }}" class="{{ request()->routeIs('officers.index') ? 'active' : '' }}">{{ __('Officers') }}</a></li>
             <li class="has-submenu parent-menu-item">

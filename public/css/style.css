@@ -4298,3 +4298,59 @@ footer .footer-bar {
 .action-steps .btn {
     width: 100%;
 }
+
+/* --- Custom overrides: align navbar menu and right icons --- */
+#topnav .buy-button {
+  height: 74px;
+  line-height: initial !important;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+#topnav .buy-button > li {
+  display: flex;
+  align-items: center;
+}
+#topnav .buy-button .btn.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+#topnav .buy-button .dropdown-toggle::after { display: none; }
+
+#topnav .navigation-menu {
+  height: 74px;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: 0;
+}
+#topnav .navigation-menu > li {
+  display: flex;
+  align-items: center;
+  float: none;
+}
+#topnav .navigation-menu > li > a {
+  display: flex;
+  align-items: center;
+  height: 36px;
+  line-height: 1;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+/* Align top-level caret with text (override theme abs positioning) */
+#topnav .navigation-menu .has-submenu > .menu-arrow {
+  position: static !important;
+  right: auto; top: auto;
+  display: inline-block;
+  margin-left: .375rem;
+  vertical-align: middle;
+  align-self: center;
+}
+@media (min-width: 992px) {
+  #topnav .buy-button .btn.btn-icon { transform: translateY(4px); }
+  #topnav.nav-sticky .buy-button .btn.btn-icon { transform: translateY(2px); }
+}
