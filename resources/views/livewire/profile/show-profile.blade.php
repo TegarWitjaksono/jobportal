@@ -42,7 +42,7 @@
                                 <i class="mdi mdi-account-circle-outline me-2"></i>Informasi Profil
                             </h5>
                             <div class="d-flex gap-2">
-                                <a href="{{ route('profile.edit') }}" class="btn btn-sm btn-light">
+                                <a href="{{ route('profile.edit') }}" class="btn btn-sm btn-contrast-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit profil Anda">
                                     <i class="mdi mdi-pencil me-1"></i>Edit Profil
                                 </a>
                             </div>
@@ -306,7 +306,7 @@
                                         <h6 class="fw-bold text-primary border-bottom pb-2">
                                             <i class="mdi mdi-file-upload-outline me-2"></i>Dokumen Pendukung
                                         </h6>
-                                        <button wire:click="openDocumentModal" class="btn btn-sm btn-primary">
+                                        <button wire:click="openDocumentModal" class="btn btn-sm btn-soft-primary" data-bs-toggle="tooltip" title="Unggah dokumen pendukung">
                                             <i class="mdi mdi-upload me-1"></i>Unggah Dokumen
                                         </button>
                                     </div>
@@ -326,8 +326,8 @@
                                         <div class="col-md-6 mb-3">
                                             <h6 class="text-muted mb-0">{{ $label }}</h6>
                                             @if (isset($documents[$key]))
-                                                <a href="{{ Storage::url($documents[$key]) }}" target="_blank" class="fw-medium text-primary">
-                                                    <i class="mdi mdi-eye-outline me-1"></i>Lihat Dokumen
+                                                <a href="{{ Storage::url($documents[$key]) }}" target="_blank" class="btn btn-sm btn-soft-primary d-inline-flex align-items-center" data-bs-toggle="tooltip" title="Lihat dokumen {{ $label }}">
+                                                    <i class="mdi mdi-eye-outline me-1"></i> Lihat
                                                 </a>
                                             @else
                                                 <span class="text-muted">Belum diunggah</span>

@@ -47,34 +47,7 @@
                         </div>
                         
                         <form id="kandidat-form" wire:submit.prevent="updateKandidatProfile" class="card-body p-4">
-                            @if ($this->kandidat && ($this->kandidat->bmi_score || $this->kandidat->blind_score))
-                                <div class="row">
-                                    <div class="col-12 mb-4">
-                                        <h6 class="fw-bold text-primary border-bottom pb-2">
-                                            <i class="mdi mdi-file-document-check-outline me-2"></i>Data Hasil Tes
-                                        </h6>
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">{{ __('Skor BMI') }}</label>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control" value="{{ $this->kandidat->bmi_score }}" readonly>
-                                            <span class="input-group-text">{{ $this->kandidat->bmi_category }}</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6 mb-3">
-                                        <label class="form-label">{{ __('Skor Tes Buta Warna') }}</label>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control" value="{{ $this->kandidat->blind_score }}" readonly>
-                                            <span class="input-group-text">%</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- Divider --}}
-                                <hr class="my-4">
-                            @endif
+                            {{-- Bagian hasil tes disembunyikan pada halaman edit --}}
                             {{-- Data Pribadi Section --}}
                             <div class="row">
                                 <div class="col-12 mb-4">
@@ -175,8 +148,14 @@
                                 
                                 <div class="col-md-6 mb-3">
                                     <label for="negara" class="form-label">{{ __('Negara') }} <span class="text-danger">*</span></label>
-                                    <input id="negara" type="text" class="form-control @error('state.negara') is-invalid @enderror" 
-                                        wire:model.defer="state.negara" placeholder="Masukkan negara" value="Indonesia">
+                                    @php $countries = config('countries'); @endphp
+                                    <select id="negara" class="form-select @error('state.negara') is-invalid @enderror" wire:model.defer="state.negara" required>
+                                        <option value="">{{ __('Pilih Negara') }}</option>
+                                        @foreach($countries as $code => $country)
+                                            @php $flag = mb_chr(127397 + ord($code[0])) . mb_chr(127397 + ord($code[1])); @endphp
+                                            <option value="{{ $country }}">{{ $flag }} {{ $country }}</option>
+                                        @endforeach
+                                    </select>
                                     @error('state.negara')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror

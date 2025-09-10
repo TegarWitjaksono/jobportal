@@ -6,7 +6,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="createOfficerModalTitle">
-                        <i class="mdi mdi-account-plus me-1"></i> {{ __('Add New Officer') }}
+                        <i class="mdi mdi-account-plus me-1"></i> {{ __('Tambah Officer Baru') }}
                     </h5>
                     <button type="button" class="btn-close" wire:click="closeModal" aria-label="Close"></button>
                 </div>
@@ -29,15 +29,15 @@
                     <div class="modal-body">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label">{{ __('First Name') }} <span class="text-danger">*</span></label>
+                                <label class="form-label">{{ __('Nama Depan') }} <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control @error('officerData.nama_depan') is-invalid @enderror"
-                                    wire:model.defer="officerData.nama_depan" placeholder="First Name">
+                                    wire:model.defer="officerData.nama_depan" placeholder="Nama Depan">
                                 @error('officerData.nama_depan') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">{{ __('Last Name') }}</label>
+                                <label class="form-label">{{ __('Nama Belakang') }}</label>
                                 <input type="text" class="form-control @error('officerData.nama_belakang') is-invalid @enderror"
-                                    wire:model.defer="officerData.nama_belakang" placeholder="Last Name">
+                                    wire:model.defer="officerData.nama_belakang" placeholder="Nama Belakang">
                                 @error('officerData.nama_belakang') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-md-6">
@@ -47,10 +47,10 @@
                                 @error('officerData.nik') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">{{ __('Position') }} <span class="text-danger">*</span></label>
+                                <label class="form-label">{{ __('Jabatan') }} <span class="text-danger">*</span></label>
                                 <select class="form-select @error('officerData.jabatan') is-invalid @enderror"
                                         wire:model.defer="officerData.jabatan">
-                                    <option value="">{{ __('Select Position') }}</option>
+                                    <option value="">{{ __('Pilih Jabatan') }}</option>
                                     @foreach($positions ?? [] as $position)
                                         <option value="{{ $position }}">{{ $position }}</option>
                                     @endforeach
@@ -58,13 +58,13 @@
                                 @error('officerData.jabatan') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Date of Hire <span class="text-danger">*</span></label>
+                                <label class="form-label">Tanggal Masuk <span class="text-danger">*</span></label>
                                 <input type="date" class="form-control @error('officerData.doh') is-invalid @enderror"
                                     wire:model.defer="officerData.doh">
                                 @error('officerData.doh') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">{{ __('Assignment Location') }} <span class="text-danger">*</span></label>
+                                <label class="form-label">{{ __('Lokasi Penugasan') }} <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <select class="form-select @error('selectedLocation') is-invalid @enderror @error('officerData.lokasi_penugasan') is-invalid @enderror"
                                         wire:model.defer="selectedLocation">
@@ -111,7 +111,7 @@
                             </div>
 
                             <hr class="my-3">
-                            <h6 class="fw-bold">{{ __('User Account Information') }}</h6>
+                            <h6 class="fw-bold">{{ __('Informasi Akun Pengguna') }}</h6>
 
                             <div class="col-md-6">
                                 <label class="form-label">{{ __('Email') }} <span class="text-danger">*</span></label>
@@ -128,10 +128,10 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" wire:click="closeModal">{{ __('Cancel') }}</button>
+                        <button type="button" class="btn btn-outline-secondary" wire:click="closeModal">{{ __('Batal') }}</button>
                         <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">
                             <span wire:loading wire:target="createOfficer" class="spinner-border spinner-border-sm me-1"></span>
-                            {{ __('Create Officer') }}
+                            {{ __('Simpan Officer') }}
                         </button>
                     </div>
                 </form>
@@ -139,3 +139,5 @@
         </div>
     </div>
 </div>
+
+

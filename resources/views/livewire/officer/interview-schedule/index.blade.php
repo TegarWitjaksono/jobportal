@@ -14,7 +14,7 @@
             <div class="position-middle-bottom">
                 <nav aria-label="breadcrumb" class="d-block">
                     <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
-                        <li class="breadcrumb-item"><a href="{{ route('officers.index') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('officers.index') }}">Beranda</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Jadwal Interview</li>
                     </ul>
                 </nav>
@@ -34,16 +34,17 @@
         <div class="container">
             <div class="row mb-4">
                 <div class="col-md-6">
-                    <div class="input-group">
+                    <div class="input-group input-group-sm">
                         <input type="text" class="form-control" placeholder="Cari kandidat atau posisi..." wire:model.live="search">
-                        <button class="btn btn-primary" type="button">
+                        <button class="btn btn-primary btn-sm" type="button">
                             <i class="mdi mdi-magnify"></i>
                         </button>
                     </div>
                 </div>
                 <div class="col-md-6 mt-3 mt-md-0 text-md-end">
-                    <button class="btn btn-secondary" wire:click="exportPdf">
-                        <i class="mdi mdi-file-pdf-box"></i> Export to PDF
+                    <button class="btn btn-soft-secondary btn-sm d-inline-flex align-items-center" wire:click="exportPdf"
+                            data-bs-toggle="tooltip" data-bs-placement="top" title="Export to PDF" aria-label="Export to PDF">
+                        <i class="mdi mdi-file-pdf-box me-1"></i> Export to PDF
                     </button>
                 </div>
             </div>

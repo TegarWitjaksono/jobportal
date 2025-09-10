@@ -144,7 +144,10 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="col-12">
+                                <div class="col-12 d-flex justify-content-between align-items-center">
+                                    <a href="{{ route('Lowongan.Index') }}" class="btn btn-soft-secondary">
+                                        {{ __('Batal') }}
+                                    </a>
                                     {{-- Tombol diubah menjadi 'Update Job' --}}
                                     <input type="submit" class="submitBnt btn btn-primary" value="Update Job">
                                 </div>

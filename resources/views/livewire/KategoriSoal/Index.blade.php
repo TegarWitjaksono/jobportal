@@ -50,15 +50,18 @@
         <div class="container">
             <div class="row mb-4">
                 <div class="col-md-6">
-                    <div class="input-group">
+                    <div class="input-group input-group-sm">
                         <input type="text" class="form-control" placeholder="Cari kategori..." wire:model.live.debounce.300ms="search">
-                        <button class="btn btn-primary" type="button">
+                        <button class="btn btn-primary btn-sm" type="button">
                             <i class="mdi mdi-magnify"></i>
                         </button>
                     </div>
                 </div>
                 <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                    <button wire:click="create" class="btn btn-primary">
+                    <button wire:click="create"
+                            class="btn btn-soft-primary btn-sm d-inline-flex align-items-center"
+                            data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="Tambah Kategori" aria-label="Tambah Kategori">
                         <i class="mdi mdi-plus-circle-outline me-1"></i> Tambah Kategori
                     </button>
                 </div>

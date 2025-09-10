@@ -31,12 +31,7 @@ Route::middleware([
         ->middleware('role:officer,manager,recruiter,coordinator')
         ->name('Lowongan.Edit');
 
-    // CKEditor image upload for Lowongan description
-    Route::post('/ckeditor/upload', [App\Http\Controllers\UploadController::class, 'ckeditor'])
-        ->middleware('role:officer,manager,recruiter,coordinator')
-        ->name('ckeditor.upload');
-
-
+    
     // Bank Soal & Kategori Soal - manager, coordinator
     Route::get('/bank-soal', App\Livewire\BankSoal\Index::class)
         ->middleware('role:officer,manager,coordinator')

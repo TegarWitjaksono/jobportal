@@ -101,8 +101,10 @@
 	    <link href="{{ asset('css/bootstrap.min.css') }}" type="text/css" rel="stylesheet" />
         <link href="{{ asset('css/tobii.min.css') }}" rel="stylesheet" type="text/css" />
         <link href="{{ asset('css/materialdesignicons.min.css') }}" rel="stylesheet" type="text/css" />
-	    <!-- Custom  Css -->
-	    <link href="{{ asset('css/style.min.css') }}" rel="stylesheet" type="text/css" id="theme-opt" />
+        <!-- Custom  Css -->
+        <link href="{{ asset('css/style.min.css') }}" rel="stylesheet" type="text/css" id="theme-opt" />
+        <!-- Overrides / additions -->
+        <link href="{{ asset('css/style.css') }}?v=1" rel="stylesheet" type="text/css" />
         @stack('styles')
 	</head>
 
@@ -118,17 +120,7 @@
                     <img src="images/logo-light.png" class="logo-dark-mode" alt="">
                 </a>
 
-                <div class="menu-extras">
-                    <div class="menu-item">
-                        <a class="navbar-toggle" id="isToggle" onclick="toggleMenu()">
-                            <div class="lines">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                            </div>
-                        </a>
-                    </div>
-                </div>
+                <!-- Removed hamburger toggle -->
 
                 <ul class="buy-button list-inline mb-0 d-flex align-items-center gap-2">
                     @auth
@@ -141,37 +133,22 @@
                             $icon = $isOfficer ? 'shield' : 'user';
                             $label = $isOfficer ? $user->role_badge_label : null; // hide role label for kandidat
                         @endphp
-                        <span class="badge rounded-pill {{ $badgeClass }} px-3 py-2 d-inline-flex align-items-center">
-                            <i data-feather="{{ $icon }}" class="fea icon-sm me-1 align-middle"></i>
-                            <span class="fw-semibold">{{ $firstName }}</span>
-                            @if($label)
-                                <span class="mx-1">-</span>
-                                <span>{{ $label }}</span>
-                            @endif
-                        </span>
-                    </li>
-                    @endauth
-
-                    @auth
-                    <li class="list-inline-item ps-1 mb-0">
-                        <div class="dropdown dropdown-primary d-inline-flex align-items-center gap-2">
-                            <button type="button" class="dropdown-toggle btn btn-sm btn-icon btn-pills btn-primary d-flex align-items-center justify-content-center" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i data-feather="menu" class="icons"></i>
-                            </button>
-                            
+                        <div class="dropdown role-dropdown d-inline-flex align-items-center">
+                            <a href="#" class="dropdown-toggle badge rounded-pill {{ $badgeClass }} px-3 py-2 d-inline-flex align-items-center role-badge-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i data-feather="{{ $icon }}" class="fea icon-sm me-1 align-middle"></i>
+                                <span class="fw-semibold">{{ $firstName }}</span>
+                                @if($label)
+                                    <span class="mx-1">-</span>
+                                    <span>{{ $label }}</span>
+                                @endif
+                                <i class="mdi mdi-chevron-down ms-1"></i>
+                            </a>
                             <div class="dropdown-menu dd-menu dropdown-menu-end bg-white rounded shadow border-0 mt-3">
-                                <a href="{{ route('profile.show') }}" class="dropdown-item fw-medium fs-6 d-flex align-items-center">
+                                <a href="{{ auth()->user()->is_kandidat ? route('profile.show') : route('officers.index') }}" class="dropdown-item fw-medium fs-6 d-flex align-items-center">
                                     <i data-feather="user" class="fea icon-sm me-2 align-middle"></i>
                                     <span>Profile</span>
-                                    
-                                </a>
-                                <a href="#" class="dropdown-item fw-medium fs-6">
-                                    <i data-feather="settings" class="fea icon-sm me-2 align-middle"></i>Settings
                                 </a>
                                 <div class="dropdown-divider border-top"></div>
-                                <a href="lock-screen.html" class="dropdown-item fw-medium fs-6">
-                                    <i data-feather="lock" class="fea icon-sm me-2 align-middle"></i>Lockscreen
-                                </a>
                                 <form method="POST" action="{{ route('logout') }}" x-data class="d-inline w-100">
                                     @csrf
                                     <button type="submit" class="dropdown-item fw-medium fs-6 border-0 bg-transparent p-0 ps-3 py-2 w-100 text-start"

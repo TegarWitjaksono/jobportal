@@ -6,9 +6,17 @@
             <div class="row mt-5 justify-content-center">
                 <div class="col-12">
                     <div class="title-heading text-center">
-                        <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Hasil Test CBT</h5>
+                        <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">Hasil Psikotes</h5>
                     </div>
                 </div>
+                <div class="position-middle-bottom">
+                <nav aria-label="breadcrumb" class="d-block">
+                    <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
+                        <li class="breadcrumb-item"><a href="{{ route('officers.index') }}">Beranda</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Hasil Psikotes</li>
+                    </ul>
+                </nav>
+            </div>
             </div>
         </div>
     </section>
@@ -23,24 +31,26 @@
                             <!-- Filter dan Sorting Controls -->
                             <div class="row mb-4">
                                 <div class="col-md-4">
-                                    <div class="position-relative">
-                                        <i class="mdi mdi-magnify position-absolute top-50 start-0 translate-middle-y ms-2 text-muted"></i>
-                                        <input type="text" 
-                                               wire:model.live.debounce.300ms="search" 
-                                               class="form-control ps-5" 
+                                    <div class="input-group input-group-sm">
+                                        <input type="text"
+                                               wire:model.live.debounce.300ms="search"
+                                               class="form-control"
                                                placeholder="Cari berdasarkan nama atau email...">
+                                        <button class="btn btn-primary btn-sm" type="button">
+                                            <i class="mdi mdi-magnify"></i>
+                                        </button>
                                     </div>
                                 </div>
-                                <div class="col-md-8">
-                                    <div class="d-flex align-items-center justify-content-end">
-                                        <label for="sortField" class="form-label me-2 mb-0 text-muted">Urutkan:</label>
-                                        <select wire:model.live="sortField" id="sortField" class="form-select w-auto me-2">
+                                <div class="col-md-8 mt-3 mt-md-0 text-md-end">
+                                    <div class="d-inline-flex flex-wrap align-items-center gap-2">
+                                        <span class="text-muted small"><i class="mdi mdi-sort me-1"></i>Urutkan:</span>
+                                        <select wire:model.live="sortField" id="sortField" class="form-select form-select-sm w-auto" style="min-width: 180px;">
                                             <option value="created_at">Tanggal Tes</option>
                                             <option value="user_name">Nama Kandidat</option>
                                             <option value="score">Skor</option>
                                             <option value="started_at">Waktu Mulai</option>
                                         </select>
-                                        <select wire:model.live="sortDirection" class="form-select w-auto">
+                                        <select wire:model.live="sortDirection" class="form-select form-select-sm w-auto" style="min-width: 180px;">
                                             <option value="desc">Menurun</option>
                                             <option value="asc">Menaik</option>
                                         </select>
@@ -49,61 +59,61 @@
                             </div>
 
                             <!-- Statistics Cards -->
-                            <div class="row mb-4">
-                                <div class="col-md-3">
-                                    <div class="card bg-primary text-white border-0">
+                            <div class="row g-3 mb-4">
+                                <div class="col-sm-6 col-md-3">
+                                    <div class="card border-0 shadow-sm h-100">
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
-                                                <div class="flex-shrink-0">
-                                                    <i class="mdi mdi-account-multiple fs-2"></i>
-                                                </div>
-                                                <div class="flex-grow-1 ms-3">
-                                                    <h6 class="mb-0">Total Peserta</h6>
+                                                <span class="avatar avatar-md rounded-circle bg-soft-primary text-primary d-flex align-items-center justify-content-center">
+                                                    <i class="mdi mdi-account-multiple-outline fs-4"></i>
+                                                </span>
+                                                <div class="ms-3">
+                                                    <div class="text-muted small">Total Peserta</div>
                                                     <h4 class="mb-0">{{ $results->total() }}</h4>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="card bg-success text-white border-0">
+                                <div class="col-sm-6 col-md-3">
+                                    <div class="card border-0 shadow-sm h-100">
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
-                                                <div class="flex-shrink-0">
-                                                    <i class="mdi mdi-check-circle fs-2"></i>
-                                                </div>
-                                                <div class="flex-grow-1 ms-3">
-                                                    <h6 class="mb-0">Lulus</h6>
+                                                <span class="avatar avatar-md rounded-circle bg-soft-success text-success d-flex align-items-center justify-content-center">
+                                                    <i class="mdi mdi-check-circle-outline fs-4"></i>
+                                                </span>
+                                                <div class="ms-3">
+                                                    <div class="text-muted small">Lulus</div>
                                                     <h4 class="mb-0">{{  $lulus }}</h4>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="card bg-danger text-white border-0">
+                                <div class="col-sm-6 col-md-3">
+                                    <div class="card border-0 shadow-sm h-100">
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
-                                                <div class="flex-shrink-0">
-                                                    <i class="mdi mdi-close-circle fs-2"></i>
-                                                </div>
-                                                <div class="flex-grow-1 ms-3">
-                                                    <h6 class="mb-0">Tidak Lulus</h6>
+                                                <span class="avatar avatar-md rounded-circle bg-soft-danger text-danger d-flex align-items-center justify-content-center">
+                                                    <i class="mdi mdi-close-circle-outline fs-4"></i>
+                                                </span>
+                                                <div class="ms-3">
+                                                    <div class="text-muted small">Tidak Lulus</div>
                                                     <h4 class="mb-0">{{ $tidakLulus }}</h4>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="card bg-warning text-white border-0">
+                                <div class="col-sm-6 col-md-3">
+                                    <div class="card border-0 shadow-sm h-100">
                                         <div class="card-body">
                                             <div class="d-flex align-items-center">
-                                                <div class="flex-shrink-0">
-                                                    <i class="mdi mdi-clock fs-2"></i>
-                                                </div>
-                                                <div class="flex-grow-1 ms-3">
-                                                    <h6 class="mb-0">Rata-rata Skor</h6>
+                                                <span class="avatar avatar-md rounded-circle bg-soft-info text-info d-flex align-items-center justify-content-center">
+                                                    <i class="mdi mdi-chart-line-variant fs-4"></i>
+                                                </span>
+                                                <div class="ms-3">
+                                                    <div class="text-muted small">Rata-rata Skor</div>
                                                     <h4 class="mb-0">{{ number_format($rataRataSkor, 1) }}%</h4>
                                                 </div>
                                             </div>

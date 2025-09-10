@@ -31,7 +31,7 @@
             <div class="position-middle-bottom">
                 <nav aria-label="breadcrumb" class="d-block">
                     <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
-                        <li class="breadcrumb-item"><a href="{{ route('officers.index') }}">{{ __('Dashboard') }}</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('officers.index') }}">{{ __('Beranda') }}</a></li>
                         <li class="breadcrumb-item active" aria-current="page">{{ __('Lowongan') }}</li>
                     </ul>
                 </nav>
@@ -66,36 +66,45 @@
                         <!-- Filter Form -->
                         <div class="m-4">
                             <div class="d-flex justify-content-end mb-3">
-                                <a href="{{ route('Lowongan.Create') }}" class="btn btn-primary btn-sm">{{ __('Add Job Vacancy') }}</a>
+                                <a href="{{ route('Lowongan.Create') }}"
+                                   class="btn btn-sm btn-soft-primary d-inline-flex align-items-center"
+                                   data-bs-toggle="tooltip" data-bs-placement="top"
+                                   title="{{ __('Tambah Lowongan') }}" aria-label="{{ __('Tambah Lowongan') }}">
+                                    <i class="mdi mdi-briefcase-plus me-1"></i> {{ __('Tambah Lowongan') }}
+                                </a>
                             </div>
-                            <div class="row g-2">
+                            <div class="row g-1 align-items-center">
                                 <div class="col-md-2">
-                                    <select wire:model.live="statusFilter" class="form-select">
-                                        <option value="">All Status</option>
-                                        <option value="posted">Posted</option>
-                                        <option value="archived">Archived</option>
+                                    <select wire:model.live="statusFilter" class="form-select form-select-sm py-1">
+                                        <option value="">Semua Status</option>
+                                        <option value="posted">Diposting</option>
+                                        <option value="archived">Diarsipkan</option>
                                     </select>
                                 </div>
                                 <div class="col-md-2">
-                                    <select wire:model.live="kategoriFilter" class="form-select">
-                                        <option value="">All Category</option>
+                                    <select wire:model.live="kategoriFilter" class="form-select form-select-sm py-1">
+                                        <option value="">Semua Kategori</option>
                                         @foreach($kategoriLowonganOptions as $kategori)
                                             <option value="{{ $kategori->id }}">{{ $kategori->nama_kategori }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <input type="text" wire:model.live="namaPosisiFilter" class="form-control" placeholder="Job Title">
+                                    <input type="text" wire:model.live="namaPosisiFilter" class="form-control form-control-sm py-1" placeholder="Judul Pekerjaan">
                                 </div>
                                 <div class="col-md-2">
-                                    <input type="date" wire:model.live="tanggalMulaiFilter" class="form-control" placeholder="Start Date">
+                                    <input type="date" wire:model.live="tanggalMulaiFilter" class="form-control form-control-sm py-1" placeholder="Tanggal Mulai">
                                 </div>
                                 <div class="col-md-2">
-                                    <input type="date" wire:model.live="tanggalAkhirFilter" class="form-control" placeholder="End Date">
+                                    <input type="date" wire:model.live="tanggalAkhirFilter" class="form-control form-control-sm py-1" placeholder="Tanggal Berakhir">
                                 </div>
-                                <div class="col-md-1">
-                                    <button type="button" wire:click="resetFilters" class="btn btn-secondary w-100">
-                                        <i class="mdi mdi-refresh"></i>
+                                <div class="col-12 col-md-1">
+                                    <button type="button"
+                                            wire:click="resetFilters"
+                                            class="btn btn-soft-secondary btn-sm w-100 d-inline-flex align-items-center justify-content-center"
+                                            data-bs-toggle="tooltip" data-bs-placement="top"
+                                            title="{{ __('Reset Filter') }}" aria-label="{{ __('Reset Filter') }}">
+                                        <i class="mdi mdi-filter-remove-outline"></i>
                                     </button>
                                 </div>
                             </div>
@@ -108,13 +117,13 @@
                                         <tr>
                                             <th>Status</th>
                                             <th>Foto</th>
-                                            <th>Job Title</th>
+                                            <th>Judul</th>
                                             <th>Deskripsi</th>
                                             <th>Departemen</th>
-                                            <th>Category</th>
-                                            <th>Posting Date</th>
-                                            <th>End Date</th>
-                                            <th class="text-center" style="width: 15%;">Action</th>
+                                            <th>Kategori</th>
+                                            <th>Tanggal Posting</th>
+                                            <th>Tanggal Berakhir</th>
+                                            <th class="text-center" style="width: 15%;">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -129,7 +138,7 @@
                                                     @if($lowongan->foto)
                                                         <img src="{{ asset('storage/image/lowongan/' . $lowongan->foto) }}" alt="Foto Lowongan" class="img-fluid rounded" style="max-width: 50px;">
                                                     @else
-                                                        <span class="text-muted">No Image</span>
+                                                        <span class="text-muted">Tanpa Gambar</span>
                                                     @endif
                                                 </td>
                                                 <td>

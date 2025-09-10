@@ -79,6 +79,49 @@ p {
   position: relative;
 }
 
+/* ==========================
+   Custom Buttons (Profile)
+   - Non-conflicting utility styles
+   - Uses Bootstrap CSS variables
+   ========================== */
+.btn-invert-primary{
+  background-color:#fff;
+  color:var(--bs-primary);
+  border:1px solid var(--bs-primary);
+  transition:all .15s ease-in-out;
+}
+.btn-invert-primary:hover,
+.btn-invert-primary:focus{
+  background-color:var(--bs-primary);
+  color:#fff;
+  border-color:var(--bs-primary);
+}
+.btn-invert-primary:active{
+  background-color:var(--bs-primary) !important;
+  color:#fff !important;
+  border-color:var(--bs-primary) !important;
+}
+
+.btn-contrast-primary{
+  background-color:#fff;
+  color:var(--bs-primary);
+  border:1px solid var(--bs-primary);
+  transition: all .15s ease-in-out;
+  box-shadow: 0 .125rem .25rem rgba(13,110,253,.15);
+}
+.btn-contrast-primary:hover,
+.btn-contrast-primary:focus{
+  background-color:var(--bs-primary);
+  color:#fff;
+  border-color:var(--bs-primary);
+  box-shadow: 0 .25rem .5rem rgba(13,110,253,.25);
+  transform: translateY(-1px);
+}
+.btn-contrast-primary:active{
+  transform: translateY(0);
+  box-shadow: 0 .125rem .25rem rgba(13,110,253,.2);
+}
+
 .bg-overlay {
   background-color: rgba(30, 41, 59, 0.65);
   position: absolute;
@@ -4354,3 +4397,42 @@ footer .footer-bar {
   #topnav .buy-button .btn.btn-icon { transform: translateY(4px); }
   #topnav.nav-sticky .buy-button .btn.btn-icon { transform: translateY(2px); }
 }
+/* Role badge dropdown hover */
+.role-badge-toggle{ cursor:pointer; box-shadow: 0 .1rem .25rem rgba(0,0,0,.08); transition: all .15s ease-in-out; }
+.role-badge-toggle:hover,.role-badge-toggle:focus{ text-decoration:none; box-shadow: 0 .35rem 1rem rgba(0,0,0,.12); transform: translateY(-1px); }
+/* Hover-to-open for role badge dropdown */
+.role-dropdown{ position: relative; }
+/* Force dropdown to open below the badge and align to right */
+.role-dropdown .dropdown-menu{
+  /* Let Bootstrap control display via .show */
+  opacity:0;
+  transform: translateY(6px);
+  transition: opacity .15s ease, transform .15s ease;
+  /* remove default padding so hover fills full width and touches edges */
+  padding: 0 !important;
+}
+.role-dropdown .dropdown-divider{ margin: 0 !important; }
+.role-dropdown .dropdown-menu.show{
+  opacity:1;
+  transform: translateY(0);
+}
+/* Click-only: no hover-to-open */
+.role-dropdown .dropdown-item{ transition: background-color .12s ease, color .12s ease; }
+.role-dropdown .dropdown-menu .dropdown-item:hover,
+.role-dropdown .dropdown-menu .dropdown-item:focus{ background-color: var(--bs-primary) !important; color: #fff !important; }
+.role-dropdown .dropdown-menu .dropdown-item:hover i,
+.role-dropdown .dropdown-menu .dropdown-item:focus i{ color:#fff !important; }
+/* Feather icons become inline SVGs; set stroke to white on hover */
+.role-dropdown .dropdown-menu .dropdown-item:hover svg,
+.role-dropdown .dropdown-menu .dropdown-item:focus svg{ stroke:#fff !important; }
+
+/* Ensure full-row hover and consistent spacing */
+.role-dropdown .dropdown-menu .dropdown-item{
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: .5rem 1rem;
+  border-radius: 0;
+}
+.role-dropdown .dropdown-menu .dropdown-item:first-child{ border-top-left-radius: .5rem; border-top-right-radius: .5rem; }
+.role-dropdown .dropdown-menu .dropdown-item:last-child{ border-bottom-left-radius: .5rem; border-bottom-right-radius: .5rem; }

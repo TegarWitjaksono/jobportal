@@ -5,12 +5,12 @@
             @if($mode === 'create' || $mode === 'edit')
             <form wire:submit.prevent="save">
                 <div class="modal-header">
-                    <h5 class="modal-title">{{ $mode === 'create' ? __('Add Category') : __('Edit Category') }}</h5>
+                    <h5 class="modal-title">{{ $mode === 'create' ? __('Tambah Kategori') : __('Edit Kategori') }}</h5>
                     <button type="button" class="btn-close" wire:click="closeModal"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="text" wire:model.defer="nama_kategori" class="form-control mb-2" placeholder="{{ __('Name Category') }}">
-                    <textarea wire:model.defer="deskripsi" class="form-control mb-2" placeholder="{{ __('Description') }}"></textarea>
+                    <input type="text" wire:model.defer="nama_kategori" class="form-control mb-2" placeholder="{{ __('Nama Kategori') }}">
+                    <textarea wire:model.defer="deskripsi" class="form-control mb-2" placeholder="{{ __('Deskripsi') }}"></textarea>
                     <input type="file" wire:model="logo" class="form-control mb-2" accept="image/*">
                     @if($oldLogo)
                         <div class="mb-2">

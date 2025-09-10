@@ -14,7 +14,7 @@
             <div class="position-middle-bottom">
                 <nav aria-label="breadcrumb" class="d-block">
                     <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
-                        <li class="breadcrumb-item"><a href="{{ route('officers.index') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('officers.index') }}">Beranda</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Kelola Lamaran</li>
                     </ul>
                 </nav>
@@ -27,16 +27,17 @@
         <div class="container">
             <div class="row mb-4">
                 <div class="col-md-6">
-                    <div class="input-group">
+                    <div class="input-group input-group-sm">
                         <input type="text" class="form-control" placeholder="Cari kandidat atau posisi..." wire:model.live="search">
-                        <button class="btn btn-primary" type="button">
+                        <button class="btn btn-primary btn-sm" type="button">
                             <i class="mdi mdi-magnify"></i>
                         </button>
                     </div>
                 </div>
                 <div class="col-md-6 mt-3 mt-md-0 text-md-end">
-                    <button class="btn btn-secondary" wire:click="exportPdf">
-                        <i class="mdi mdi-file-pdf-box"></i> Export to PDF
+                    <button class="btn btn-soft-secondary btn-sm d-inline-flex align-items-center" wire:click="exportPdf"
+                            data-bs-toggle="tooltip" data-bs-placement="top" title="Export to PDF" aria-label="Export to PDF">
+                        <i class="mdi mdi-file-pdf-box me-1"></i> Export to PDF
                     </button>
                 </div>
             </div>
@@ -101,8 +102,11 @@
                                                 <td class="text-center">{{ optional($lamaran->created_at)->format('d M Y') }}</td>
 
                                                 <td class="text-center">
-                                                    <button class="btn btn-outline-primary btn-sm" title="Detail kandidat" wire:click="viewDetail({{ $lamaran->id }})">
-                                                        <i class="mdi mdi-account-details"></i>
+                                                    <button class="btn btn-soft-primary btn-sm d-inline-flex align-items-center justify-content-center"
+                                                            wire:click="viewDetail({{ $lamaran->id }})"
+                                                            data-bs-toggle="tooltip" data-bs-placement="top"
+                                                            title="Detail kandidat" aria-label="Detail kandidat">
+                                                        <i class="mdi mdi-eye"></i>
                                                     </button>
                                                 </td>
 
@@ -309,96 +313,255 @@
     </div>
 
     <!-- Modal Detail Kandidat -->
-    <div class="modal fade @if($detailModal) show @endif" tabindex="-1" style="@if($detailModal) display:block; @endif">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
+    <div class="modal fade @if($detailModal) show @endif" tabindex="-1" style="@if($detailModal) display:block; background-color: rgba(0,0,0,0.5); @endif">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 rounded shadow">
                 <div class="modal-header">
-                    <h5 class="modal-title">Detail Kandidat</h5>
-                    <button type="button" class="btn-close" wire:click="closeDetailModal"></button>
+                    <h5 class="modal-title fw-semibold">Detail Kandidat</h5>
+                    <button type="button" class="btn-close" wire:click="closeDetailModal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     @if($selectedKandidat)
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <h6 class="text-muted mb-0">Nama Lengkap</h6>
-                                <p class="fw-medium">{{ $selectedKandidat->nama_depan }} {{ $selectedKandidat->nama_belakang }}</p>
+                        {{-- Header kandidat dengan avatar (konsisten dengan halaman Kandidat) --}}
+                        @php $photo = optional(optional($selectedKandidat)->user)->profile_photo_url ?? null; @endphp
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="avatar avatar-md rounded-circle bg-light d-flex align-items-center justify-content-center me-3" style="width:48px;height:48px;overflow:hidden;">
+                                @if($photo)
+                                    <img src="{{ $photo }}" alt="Avatar" style="width:48px;height:48px;object-fit:cover;">
+                                @else
+                                    <i class="mdi mdi-account-outline fs-4 text-muted"></i>
+                                @endif
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <h6 class="text-muted mb-0">Email</h6>
-                                <p class="fw-medium">{{ optional($selectedKandidat->user)->email }}</p>
+                            <div>
+                                <div class="fw-semibold">{{ optional($selectedKandidat)->nama_depan }} {{ optional($selectedKandidat)->nama_belakang }}</div>
+                                <div class="text-muted small">{{ optional(optional($selectedKandidat)->user)->email }}</div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <h6 class="text-muted mb-0">No. KTP</h6>
-                                <p class="fw-medium">{{ $selectedKandidat->no_ktp }}</p>
+                        </div>
+                        <div class="row g-3">
+                            {{-- Data Tes (BMI) --}}
+                            @if(optional($selectedKandidat)->bmi_score)
+                            <div class="col-12">
+                                <h6 class="fw-bold text-primary border-bottom pb-2 mb-2">
+                                    <i class="mdi mdi-file-document me-2"></i>Data Tes
+                                </h6>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <h6 class="text-muted mb-0">No. NPWP</h6>
-                                <p class="fw-medium">{{ $selectedKandidat->no_npwp ?? '-' }}</p>
+                            <div class="col-md-6">
+                                <div class="p-2 rounded border bg-light">
+                                    <div class="text-muted small mb-1">Skor BMI</div>
+                                    <div class="fw-semibold fs-5">{{ $selectedKandidat->bmi_score }}</div>
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <h6 class="text-muted mb-0">Tempat & Tanggal Lahir</h6>
-                                <p class="fw-medium">{{ $selectedKandidat->tempat_lahir }}, {{ optional($selectedKandidat->tanggal_lahir)->format('d M Y') }}</p>
+                            <div class="col-md-6">
+                                <div class="p-2 rounded border bg-light">
+                                    <div class="text-muted small mb-1">Kategori BMI</div>
+                                    <div>
+                                        @php $cat = $selectedKandidat->bmi_category; @endphp
+                                        @switch($cat)
+                                            @case('Kurus')
+                                                <span class="badge bg-soft-warning">{{ $cat }}</span>
+                                                @break
+                                            @case('Normal')
+                                                <span class="badge bg-soft-success">{{ $cat }}</span>
+                                                @break
+                                            @case('Gemuk')
+                                                <span class="badge bg-soft-danger">{{ $cat }}</span>
+                                                @break
+                                            @default
+                                                <span class="badge bg-soft-secondary">{{ $cat ?? '-' }}</span>
+                                        @endswitch
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <h6 class="text-muted mb-0">Jenis Kelamin</h6>
-                                <p class="fw-medium">{{ $selectedKandidat->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan' }}</p>
+                            @endif
+
+                            <div class="col-md-6">
+                                <div class="p-2 rounded border bg-light">
+                                    <div class="text-muted small mb-1">No. Telepon</div>
+                                    <div class="fw-semibold">{{ optional($selectedKandidat)->no_telpon }}</div>
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <h6 class="text-muted mb-0">Status Perkawinan</h6>
-                                <p class="fw-medium">{{ $selectedKandidat->status_perkawinan }}</p>
+                            <div class="col-md-6">
+                                <div class="p-2 rounded border bg-light">
+                                    <div class="text-muted small mb-1">No. KTP</div>
+                                    <div class="fw-semibold">{{ optional($selectedKandidat)->no_ktp }}</div>
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <h6 class="text-muted mb-0">Agama</h6>
-                                <p class="fw-medium">{{ $selectedKandidat->agama }}</p>
+                            <div class="col-12">
+                                <div class="p-2 rounded border bg-light">
+                                    <div class="text-muted small mb-1">Alamat</div>
+                                    <div class="fw-semibold">{{ method_exists($selectedKandidat, 'getFormattedAddressAttribute') ? $selectedKandidat->getFormattedAddressAttribute() : '' }}</div>
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <h6 class="text-muted mb-0">No. Telepon</h6>
-                                <p class="fw-medium">{{ $selectedKandidat->no_telpon }}</p>
+                            <div class="col-md-6">
+                                <div class="p-2 rounded border bg-light">
+                                    <div class="text-muted small mb-1">Tempat, Tanggal Lahir</div>
+                                    <div class="fw-semibold">
+                                        {{ optional($selectedKandidat)->tempat_lahir }},
+                                        {{ optional($selectedKandidat->tanggal_lahir)->translatedFormat('d F Y') }}
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <h6 class="text-muted mb-0">No. Telepon Alternatif</h6>
-                                <p class="fw-medium">{{ $selectedKandidat->no_telpon_alternatif ?? '-' }}</p>
+                            <div class="col-md-6">
+                                <div class="p-2 rounded border bg-light">
+                                    <div class="text-muted small mb-1">Jenis Kelamin</div>
+                                    <div class="fw-semibold">{{ optional($selectedKandidat)->jenis_kelamin }}</div>
+                                </div>
                             </div>
-                            <div class="col-12 mb-3">
-                                <h6 class="text-muted mb-0">Alamat</h6>
-                                <p class="fw-medium">{{ $selectedKandidat->formatted_address }}</p>
+                            <div class="col-md-6">
+                                <div class="p-2 rounded border bg-light">
+                                    <div class="text-muted small mb-1">Status Perkawinan</div>
+                                    <div class="fw-semibold">{{ optional($selectedKandidat)->status_perkawinan }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-2 rounded border bg-light">
+                                    <div class="text-muted small mb-1">Agama</div>
+                                    <div class="fw-semibold">{{ optional($selectedKandidat)->agama }}</div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="p-2 rounded border bg-light">
+                                    <div class="text-muted small mb-1">Pendidikan Tertinggi</div>
+                                    <div class="fw-semibold">{{ optional($selectedKandidat)->pendidikan ?: '-' }}</div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="p-2 rounded border bg-light">
+                                    <div class="text-muted small mb-1">Keahlian Lainnya</div>
+                                    <div class="fw-semibold" style="white-space: pre-wrap;">{{ optional($selectedKandidat)->kemampuan ?: '-' }}</div>
+                                </div>
                             </div>
                         </div>
 
-                        <hr class="my-4" />
+                        {{-- Riwayat Pengalaman Kerja --}}
+                        <div class="mt-3">
+                            <h6 class="fw-bold text-primary border-bottom pb-2">
+                                <i class="mdi mdi-briefcase-outline me-2"></i>Riwayat Pengalaman Kerja
+                            </h6>
+                            @php
+                                $workData = optional($selectedKandidat)->riwayat_pengalaman_kerja ?? [];
+                                if (!is_array($workData)) { $workData = json_decode($workData, true) ?: []; }
+                            @endphp
+                            @if($workData)
+                                @foreach($workData as $item)
+                                    <div class="p-2 rounded border bg-light mb-2">
+                                        <div class="fw-semibold mb-0">{{ $item['position'] ?? '-' }} - {{ $item['company'] ?? '-' }}</div>
+                                        <small class="text-muted d-block">{{ $item['start'] ?? '-' }} - {{ $item['end'] ?? '-' }}</small>
+                                        <div class="small mb-0">Bisnis: {{ $item['business'] ?? '-' }}</div>
+                                        <div class="small mb-0">Alasan keluar: {{ $item['reason'] ?? '-' }}</div>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="text-muted">Belum ada riwayat pengalaman kerja.</div>
+                            @endif
+                        </div>
 
-                        @php
-                            $docLabels = [
-                                'ktp' => 'KTP',
-                                'ijazah' => 'Ijazah',
-                                'sertifikat' => 'Sertifikat',
-                                'surat_pengalaman' => 'Surat Pengalaman Kerja',
-                                'skck' => 'SKCK',
-                                'surat_sehat' => 'Surat Sehat',
-                            ];
-                        @endphp
-                        <div class="row">
-                            <div class="col-12 mb-2">
-                                <h6 class="fw-bold text-primary"><i class="mdi mdi-file-upload-outline me-2"></i>Dokumen Pendukung</h6>
-                            </div>
-                            @foreach($docLabels as $key => $label)
-                                <div class="col-md-6 mb-3">
-                                    <h6 class="text-muted mb-0">{{ $label }}</h6>
-                                    @if(isset($documents[$key]))
-                                        <a href="{{ Storage::url($documents[$key]) }}" target="_blank" class="d-block text-primary">
-                                            <i class="mdi mdi-eye-outline me-1"></i>Lihat Dokumen
-                                        </a>
-                                    @else
-                                        <span class="text-muted">Tidak ada</span>
+                        {{-- Riwayat Pendidikan --}}
+                        <div class="mt-3">
+                            <h6 class="fw-bold text-primary border-bottom pb-2">
+                                <i class="mdi mdi-school-outline me-2"></i>Riwayat Pendidikan
+                            </h6>
+                            @php
+                                $eduData = optional($selectedKandidat)->riwayat_pendidikan ?? [];
+                                if (!is_array($eduData)) { $eduData = json_decode($eduData, true) ?: []; }
+                            @endphp
+                            @if($eduData)
+                                @foreach($eduData as $item)
+                                    <div class="p-2 rounded border bg-light mb-2">
+                                        <div class="fw-semibold mb-0">{{ $item['name'] ?? '-' }} - {{ $item['major'] ?? '-' }}</div>
+                                        <small class="text-muted d-block">{{ $item['start'] ?? '-' }} - {{ $item['end'] ?? '-' }}</small>
+                                        <div class="small mb-0">Tingkat: {{ $item['level'] ?? '-' }}</div>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="text-muted">Belum ada riwayat pendidikan.</div>
+                            @endif
+                        </div>
+
+                        {{-- Keterampilan Bahasa --}}
+                        <div class="mt-3">
+                            <h6 class="fw-bold text-primary border-bottom pb-2">
+                                <i class="mdi mdi-translate me-2"></i>Keterampilan Bahasa
+                            </h6>
+                            @php
+                                $langData = optional($selectedKandidat)->kemampuan_bahasa ?? [];
+                                if (!is_array($langData)) { $langData = json_decode($langData, true) ?: []; }
+                            @endphp
+                            @if($langData)
+                                @foreach($langData as $item)
+                                    <div class="p-2 rounded border bg-light mb-2">
+                                        <div class="fw-semibold mb-0">{{ $item['language'] ?? '-' }}</div>
+                                        <div class="small mb-0">Berbicara: {{ $item['speaking'] ?? '-' }}, Membaca: {{ $item['reading'] ?? '-' }}, Menulis: {{ $item['writing'] ?? '-' }}</div>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="text-muted">Belum ada keterampilan bahasa.</div>
+                            @endif
+                        </div>
+
+                        {{-- Informasi Spesifik --}}
+                        <div class="mt-3">
+                            <h6 class="fw-bold text-primary border-bottom pb-2">
+                                <i class="mdi mdi-information-outline me-2"></i>Informasi Spesifik
+                            </h6>
+                            @php
+                                $spec = optional($selectedKandidat)->informasi_spesifik ?? [];
+                                if (!is_array($spec)) { $spec = json_decode($spec, true) ?: []; }
+                            @endphp
+                            @if($spec)
+                                <div class="p-2 rounded border bg-light">
+                                    <div class="mb-1">Pernah bekerja di perusahaan ini? <strong>{{ $spec['pernah'] ?? '-' }}</strong></div>
+                                    @if(isset($spec['pernah']) && $spec['pernah'] === 'Ya')
+                                        <div class="mb-1">Lokasi: <strong>{{ $spec['lokasi'] ?? '-' }}</strong></div>
                                     @endif
+                                    <div class="mb-0">Sumber informasi pekerjaan: <strong>{{ $spec['info'] ?? '-' }}</strong></div>
                                 </div>
-                            @endforeach
+                            @else
+                                <div class="text-muted">Belum ada informasi spesifik.</div>
+                            @endif
+                        </div>
+
+                        {{-- Dokumen Pendukung --}}
+                        <div class="mt-3">
+                            <h6 class="fw-bold text-primary border-bottom pb-2">
+                                <i class="mdi mdi-file-upload-outline me-2"></i>Dokumen Pendukung
+                            </h6>
+                            @php
+                                $docMap = [
+                                    'KTP' => optional($selectedKandidat)->ktp_path ?? ($documents['ktp'] ?? null),
+                                    'Ijazah' => optional($selectedKandidat)->ijazah_path ?? ($documents['ijazah'] ?? null),
+                                    'Sertifikat' => optional($selectedKandidat)->sertifikat_path ?? ($documents['sertifikat'] ?? null),
+                                    'Surat Pengalaman Kerja' => optional($selectedKandidat)->surat_pengalaman_path ?? ($documents['surat_pengalaman'] ?? null),
+                                    'SKCK' => optional($selectedKandidat)->skck_path ?? ($documents['skck'] ?? null),
+                                    'Surat Sehat' => optional($selectedKandidat)->surat_sehat_path ?? ($documents['surat_sehat'] ?? null),
+                                ];
+                            @endphp
+                            <div class="row g-2">
+                                @foreach($docMap as $label => $path)
+                                    <div class="col-md-6">
+                                        <div class="p-2 rounded border bg-light d-flex justify-content-between align-items-center">
+                                            <div class="text-muted small mb-0">{{ $label }}</div>
+                                            @if(!empty($path))
+                                                <a href="{{ Storage::url($path) }}" target="_blank" class="btn btn-sm btn-soft-primary"><i class="mdi mdi-eye-outline"></i> Lihat</a>
+                                            @else
+                                                <span class="text-muted small">Belum diunggah</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
                     @endif
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" wire:click="closeDetailModal">Tutup</button>
                 </div>
             </div>
         </div>
     </div>
+    @if($detailModal)
+        <div class="modal-backdrop fade show"></div>
+    @endif
 
     <!-- Modal Hasil Interview -->
     <div class="modal fade @if($resultModal) show @endif" tabindex="-1" style="@if($resultModal) display:block; @endif">

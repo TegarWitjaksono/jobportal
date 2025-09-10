@@ -46,7 +46,7 @@
                 <div class="row mt-5 justify-content-center">
                     <div class="col-12">
                         <div class="title-heading text-center">
-                            <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">{{ __('Create Job Vacancy') }}</h5>
+                            <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">{{ __('Tambah Lowongan') }}</h5>
                         </div>
                     </div><!--end col-->
                 </div><!--end row-->
@@ -54,9 +54,9 @@
                 <div class="position-middle-bottom">
                     <nav aria-label="breadcrumb" class="d-block">
                         <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
-                            <li class="breadcrumb-item"><a href="{{ route('officers.index') }}">{{ __('Home') }}</a></li>
+                            <li class="breadcrumb-item"><a href="{{ route('officers.index') }}">{{ __('Beranda') }}</a></li>
                             <li class="breadcrumb-item"><a href="{{ route('Lowongan.Index') }}">{{ __('Lowongan') }}</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">{{ __('Create Job Vacancy') }}</li>
+                            <li class="breadcrumb-item active" aria-current="page">{{ __('Tambah Lowongan') }}</li>
                         </ul>
                     </nav>
                 </div>
@@ -79,16 +79,16 @@
                         <div class="card border-0">
                             <form wire:submit.prevent="save" class="rounded shadow p-4" enctype="multipart/form-data">
                                 <div class="row">
-                                    <h5 class="mb-3">Job Details:</h5>
+                                    <h5 class="mb-3">Detail Lowongan</h5>
                                     <div class="col-12">
                                         <div class="mb-3">
-                                            <label class="form-label fw-semibold">Job Title :</label>
-                                            <input wire:model.defer="nama_posisi" class="form-control" placeholder="Title">
+                                            <label class="form-label fw-semibold">Judul Pekerjaan :</label>
+                                            <input wire:model.defer="nama_posisi" class="form-control" placeholder="Judul Pekerjaan">
                                             @error('nama_posisi') <div class="text-danger">{{ $message }}</div> @enderror
                                         </div>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label fw-semibold">Description :</label>
+                                        <label class="form-label fw-semibold">Deskripsi :</label>
                                         <div wire:ignore>
                                             <textarea id="description-editor" wire:model.defer="deskripsi" class="form-control"></textarea>
                                         </div>
@@ -96,15 +96,15 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-semibold">Department:</label>
-                                            <input wire:model.defer="departemen" class="form-control" placeholder="Department">
+                                            <label class="form-label fw-semibold">Departemen:</label>
+                                            <input wire:model.defer="departemen" class="form-control" placeholder="Departemen">
                                             @error('departemen') <div class="text-danger">{{ $message }}</div> @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-semibold">Location:</label>
-                                            <input wire:model.defer="lokasi_penugasan" class="form-control" placeholder="Location">
+                                            <label class="form-label fw-semibold">Lokasi Penugasan:</label>
+                                            <input wire:model.defer="lokasi_penugasan" class="form-control" placeholder="Lokasi Penugasan">
                                             @error('lokasi_penugasan') <div class="text-danger">{{ $message }}</div> @enderror
                                         </div>
                                     </div>
@@ -112,17 +112,17 @@
                                         <div class="mb-3">
                                             <label class="form-label fw-semibold">Remote:</label>
                                             <select wire:model.defer="is_remote" class="form-control form-select">
-                                                <option value="0">No</option>
-                                                <option value="1">Yes</option>
+                                                <option value="0">Tidak</option>
+                                                <option value="1">Ya</option>
                                             </select>
                                             @error('is_remote') <div class="text-danger">{{ $message }}</div> @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-semibold">Category:</label>
+                                            <label class="form-label fw-semibold">Kategori:</label>
                                             <select wire:model.defer="kategori_lowongan_id" class="form-control form-select">
-                                                <option value="">Select Category</option>
+                                                <option value="">Pilih Kategori</option>
                                                 @foreach($kategoriLowonganOptions as $kategori)
                                                     <option value="{{ $kategori->id }}">{{ $kategori->nama_kategori }}</option>
                                                 @endforeach
@@ -132,22 +132,22 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-semibold">Posting Date:</label>
+                                            <label class="form-label fw-semibold">Tanggal Posting:</label>
                                             <input type="date" wire:model.defer="tanggal_posting" class="form-control">
                                             @error('tanggal_posting') <div class="text-danger">{{ $message }}</div> @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-semibold">End Date:</label>
+                                            <label class="form-label fw-semibold">Tanggal Berakhir:</label>
                                             <input type="date" wire:model.defer="tanggal_berakhir" class="form-control">
                                             @error('tanggal_berakhir') <div class="text-danger">{{ $message }}</div> @enderror
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-semibold">Salary Range:</label>
-                                            
+                                            <label class="form-label fw-semibold">Rentang Gaji:</label>
+
                                             {{-- Gunakan wire:ignore agar Livewire tidak mengganggu input yang sudah diatur oleh Cleave.js --}}
                                             <div class="input-group" wire:ignore>
                                                 <input type="text" 
@@ -162,22 +162,32 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label fw-semibold">Required Skills:</label>
-                                            <input wire:model.defer="kemampuan_yang_dibutuhkan" class="form-control" placeholder="Skills">
+                                            <label class="form-label fw-semibold">Keterampilan yang Dibutuhkan:</label>
+                                            <input wire:model.defer="kemampuan_yang_dibutuhkan" class="form-control" placeholder="Keterampilan">
                                             @error('kemampuan_yang_dibutuhkan') <div class="text-danger">{{ $message }}</div> @enderror
                                         </div>
                                     </div>
                                     <div class="col-12">
                                         <div class="mb-3">
-                                            <label class="form-label fw-semibold">Photo:</label>
+                                            <label class="form-label fw-semibold">Foto:</label>
                                             <input type="file" wire:model="foto" class="form-control" accept="image/*">
                                             @error('foto') <div class="text-danger">{{ $message }}</div> @enderror
+                                            <div class="mt-2">
+                                                <div wire:loading wire:target="foto" class="text-muted small">Mengunggah gambar…</div>
+                                                @if ($foto)
+                                                    <img src="{{ $foto->temporaryUrl() }}" alt="Preview Foto" style="max-width: 120px; max-height: 120px; border-radius: 6px;">
+                                                    <small class="text-muted d-block">Preview</small>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-12">
-                                        <input type="submit" class="submitBnt btn btn-primary" value="Post Now">
+                                    <div class="col-12 d-flex justify-content-between align-items-center">
+                                        <a href="{{ route('Lowongan.Index') }}" class="btn btn-soft-secondary">
+                                            {{ __('Batal') }}
+                                        </a>
+                                        <input type="submit" class="submitBnt btn btn-primary" value="Simpan Lowongan">
                                     </div>
                                 </div>
                             </form>

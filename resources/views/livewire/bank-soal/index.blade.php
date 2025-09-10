@@ -28,7 +28,7 @@
             <div class="position-middle-bottom">
                 <nav aria-label="breadcrumb" class="d-block">
                     <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
-                        <li class="breadcrumb-item"><a href="{{ route('officers.index') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('officers.index') }}">Beranda</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Bank Soal</li>
                     </ul>
                 </nav>
@@ -50,15 +50,18 @@
             <!-- Filter dan Pencarian -->
             <div class="row mb-4">
                 <div class="col-md-6">
-                    <div class="input-group">
+                    <div class="input-group input-group-sm">
                         <input type="text" class="form-control" placeholder="Cari soal atau kategori..." wire:model.live.debounce.300ms="search">
-                        <button class="btn btn-primary" type="button">
+                        <button class="btn btn-primary btn-sm" type="button">
                             <i class="mdi mdi-magnify"></i>
                         </button>
                     </div>
                 </div>
                 <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                    <button wire:click="create" class="btn btn-primary">
+                    <button wire:click="create"
+                            class="btn btn-soft-primary btn-sm d-inline-flex align-items-center"
+                            data-bs-toggle="tooltip" data-bs-placement="top"
+                            title="Tambah Soal" aria-label="Tambah Soal">
                         <i class="mdi mdi-plus-circle-outline me-1"></i> Tambah Soal
                     </button>
                 </div>

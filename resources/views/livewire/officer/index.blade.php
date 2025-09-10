@@ -25,7 +25,7 @@
             <div class="row mt-5 justify-content-center">
                 <div class="col-12">
                     <div class="title-heading text-center">
-                        <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">{{ __('Officers') }}</h5>
+                        <h5 class="heading fw-semibold mb-0 sub-heading text-white title-dark">{{ __('Officer') }}</h5>
                     </div>
                 </div><!--end col-->
             </div><!--end row-->
@@ -33,7 +33,7 @@
             <div class="position-middle-bottom">
                 <nav aria-label="breadcrumb" class="d-block">
                     <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
-                        <li class="breadcrumb-item active" aria-current="page">{{ __('Home') }}</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ __('Beranda') }}</a></li>
                     </ul>
                 </nav>
             </div>
@@ -54,24 +54,26 @@
                 <div class="col-12">
                     <div class="card border-0 rounded shadow">
                         <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                            <h5 class="card-title mb-0">{{ __('Officer List') }}</h5>
+                            <h5 class="card-title mb-0">{{ __('Daftar Officer') }}</h5>
                             @if(!$isRecruiter)
-                                <a href="#" wire:click.prevent="openCreateModal" class="btn btn-primary btn-sm">{{ __('Add New Officer') }}</a>
+                                <a href="#" wire:click.prevent="openCreateModal" class="btn btn-sm btn-soft-primary d-inline-flex align-items-center" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('Tambah Officer Baru') }}" aria-label="{{ __('Tambah Officer Baru') }}">
+                                    <i class="mdi mdi-account-plus me-1"></i> {{ __('Tambah Officer Baru') }}
+                                </a>
                             @endif
                         </div>
                         <!-- Filter Section -->
                        <div class="card-body border-bottom">
                             <div class="row g-3">
                                 <div class="col-lg-3 col-md-6">
-                                    <div class="search-box">
-                                        <input wire:model.defer="search" type="text" class="form-control" placeholder="Search name, NIK..." />
+                                    <div class="search-box" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('Cari berdasarkan nama atau NIK') }}">
+                                        <input wire:model.defer="search" type="text" class="form-control" placeholder="{{ __('Cari nama, NIK...') }}" aria-label="{{ __('Cari berdasarkan nama atau NIK') }}" />
                                         <i class="mdi mdi-magnify search-icon"></i>
                                     </div>
                                 </div>
 
                                 <div class="col-lg-3 col-md-6">
-                                    <select wire:model.defer="jabatanFilter" class="form-select">
-                                        <option value="">{{ __('All Positions') }}</option>
+                                    <select wire:model.defer="jabatanFilter" class="form-select" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('Filter berdasarkan jabatan') }}" aria-label="{{ __('Filter berdasarkan jabatan') }}">
+                                        <option value="">{{ __('Semua Jabatan') }}</option>
                                         @foreach($positions ?? [] as $position)
                                             <option value="{{ $position }}">{{ $position }}</option>
                                         @endforeach
@@ -79,20 +81,20 @@
                                 </div>
 
                                 <div class="col-lg-3 col-md-6">
-                                    <select wire:model.defer="lokasiFilter" class="form-select">
-                                        <option value="">{{ __('All Locations') }}</option>
+                                    <select wire:model.defer="lokasiFilter" class="form-select" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('Filter berdasarkan lokasi') }}" aria-label="{{ __('Filter berdasarkan lokasi') }}">
+                                        <option value="">{{ __('Semua Lokasi') }}</option>
                                         @foreach($locations ?? [] as $location)
                                             <option value="{{ $location }}">{{ $location }}</option>
                                         @endforeach
                                     </select>
                                 </div>
 
-                                <div class="col-lg-3 col-md-6 d-flex">
-                                    <button wire:click="applyFilters" class="btn btn-primary me-2">
-                                        <i class="mdi mdi-filter-outline me-1"></i> {{ __('Apply') }}
+                                <div class="col-lg-3 col-md-6 d-flex justify-content-end ms-md-auto">
+                                    <button wire:click="applyFilters" class="btn btn-sm btn-primary d-inline-flex align-items-center me-2" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('Terapkan filter') }}" aria-label="{{ __('Terapkan filter') }}">
+                                        <i class="mdi mdi-filter-outline me-1"></i> {{ __('Terapkan') }}
                                     </button>
-                                    <button wire:click="resetFilters" class="btn btn-outline-secondary">
-                                        <i class="mdi mdi-refresh me-1"></i> {{ __('Reset') }}
+                                    <button wire:click="resetFilters" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('Atur ulang filter') }}" aria-label="{{ __('Atur ulang filter') }}">
+                                        <i class="mdi mdi-refresh me-1"></i> {{ __('Atur Ulang') }}
                                     </button>
                                 </div>
                             </div>
@@ -105,7 +107,7 @@
                                         <tr>
                                             <th class="text-center" style="width: 5%;">#</th>
                                             <th wire:click="sortBy('nama_depan')" class="cursor-pointer">
-                                                {{ __('Full Name') }}
+                                                {{ __('Nama Lengkap') }}
                                                 @if($sortField === 'nama_depan')
                                                     <i class="mdi mdi-arrow-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
                                                 @endif
@@ -117,35 +119,40 @@
                                                 @endif
                                             </th>
                                             <th wire:click="sortBy('jabatan')" class="cursor-pointer">
-                                                {{ __('Position') }}
+                                                {{ __('Jabatan') }}
                                                 @if($sortField === 'jabatan')
                                                     <i class="mdi mdi-arrow-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
                                                 @endif
                                             </th>
                                             <th wire:click="sortBy('doh')" class="cursor-pointer">
-                                                {{ __('DOH') }}
+                                                {{ __('Tanggal Masuk') }}
                                                 @if($sortField === 'doh')
                                                     <i class="mdi mdi-arrow-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
                                                 @endif
                                             </th>
                                             <th wire:click="sortBy('lokasi_penugasan')" class="cursor-pointer">
-                                                {{ __('Location') }}
+                                                {{ __('Lokasi') }}
                                                 @if($sortField === 'lokasi_penugasan')
                                                     <i class="mdi mdi-arrow-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
                                                 @endif
                                             </th>
-                                            <th class="text-center" style="width: 10%;">Action</th>
+                                            <th class="text-center" style="width: 10%;">{{ __('Aksi') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @forelse($officers ?? [] as $index => $officer)
                                             <tr>
                                                 <td class="text-center">{{ $officers->firstItem() + $index }}</td>
-                                                <td>{{ $officer->nama_depan . ' ' . $officer->nama_belakang }}</td>
-                                                <td>{{ $officer->nik }}</td>
-                                                <td>{{ $officer->jabatan }}</td>
-                                                <td>{{ \Carbon\Carbon::parse($officer->doh)->format('d M Y') }}</td>
-                                                <td>{{ $officer->lokasi_penugasan }}</td>
+                                                <td>
+                                                    {{ trim(($officer->nama_depan ?? '') . ' ' . ($officer->nama_belakang ?? '')) ?: '-' }}
+                                                </td>
+                                                <td>{{ $officer->nik ?? '-' }}</td>
+                                                <td>{{ $officer->jabatan ?? '-' }}</td>
+                                                <td>
+                                                    @php $doh = $officer->doh ?? null; @endphp
+                                                    {{ $doh ? \Carbon\Carbon::parse($doh)->format('d M Y') : '-' }}
+                                                </td>
+                                                <td>{{ $officer->lokasi_penugasan ?? '-' }}</td>
                                                 <td class="text-center">
                                                     <div class="btn-group">
                                                         <a href="#" wire:click.prevent="openEditModal({{ $officer->id }})" class="btn btn-sm btn-soft-warning me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">

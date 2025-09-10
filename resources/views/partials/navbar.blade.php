@@ -20,17 +20,7 @@
                     <img src="images/logo-light.png" class="logo-dark-mode" alt="">
                 </a>
 
-                <div class="menu-extras">
-                    <div class="menu-item">
-                        <a class="navbar-toggle" id="isToggle" onclick="toggleMenu()">
-                            <div class="lines">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                            </div>
-                        </a>
-                    </div>
-                </div>
+                <!-- Removed hamburger (three lines) toggle as requested -->
 
                 <ul class="buy-button list-inline mb-0 d-flex align-items-center gap-2">
                     @auth
@@ -43,36 +33,22 @@
                             $icon = $isOfficer ? 'shield' : 'user';
                             $label = $isOfficer ? $user->role_badge_label : null; // hide role label for kandidat
                         @endphp
-                        <span class="badge rounded-pill {{ $badgeClass }} px-3 py-2 d-inline-flex align-items-center">
-                            <i data-feather="{{ $icon }}" class="fea icon-sm me-1 align-middle"></i>
-                            <span class="fw-semibold">{{ $firstName }}</span>
-                            @if($label)
-                                <span class="mx-1">-</span>
-                                <span>{{ $label }}</span>
-                            @endif
-                        </span>
-                    </li>
-                    @endauth
-
-                    @auth
-                    <li class="list-inline-item ps-1 mb-0 align-middle">
-                        <div class="dropdown dropdown-primary d-inline-flex align-items-center gap-2">
-                            <button type="button" class="dropdown-toggle btn btn-sm btn-icon btn-pills btn-primary d-flex align-items-center justify-content-center" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <img src="images/team/01.jpg" class="rounded-pill" alt="Avatar" style="width:20px;height:20px;object-fit:cover;display:block;">
-                            </button>
+                        <div class="dropdown role-dropdown d-inline-flex align-items-center">
+                            <a href="#" class="dropdown-toggle badge rounded-pill {{ $badgeClass }} px-3 py-2 d-inline-flex align-items-center role-badge-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i data-feather="{{ $icon }}" class="fea icon-sm me-1 align-middle"></i>
+                                <span class="fw-semibold">{{ $firstName }}</span>
+                                @if($label)
+                                    <span class="mx-1">-</span>
+                                    <span>{{ $label }}</span>
+                                @endif
+                                <i class="mdi mdi-chevron-down ms-1"></i>
+                            </a>
                             <div class="dropdown-menu dd-menu dropdown-menu-end bg-white rounded shadow border-0 mt-3">
                                 <a href="{{ auth()->user()->is_kandidat ? route('profile.show') : route('officers.index') }}" class="dropdown-item fw-medium fs-6 d-flex align-items-center">
                                     <i data-feather="user" class="fea icon-sm me-2 align-middle"></i>
                                     <span>Profile</span>
-                                    
                                 </a>
-                                @if(auth()->user()->is_kandidat)
-                                    <a href="#" @click.prevent="settingsOpen=true" class="dropdown-item fw-medium fs-6">
-                                        <i data-feather="settings" class="fea icon-sm me-2 align-middle"></i>Settings
-                                    </a>
-                                @endif
                                 <div class="dropdown-divider border-top"></div>
-                                <a href="lock-screen.html" class="dropdown-item fw-medium fs-6"><i data-feather="lock" class="fea icon-sm me-2 align-middle"></i>Lockscreen</a>
                                 <form method="POST" action="{{ route('logout') }}" x-data class="d-inline w-100">
                                     @csrf
                                     <button type="submit" class="dropdown-item fw-medium fs-6 border-0 bg-transparent p-0 ps-3 py-2 w-100 text-start"
@@ -84,6 +60,8 @@
                         </div>
                     </li>
                     @endauth
+
+                    @auth @endauth
                     @guest
                     <li class="list-inline-item ps-1 mb-0">
                         <a href="javascript:void(0)" class="btn btn-sm btn-primary" @click="authPromptOpen=true">
