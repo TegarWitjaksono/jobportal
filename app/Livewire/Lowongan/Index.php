@@ -89,7 +89,7 @@ class Index extends Component
 
     public function openEdit($id)
     {
-        return redirect()->route('Lowongan.edit', $id);
+        return redirect()->route('Lowongan.Edit', $id);
     }
 
     public function openView($id)

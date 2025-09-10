@@ -58,29 +58,31 @@
                                     $lastUpdate = optional(optional($lamaran->progressRekrutmen)->last())->created_at;
                                 @endphp
                                 <div class="border rounded-3 p-3 p-md-4 mb-3">
-                                    <div class="row align-items-start align-items-md-center">
-                                        <div class="col-md-10">
-                                            <div class="d-flex align-items-start gap-3">
-                                                <div class="avatar avatar-md rounded-circle bg-light d-flex align-items-center justify-content-center">
-                                                    <i class="mdi mdi-clipboard-text-outline"></i>
+                                    <div class="row align-items-center">
+                                        <div class="col-md-9">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar avatar-md-sm rounded-circle bg-light d-flex align-items-center justify-content-center me-3">
+                                                    <i class="mdi mdi-clipboard-text-outline text-muted"></i>
                                                 </div>
                                                 <div>
                                                     <h6 class="fw-semibold mb-1">{{ $l->nama_posisi ?? '-' }}</h6>
-                                                    <div class="text-muted small">Departemen: {{ $l->departemen ?? '-' }}</div>
-                                                    <div class="text-muted small">Lokasi: {{ $l->lokasi_penugasan ?? '-' }}</div>
-                                                    <span class="badge bg-info mt-2">Tahap: Psikotes</span>
-                                                    <div class="mt-2">
-                                                        <a href="{{ route('cbt.test') }}" target="_blank" class="btn btn-sm btn-primary">
-                                                            <i class="mdi mdi-pencil me-1"></i> Mulai Psikotes
-                                                        </a>
+                                                    <div class="d-flex flex-wrap align-items-center gap-3 text-muted small">
+                                                        <span class="d-inline-flex align-items-center"><i class="mdi mdi-office-building me-1"></i> {{ $l->departemen ?? '-' }}</span>
+                                                        <span class="d-inline-flex align-items-center"><i class="mdi mdi-map-marker me-1"></i> {{ $l->lokasi_penugasan ?? '-' }}</span>
+                                                        <span class="badge bg-info-subtle text-info rounded-pill px-3 py-1">Tahap: Psikotes</span>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-2 text-md-end mt-3 mt-md-0">
-                                            @if ($lastUpdate)
-                                                <small class="text-muted">Update: {{ $lastUpdate->format('d M Y') }}</small>
-                                            @endif
+                                        <div class="col-md-3 mt-3 mt-md-0">
+                                            <div class="d-flex flex-md-column align-items-center justify-content-end gap-2 text-md-end">
+                                                <a href="{{ route('cbt.test') }}" target="_blank" rel="noopener" class="btn btn-sm btn-primary w-auto">
+                                                    <i class="mdi mdi-pencil me-1"></i> Mulai Psikotes
+                                                </a>
+                                                @if ($lastUpdate)
+                                                    <small class="text-muted">Update: {{ $lastUpdate->format('d M Y') }}</small>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

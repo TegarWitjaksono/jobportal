@@ -148,10 +148,10 @@
                                                 <td>{{ $officer->lokasi_penugasan }}</td>
                                                 <td class="text-center">
                                                     <div class="btn-group">
-                                                        <a href="#" wire:click.prevent="openEditModal({{ $officer->id }})" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                                                        <a href="#" wire:click.prevent="openEditModal({{ $officer->id }})" class="btn btn-sm btn-soft-warning me-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
                                                             <i class="mdi mdi-pencil"></i>
                                                         </a>
-                                                        <a href="#" wire:click.prevent="openDeleteModal({{ $officer->id }})" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+                                                        <a href="#" wire:click.prevent="openDeleteModal({{ $officer->id }})" class="btn btn-sm btn-soft-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
                                                             <i class="mdi mdi-trash-can"></i>
                                                         </a>
                                                     </div>

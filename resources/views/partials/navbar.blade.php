@@ -33,23 +33,26 @@
                 </div>
 
                 <ul class="buy-button list-inline mb-0 d-flex align-items-center gap-2">
+                    @auth
                     <li class="list-inline-item ps-1 mb-0 align-middle">
-                        <div class="dropdown d-inline-flex align-items-center gap-2">
-                            <button type="button" class="dropdown-toggle btn btn-sm btn-icon btn-pills btn-primary d-flex align-items-center justify-content-center" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i data-feather="search" class="icons"></i>
-                            </button>
-                            <div class="dropdown-menu dd-menu dropdown-menu-end bg-white rounded border-0 mt-3 p-0" style="width: 240px;">
-                                <div class="search-bar">
-                                    <div id="itemSearch" class="menu-search mb-0">
-                                        <form role="search" method="get" id="searchItemform" class="searchform">
-                                            <input type="text" class="form-control rounded border" name="s" id="searchItem" placeholder="Search...">
-                                            <input type="submit" id="searchItemsubmit" value="Search">
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        @php
+                            $user = auth()->user();
+                            $firstName = optional($user->kandidat)->nama_depan ?? \Illuminate\Support\Str::before($user->name ?? '', ' ');
+                            $isOfficer = $user->is_officer;
+                            $badgeClass = $isOfficer ? $user->role_badge_class : 'bg-soft-success text-success';
+                            $icon = $isOfficer ? 'shield' : 'user';
+                            $label = $isOfficer ? $user->role_badge_label : null; // hide role label for kandidat
+                        @endphp
+                        <span class="badge rounded-pill {{ $badgeClass }} px-3 py-2 d-inline-flex align-items-center">
+                            <i data-feather="{{ $icon }}" class="fea icon-sm me-1 align-middle"></i>
+                            <span class="fw-semibold">{{ $firstName }}</span>
+                            @if($label)
+                                <span class="mx-1">-</span>
+                                <span>{{ $label }}</span>
+                            @endif
+                        </span>
                     </li>
+                    @endauth
 
                     @auth
                     <li class="list-inline-item ps-1 mb-0 align-middle">

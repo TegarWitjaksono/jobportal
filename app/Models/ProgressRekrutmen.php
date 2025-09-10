@@ -22,12 +22,14 @@ class ProgressRekrutmen extends Model
         'is_interview',
         'is_psikotes',
         'waktu_pelaksanaan',
+        'waktu_selesai',
         'user_create',
         'link_zoom', // Tambahkan ini
     ];
 
     protected $casts = [
         'waktu_pelaksanaan' => 'datetime',
+        'waktu_selesai' => 'datetime',
         'is_interview' => 'boolean',
         'is_psikotes' => 'boolean',
     ];

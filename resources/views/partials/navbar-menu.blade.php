@@ -20,10 +20,25 @@
                     </li>
                 </ul>
             </li>
-            <li><a href="{{ route('kandidat.index') }}" class="{{ request()->routeIs('kandidat.*') ? 'active' : '' }}">{{ __('Kandidat') }}</a></li>
-            <li><a href="{{ route('lamaran-lowongan.index') }}" class="{{ request()->routeIs('lamaran-lowongan.index') ? 'active' : '' }}">{{ __('Lamaran') }}</a></li>
-            <li><a href="{{ route('jadwal-interview.index') }}" class="{{ request()->routeIs('jadwal-interview.index') ? 'active' : '' }}">{{ __('Jadwal Interview') }}</a></li>
-            <li><a href="{{ route('test-results.index') }}" class="{{ request()->routeIs('test-results.*') ? 'active' : '' }}">{{ __('Hasil Test CBT') }}</a></li>
+            <li class="has-submenu parent-menu-item">
+                <a href="javascript:void(0)">{{ __('Kandidat') }}</a><span class="menu-arrow"></span>
+                <ul class="submenu">
+                    @if(strtolower(optional(auth()->user()->officer)->jabatan) !== 'recruiter')
+                        <li>
+                            <a href="{{ route('kandidat.index') }}" class="sub-menu-item {{ request()->routeIs('kandidat.*') ? 'active' : '' }}">{{ __('Data Kandidat') }}</a>
+                        </li>
+                    @endif
+                    <li>
+                        <a href="{{ route('lamaran-lowongan.index') }}" class="sub-menu-item {{ request()->routeIs('lamaran-lowongan.index') ? 'active' : '' }}">{{ __('Lamaran') }}</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('jadwal-interview.index') }}" class="sub-menu-item {{ request()->routeIs('jadwal-interview.index') ? 'active' : '' }}">{{ __('Jadwal Interview') }}</a>
+                    </li>
+                    <li>
+                        <a href="{{ route('test-results.index') }}" class="sub-menu-item {{ request()->routeIs('test-results.*') ? 'active' : '' }}">{{ __('Hasil Test CBT') }}</a>
+                    </li>
+                </ul>
+            </li>
 
             @php
                 $jabatan = strtolower(optional(auth()->user()->officer)->jabatan);

@@ -196,14 +196,25 @@
                                                 @if($hasInterview && $latestInterview)
                                                     <div class="mt-2">
                                                         @if($latestInterview->waktu_pelaksanaan)
-                                                            <div class="small text-muted">Waktu: {{ $latestInterview->waktu_pelaksanaan->format('d M Y H:i') }}</div>
+                                                            <div class="small text-muted">
+                                                                Waktu: {{ $latestInterview->waktu_pelaksanaan->format('d M Y H:i') }}
+                                                                @if($latestInterview->waktu_selesai)
+                                                                    &ndash; {{ $latestInterview->waktu_selesai->format('H:i') }}
+                                                                @endif
+                                                            </div>
                                                         @endif
                                                         @if($latestInterview->officer)
                                                             <div class="small text-muted">Interviewer: {{ $latestInterview->officer->name }}</div>
                                                         @endif
                                                         @php $hasInterviewResult = !empty($latestInterview->catatan) || !empty($latestInterview->dokumen_pendukung); @endphp
                                                         @if($latestInterview->link_zoom && !$doneStatuses->contains('psikotes'))
-                                                            @if(!$hasInterviewResult)
+                                                            @php
+                                                                $now = \Carbon\Carbon::now();
+                                                                $start = $latestInterview->waktu_pelaksanaan;
+                                                                $end = $latestInterview->waktu_selesai ?? ($start ? (clone $start)->addMinutes((int)config('zoom.default.duration', 60)) : null);
+                                                                $withinWindow = $start && $end ? $now->between($start, $end) : false;
+                                                            @endphp
+                                                            @if(!$hasInterviewResult && $withinWindow)
                                                                 <a href="{{ $latestInterview->link_zoom }}" target="_blank" rel="noopener"
                                                                    class="btn btn-sm btn-primary mt-1">
                                                                     <i class="mdi mdi-video me-1"></i>Join Zoom

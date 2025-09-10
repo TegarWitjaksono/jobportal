@@ -112,7 +112,7 @@ class Edit extends Component
             $this->notificationMessage = 'Lowongan gagal diubah.';
         }
         $this->dispatch('lowonganUpdated');
-        return redirect()->route('Lowongan.index');
+        return redirect()->route('Lowongan.Index');
     }
 
     public function render()

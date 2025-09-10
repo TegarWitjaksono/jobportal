@@ -94,17 +94,22 @@
                                             @php $hasResult = !empty($progress->catatan) || !empty($progress->dokumen_pendukung); @endphp
                                             @if($progress->link_zoom)
                                                 @if(!$hasResult)
-                                                    <a href="{{ $progress->link_zoom }}" target="_blank" class="d-block small text-primary">
-                                                        <i class="mdi mdi-video me-1"></i> Link Zoom
-                                                    </a>
+                                                    <div class="d-flex align-items-center gap-1">
+                                                        <a href="{{ $progress->link_zoom }}" target="_blank" class="btn btn-sm btn-soft-primary" data-bs-toggle="tooltip" title="Buka Zoom">
+                                                            <i class="mdi mdi-video"></i>
+                                                        </a>
+                                                        <button type="button" class="btn btn-sm btn-soft-secondary" data-bs-toggle="tooltip" title="Salin Link" onclick="navigator.clipboard.writeText('{{ $progress->link_zoom }}')">
+                                                            <i class="mdi mdi-content-copy"></i>
+                                                        </button>
+                                                    </div>
                                                 @else
-                                                    <span class="d-block small text-muted"><i class="mdi mdi-video-off-outline me-1"></i> Link Zoom nonaktif</span>
+                                                    <span class="badge bg-soft-secondary rounded-pill mt-1"><i class="mdi mdi-video-off-outline me-1"></i> Link Zoom nonaktif</span>
                                                 @endif
                                             @endif
                                         </td>
                                         <td>
                                             @php $hasResult = !empty($progress->catatan) || !empty($progress->dokumen_pendukung); @endphp
-                                            <button class="btn btn-outline-primary btn-sm" wire:click="openResultModal({{ $progress->id }})">
+                                            <button class="btn btn-outline-primary btn-sm" wire:click="openResultModal({{ $progress->id }}, {{ $hasResult ? 'true' : 'false' }})">
                                                 @if($hasResult)
                                                     <i class="mdi mdi-eye-outline"></i> Lihat Hasil Interview
                                                 @else
@@ -142,32 +147,68 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Catatan</label>
-                            <textarea class="form-control" wire:model.defer="resultCatatan"></textarea>
+                            <textarea class="form-control" wire:model.defer="resultCatatan" @if($resultReadonly) readonly disabled @endif></textarea>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Dokumen Pendukung</label>
-                            <input type="file" class="form-control" wire:model="resultDokumen">
-                            @error('resultDokumen') <div class="small text-danger">{{ $message }}</div> @enderror
-                            @if($existingResultDokumen)
-                                @php $url = Storage::url($existingResultDokumen); $ext = strtolower(pathinfo($existingResultDokumen, PATHINFO_EXTENSION)); @endphp
+                            @unless($resultReadonly)
+                                <input type="file" class="form-control" wire:model="resultDokumen">
+                                <div class="small text-muted mt-1" wire:loading wire:target="resultDokumen">
+                                    <i class="mdi mdi-loading mdi-spin me-1"></i> Mengunggah dokumen...
+                                </div>
+                                @error('resultDokumen') <div class="small text-danger">{{ $message }}</div> @enderror
+
+                                {{-- Preview dokumen baru dipilih --}}
+                                @if($resultDokumen)
+                                    @php
+                                        $newExt = strtolower($resultDokumen->getClientOriginalExtension() ?? $resultDokumen->extension());
+                                    @endphp
+                                    <div class="mt-2">
+                                        <div class="small text-muted mb-1">Dokumen baru dipilih:</div>
+                                        @if(in_array($newExt, ['jpg','jpeg','png','gif','webp']))
+                                            <img src="{{ $resultDokumen->temporaryUrl() }}" alt="Preview" class="img-fluid rounded border" style="max-height: 220px;">
+                                        @elseif($newExt === 'pdf')
+                                            <iframe src="{{ $resultDokumen->temporaryUrl() }}" width="100%" height="240" style="border:1px solid #e5e7eb; border-radius:6px;"></iframe>
+                                        @else
+                                            <div class="small">File: {{ $resultDokumen->getClientOriginalName() }}</div>
+                                        @endif
+                                    </div>
+                                @endif
+                            @endunless
+
+                            {{-- Dokumen yang sudah tersimpan --}}
+                            @if($existingResultDokumen && !$resultDokumen)
+                                @php
+                                    $path = ltrim($existingResultDokumen, '/');
+                                    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                    $exists = \Illuminate\Support\Facades\Storage::disk('public')->exists($path);
+                                    $url = $exists ? '/storage/' . $path : null;
+                                @endphp
                                 <div class="mt-2">
                                     <div class="small text-muted mb-1">Dokumen saat ini:</div>
-                                    @if(in_array($ext, ['jpg','jpeg','png','gif','webp']))
+                                    @if($exists && in_array($ext, ['jpg','jpeg','png','gif','webp']))
                                         <img src="{{ $url }}" alt="Dokumen" class="img-fluid rounded border" style="max-height: 220px;">
-                                    @elseif($ext === 'pdf')
+                                    @elseif($exists && $ext === 'pdf')
                                         <iframe src="{{ $url }}" width="100%" height="240" style="border:1px solid #e5e7eb; border-radius:6px;"></iframe>
-                                    @else
+                                    @elseif($exists)
                                         <a href="{{ $url }}" target="_blank" class="btn btn-sm btn-soft-primary">
                                             <i class="mdi mdi-file-download-outline me-1"></i> Lihat Dokumen
                                         </a>
+                                    @else
+                                        <div class="small text-warning">Dokumen tidak ditemukan: <code>{{ $existingResultDokumen }}</code></div>
                                     @endif
                                 </div>
                             @endif
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" wire:click="$set('resultModal', false)">Batal</button>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        <button type="button" class="btn btn-outline-secondary" wire:click="$set('resultModal', false)">{{ $resultReadonly ? 'Tutup' : 'Batal' }}</button>
+                        @unless($resultReadonly)
+                            <button type="submit" class="btn btn-primary" wire:loading.attr="disabled" wire:target="resultDokumen,saveResult">
+                                <span wire:loading.remove wire:target="resultDokumen,saveResult"><i class="mdi mdi-content-save-outline me-1"></i> Simpan</span>
+                                <span wire:loading wire:target="saveResult"><i class="mdi mdi-loading mdi-spin me-1"></i> Menyimpan...</span>
+                            </button>
+                        @endunless
                     </div>
                 </form>
             </div>

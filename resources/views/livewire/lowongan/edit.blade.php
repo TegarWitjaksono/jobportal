@@ -12,7 +12,7 @@
             <div class="position-middle-bottom">
                 <nav aria-label="breadcrumb" class="d-block">
                     <ul class="breadcrumb breadcrumb-muted mb-0 p-0">
-                        <li class="breadcrumb-item"><a href="{{ route('Lowongan.index') }}">{{ __('Lowongan') }}</a></li>
+                        <li class="breadcrumb-item"><a href="{{ route('Lowongan.Index') }}">{{ __('Lowongan') }}</a></li>
                         <li class="breadcrumb-item active" aria-current="page">{{ __('Edit') }}</li>
                     </ul>
                 </nav>
@@ -48,7 +48,7 @@
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">Description :</label>
                                     <div wire:ignore>
-                                        <textarea id="description-editor" class="form-control"></textarea>
+                                        <textarea id="description-editor" class="form-control">{!! $deskripsi !!}</textarea>
                                     </div>
                                     @error('deskripsi') <div class="text-danger">{{ $message }}</div> @enderror
                                 </div>
@@ -176,8 +176,8 @@
                 }
             })
             .then(editor => {
-                // Mengatur data awal dari properti Livewire saat editor dimuat
-                editor.setData(@this.get('deskripsi') || '');
+                // Set data awal dari server (lebih andal daripada @this.get di v3)
+                editor.setData(@json($deskripsi ?? ''));
 
                 // Sinkronisasi data saat pengguna selesai mengedit (event 'blur')
                 editor.ui.focusTracker.on('change:isFocused', (evt, name, isFocused) => {

@@ -10,6 +10,8 @@ use App\Models\ProgressRekrutmen;
 use Illuminate\Support\Facades\Log;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use App\Services\ZoomService;
+use Illuminate\Support\Carbon;
 
 class Index extends Component
 {
@@ -25,6 +27,7 @@ class Index extends Component
     public $interviewLamaranId;
     public $interviewLink;
     public $interviewWaktu;
+    public $interviewWaktuSelesai;
     public $interviewOfficer;
 
     // detail kandidat
@@ -113,6 +116,7 @@ class Index extends Component
         $this->interviewLamaranId = $lamaranId;
         $this->interviewLink = '';
         $this->interviewWaktu = '';
+        $this->interviewWaktuSelesai = '';
         $this->interviewOfficer = '';
         $this->interviewModal = true;
     }
@@ -120,28 +124,61 @@ class Index extends Component
     public function saveInterview()
     {
         $this->validate([
-            'interviewLink' => 'required|url',
+            'interviewLink' => 'nullable|url',
             'interviewWaktu' => 'required|date',
+            'interviewWaktuSelesai' => 'required|date|after:interviewWaktu',
             'interviewOfficer' => 'required|exists:users,id',
         ], [
-            'interviewLink.required' => 'Link Zoom wajib diisi.',
             'interviewLink.url' => 'Format Link Zoom tidak valid.',
             'interviewWaktu.required' => 'Waktu pelaksanaan wajib diisi.',
+            'interviewWaktuSelesai.required' => 'Waktu selesai wajib diisi.',
+            'interviewWaktuSelesai.after' => 'Waktu selesai harus setelah waktu mulai.',
             'interviewOfficer.required' => 'Interviewer wajib dipilih.',
         ]);
 
         $lamaran = LamarLowongan::findOrFail($this->interviewLamaranId);
         try {
+            // Auto-generate Zoom link if empty
+            if (empty($this->interviewLink)) {
+                $zoom = app(ZoomService::class);
+                if ($zoom->available()) {
+                    $topic = 'Interview - ' . optional($lamaran->kandidat->user)->name . ' - ' . optional($lamaran->lowongan)->nama_posisi;
+                    $duration = null;
+                    try {
+                        $start = Carbon::parse($this->interviewWaktu);
+                        $end = Carbon::parse($this->interviewWaktuSelesai);
+                        $diff = $start && $end ? $start->diffInMinutes($end, false) : null;
+                        if (is_int($diff) && $diff > 0) {
+                            $duration = max(15, $diff);
+                        }
+                    } catch (\Throwable $e) {}
+
+                    $meeting = $zoom->createMeeting([
+                        'topic' => $topic ?: 'Interview',
+                        'start_time' => Carbon::parse($this->interviewWaktu),
+                        'duration' => $duration,
+                    ]);
+                    if ($meeting && !empty($meeting['join_url'])) {
+                        $this->interviewLink = $meeting['join_url'];
+                    }
+                }
+            }
+
             $lamaran->progressRekrutmen()->create([
                 'status' => 'interview',
                 'officer_id' => $this->interviewOfficer,
                 'nama_progress' => 'Interview',
                 'is_interview' => true,
                 'waktu_pelaksanaan' => $this->interviewWaktu,
+                'waktu_selesai' => $this->interviewWaktuSelesai,
                 'link_zoom' => $this->interviewLink,
                 'user_create' => auth()->user()->name,
             ]);
-            session()->flash('success', 'Interview dijadwalkan.');
+            if (empty($this->interviewLink)) {
+                session()->flash('warning', 'Interview dijadwalkan, namun link Zoom tidak otomatis dibuat. Periksa kredensial/host Zoom dan izin meeting:write:admin.');
+            } else {
+                session()->flash('success', 'Interview dijadwalkan dan link Zoom dibuat otomatis.');
+            }
             $this->interviewModal = false;
             $this->dispatch('refreshLamaran');
         } catch (\Throwable $e) {

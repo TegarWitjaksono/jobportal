@@ -112,7 +112,7 @@
                                                         <div class="flow-step completed">
                                                             <div class="d-flex align-items-center justify-content-between">
                                                                 <div class="d-flex align-items-center">
-                                                                    <div class="step-icon bg-success text-white">
+                                                                    <div class="step-icon bg-soft-success text-success border" data-bs-toggle="tooltip" title="Lamaran Masuk">
                                                                         <i class="mdi mdi-file-document-outline"></i>
                                                                     </div>
                                                                     <span class="ms-2 fw-medium">Lamaran Masuk</span>
@@ -128,15 +128,15 @@
                                                         <div class="flow-step {{ $interviewProgress ? 'completed' : ($currentStatus == 'pending' ? 'active' : 'disabled') }}">
                                                             <div class="d-flex align-items-center justify-content-between mb-2">
                                                                 <div class="d-flex align-items-center">
-                                                                    <div class="step-icon {{ $interviewProgress ? 'bg-success text-white' : ($currentStatus == 'pending' ? 'bg-primary text-white' : 'bg-light text-muted') }}">
+                                                                    <div class="step-icon border {{ $interviewProgress ? 'bg-soft-success text-success' : ($currentStatus == 'pending' ? 'bg-soft-primary text-primary' : 'bg-soft-secondary text-muted') }}" data-bs-toggle="tooltip" title="Interview">
                                                                         <i class="mdi mdi-calendar-clock"></i>
                                                                     </div>
                                                                     <span class="ms-2 fw-medium">Interview</span>
                                                                 </div>
                                                                 @if(!$interviewProgress && $currentStatus == 'pending' && !$isRecruiter)
-                                                                    <button type="button" class="btn btn-primary btn-sm" 
+                                                                    <button type="button" class="btn btn-sm btn-soft-primary" 
                                                                             wire:click.prevent="prepareInterview({{ $lamaran->id }})"
-                                                                            title="Jadwalkan Interview">
+                                                                            data-bs-toggle="tooltip" title="Jadwalkan Interview">
                                                                         <i class="mdi mdi-plus"></i>
                                                                     </button>
                                                                 @endif
@@ -150,12 +150,12 @@
                                                                             <div class="fw-medium">{{ optional($interviewProgress->officer)->name }}</div>
                                                                         </div>
                                                                         @if($interviewProgress->catatan || $interviewProgress->dokumen_pendukung)
-                                                                            <button type="button" class="btn btn-outline-primary btn-sm" wire:click="openResult({{ $interviewProgress->id }})">
+                                                                            <button type="button" class="btn btn-outline-primary btn-sm" wire:click="openResult({{ $interviewProgress->id }})" data-bs-toggle="tooltip" title="Lihat Hasil Interview">
                                                                                 <i class="mdi mdi-file-document me-1"></i> Lihat Hasil
                                                                             </button>
                                                                         @else
                                                                             <a href="{{ $interviewProgress->link_zoom }}" target="_blank"
-                                                                               class="btn btn-outline-primary btn-sm">
+                                                                               class="btn btn-sm btn-soft-primary" data-bs-toggle="tooltip" title="Buka Zoom">
                                                                                 <i class="mdi mdi-video me-1"></i> Zoom
                                                                             </a>
                                                                         @endif
@@ -164,6 +164,9 @@
                                                                         <div class="text-muted mt-1">
                                                                             <i class="mdi mdi-clock-outline me-1"></i>
                                                                             {{ \Carbon\Carbon::parse($interviewProgress->waktu_pelaksanaan)->format('d M Y, H:i') }}
+                                                                            @if($interviewProgress->waktu_selesai)
+                                                                                &ndash; {{ \Carbon\Carbon::parse($interviewProgress->waktu_selesai)->format('H:i') }}
+                                                                            @endif
                                                                         </div>
                                                                     @endif
                                                                 </div>
@@ -182,15 +185,15 @@
                                                         <div class="flow-step {{ $currentStatus == 'psikotes' ? 'completed' : ($canPsikotes && $currentStatus == 'interview' ? 'active' : 'disabled') }}">
                                                             <div class="d-flex align-items-center justify-content-between">
                                                                 <div class="d-flex align-items-center">
-                                                                    <div class="step-icon {{ $currentStatus == 'psikotes' ? 'bg-success text-white' : ($canPsikotes && $currentStatus == 'interview' ? 'bg-warning text-white' : 'bg-light text-muted') }}">
+                                                                    <div class="step-icon border {{ $currentStatus == 'psikotes' ? 'bg-soft-success text-success' : ($canPsikotes && $currentStatus == 'interview' ? 'bg-soft-warning text-warning' : 'bg-soft-secondary text-muted') }}" data-bs-toggle="tooltip" title="Psikotes">
                                                                         <i class="mdi mdi-brain"></i>
                                                                     </div>
                                                                     <span class="ms-2 fw-medium">Psikotes</span>
                                                                 </div>
                                                                 @if($canPsikotes && $currentStatus == 'interview' && !$isRecruiter && !$isCompleted)
-                                                                    <button type="button" class="btn btn-warning btn-sm" 
+                                                                    <button type="button" class="btn btn-sm btn-soft-warning" 
                                                                             wire:click.prevent="setStatus({{ $lamaran->id }}, 'psikotes')"
-                                                                            title="Lanjut ke Psikotes">
+                                                                            data-bs-toggle="tooltip" title="Lanjut ke Psikotes">
                                                                         <i class="mdi mdi-arrow-right"></i>
                                                                     </button>
                                                                 @elseif(!$canPsikotes)
@@ -206,7 +209,7 @@
                                                         <div class="flow-step {{ $isCompleted ? 'completed' : ($currentStatus == 'psikotes' ? 'active' : 'disabled') }}">
                                                             <div class="d-flex align-items-center justify-content-between">
                                                                 <div class="d-flex align-items-center">
-                                                                    <div class="step-icon {{ $currentStatus == 'diterima' ? 'bg-success' : ($currentStatus == 'ditolak' ? 'bg-danger' : ($currentStatus == 'psikotes' ? 'bg-info' : 'bg-light')) }} {{ $isCompleted || $currentStatus == 'psikotes' ? 'text-white' : 'text-muted' }}">
+                                                                    <div class="step-icon border {{ $currentStatus == 'diterima' ? 'bg-soft-success text-success' : ($currentStatus == 'ditolak' ? 'bg-soft-danger text-danger' : ($currentStatus == 'psikotes' ? 'bg-soft-info text-info' : 'bg-soft-secondary text-muted')) }}" data-bs-toggle="tooltip" title="Keputusan">
                                                                         <i class="mdi {{ $currentStatus == 'diterima' ? 'mdi-check-circle' : ($currentStatus == 'ditolak' ? 'mdi-close-circle' : 'mdi-gavel') }}"></i>
                                                                     </div>
                                                                     <span class="ms-2 fw-medium">Keputusan</span>
@@ -214,14 +217,14 @@
                                                                 
                                                                 @if($currentStatus == 'psikotes' && !$isRecruiter)
                                                                     <div class="d-flex gap-1">
-                                                                        <button type="button" class="btn btn-success btn-sm" 
+                                                                        <button type="button" class="btn btn-sm btn-soft-success" 
                                                                                 wire:click.prevent="setStatus({{ $lamaran->id }}, 'diterima')"
-                                                                                title="Terima Kandidat">
+                                                                                data-bs-toggle="tooltip" title="Terima Kandidat">
                                                                             <i class="mdi mdi-check"></i>
                                                                         </button>
-                                                                        <button type="button" class="btn btn-danger btn-sm" 
+                                                                        <button type="button" class="btn btn-sm btn-soft-danger" 
                                                                                 wire:click.prevent="setStatus({{ $lamaran->id }}, 'ditolak')"
-                                                                                title="Tolak Kandidat">
+                                                                                data-bs-toggle="tooltip" title="Tolak Kandidat">
                                                                             <i class="mdi mdi-close"></i>
                                                                         </button>
                                                                     </div>
@@ -271,13 +274,19 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Link Zoom</label>
-                            <input type="url" class="form-control" wire:model.defer="interviewLink" required>
+                            <input type="url" class="form-control" wire:model.defer="interviewLink" placeholder="Kosongkan untuk generate otomatis">
+                            <small class="text-muted">Biarkan kosong untuk membuat link Zoom otomatis dari akun host default.</small>
                             @error('interviewLink') <div class="small text-danger">{{ $message }}</div> @enderror
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Waktu Pelaksanaan</label>
                             <input type="datetime-local" class="form-control" wire:model.defer="interviewWaktu" required>
                             @error('interviewWaktu') <div class="small text-danger">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Waktu Selesai</label>
+                            <input type="datetime-local" class="form-control" wire:model.defer="interviewWaktuSelesai" required>
+                            @error('interviewWaktuSelesai') <div class="small text-danger">{{ $message }}</div> @enderror
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Interviewer</label>
@@ -467,21 +476,7 @@
         background: #dee2e6;
     }
 
-    .flow-step.completed .step-icon {
-        background-color: #28a745 !important;
-        color: white !important;
-    }
-
-    .flow-step.active .step-icon {
-        background-color: #007bff !important;
-        color: white !important;
-    }
-
-    .flow-step.disabled .step-icon {
-        background-color: #f8f9fa !important;
-        color: #6c757d !important;
-        border: 2px solid #dee2e6;
-    }
+    /* Step icon coloring handled via Bootstrap soft color classes in markup */
 
     .interview-details {
         margin-left: 44px;

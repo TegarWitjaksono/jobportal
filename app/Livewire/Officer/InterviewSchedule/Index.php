@@ -5,6 +5,7 @@ namespace App\Livewire\Officer\InterviewSchedule;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use App\Models\ProgressRekrutmen;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -20,6 +21,7 @@ class Index extends Component
     public $resultCatatan;
     public $resultDokumen;
     public $existingResultDokumen;
+    public $resultReadonly = false;
 
     public $search = '';
 
@@ -57,21 +59,27 @@ class Index extends Component
         $this->resetPage();
     }
 
-    public function openResultModal($progressId)
+    public function openResultModal($progressId, $readonly = false)
     {
         $this->resultProgressId = $progressId;
         $progress = ProgressRekrutmen::findOrFail($progressId);
         $this->resultCatatan = $progress->catatan;
         $this->existingResultDokumen = $progress->dokumen_pendukung;
         $this->resultDokumen = null;
+        $this->resultReadonly = (bool) $readonly;
         $this->resultModal = true;
     }
 
     public function saveResult()
     {
+        if ($this->resultReadonly) {
+            // Mode read-only: jangan proses simpan
+            return;
+        }
+
         $this->validate([
             'resultCatatan' => 'nullable|string',
-            'resultDokumen' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx',
+            'resultDokumen' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:20480', // max 20MB
         ]);
 
         $progress = ProgressRekrutmen::findOrFail($this->resultProgressId);
@@ -79,25 +87,53 @@ class Index extends Component
         try {
             $progress->catatan = $this->resultCatatan;
 
-            if ($this->resultDokumen) {
-                if ($progress->dokumen_pendukung) {
+            // Simpan file jika ada upload baru
+            if ($this->resultDokumen instanceof TemporaryUploadedFile) {
+                // Hapus file lama (jika ada)
+                if (!empty($progress->dokumen_pendukung)) {
                     Storage::disk('public')->delete($progress->dokumen_pendukung);
                 }
 
-                $progress->dokumen_pendukung = $this->resultDokumen->store(
-                    'dokumen-pendukung',
+                $ext = strtolower($this->resultDokumen->getClientOriginalExtension() ?: $this->resultDokumen->extension() ?: 'dat');
+                $safeName = 'progress-' . $progress->id . '-' . now()->format('Ymd_His') . '.' . $ext;
+                $path = $this->resultDokumen->storeAs(
+                    'dokumen-pendukung/' . $progress->id,
+                    $safeName,
                     'public'
                 );
+                $progress->dokumen_pendukung = $path;
             }
 
             $progress->save();
             $this->existingResultDokumen = $progress->dokumen_pendukung;
 
+            // Auto-advance to psikotes when interview result is present
+            $hasResult = !empty($progress->catatan) || !empty($progress->dokumen_pendukung);
+            if ($progress->status === 'interview' && $hasResult) {
+                $lamaran = $progress->lamarlowongan; // LamarLowongan instance
+                if ($lamaran) {
+                    $alreadyHasPsikotes = $lamaran->progressRekrutmen()
+                        ->where('status', 'psikotes')
+                        ->exists();
+                    if (!$alreadyHasPsikotes) {
+                        $lamaran->progressRekrutmen()->create([
+                            'status' => 'psikotes',
+                            'officer_id' => auth()->id(),
+                            'nama_progress' => 'Psikotes',
+                            'is_interview' => false,
+                            'is_psikotes' => true,
+                            'user_create' => auth()->user()->name,
+                        ]);
+                    }
+                }
+            }
+
             $this->reset([
                 'resultModal',
                 'resultProgressId',
                 'resultCatatan',
-                'resultDokumen'
+                'resultDokumen',
+                'resultReadonly'
             ]);
 
             session()->flash('success', 'Hasil interview tersimpan.');
