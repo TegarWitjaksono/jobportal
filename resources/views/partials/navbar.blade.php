@@ -60,13 +60,14 @@
                         </div>
                     </li>
                     @endauth
-
-                    @auth @endauth
                     @guest
                     <li class="list-inline-item ps-1 mb-0">
-                        <a href="javascript:void(0)" class="btn btn-sm btn-primary" @click="authPromptOpen=true">
-                            <i data-feather="log-in" class="fea icon-sm me-1 align-middle"></i>
-                            Login
+                        <a href="javascript:void(0)"
+                           class="btn btn-sm btn-soft-primary d-inline-flex align-items-center"
+                           @click="authPromptOpen=true"
+                           data-bs-toggle="tooltip" data-bs-placement="bottom"
+                           title="Masuk ke akun" aria-label="Login">
+                            <i class="mdi mdi-login me-1"></i> Login
                         </a>
                     </li>
                     @endguest
@@ -78,12 +79,12 @@
         <!-- Navbar End -->
 
         <!-- Settings Modal -->
-        <div x-cloak x-show="settingsOpen" class="fixed inset-0 z-50 d-flex align-items-center justify-content-center">
-            <div class="position-fixed top-0 start-0 end-0 bottom-0 bg-dark bg-opacity-50" @click="settingsOpen=false"></div>
-            <div class="position-relative bg-white dark:bg-gray-800 rounded shadow p-4" style="width: 100%; max-width: 420px;">
+        <div x-cloak x-show="settingsOpen" class="position-fixed top-0 start-0 end-0 bottom-0 d-flex align-items-center justify-content-center p-3" style="z-index: 1055;" role="dialog" aria-modal="true" @keydown.escape.window="settingsOpen=false">
+            <div class="position-fixed top-0 start-0 end-0 bottom-0 bg-dark bg-opacity-50" @click="settingsOpen=false" aria-hidden="true"></div>
+            <div class="position-relative bg-white rounded-3 shadow-lg p-4 p-md-5" style="width: 100%; max-width: 420px;">
                 <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
                     <h6 class="mb-0">App Settings</h6>
-                    <button class="btn btn-sm btn-light" @click="settingsOpen=false">&times;</button>
+                    <button class="btn btn-sm btn-light" @click="settingsOpen=false" aria-label="Close">&times;</button>
                 </div>
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <div>
@@ -103,38 +104,42 @@
 
         <!-- Auth Prompt Modal (Guest) -->
         @guest
-        <div x-cloak x-show="authPromptOpen" class="fixed inset-0 z-50 d-flex align-items-center justify-content-center">
-            <div class="position-fixed top-0 start-0 end-0 bottom-0 bg-dark bg-opacity-50" @click="authPromptOpen=false"></div>
-            <div class="position-relative bg-white dark:bg-gray-800 rounded shadow p-4" style="width: 100%; max-width: 720px;">
+        <div x-cloak x-show="authPromptOpen" class="position-fixed top-0 start-0 end-0 bottom-0 d-flex align-items-center justify-content-center p-3" style="z-index: 1055;" role="dialog" aria-modal="true" aria-labelledby="authPromptTitle" @keydown.escape.window="authPromptOpen=false">
+            <div class="position-fixed top-0 start-0 end-0 bottom-0 bg-dark bg-opacity-50" @click="authPromptOpen=false" aria-hidden="true"></div>
+            <div class="position-relative bg-white rounded-3 shadow-lg p-4 p-md-5" style="width: 100%; max-width: 720px;">
                 <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
-                    <h6 class="mb-0">Masuk atau Tes Awal</h6>
-                    <button class="btn btn-sm btn-light" @click="authPromptOpen=false">&times;</button>
+                    <h6 id="authPromptTitle" class="mb-0">Masuk atau Tes Awal</h6>
+                    <button class="btn btn-sm btn-light" @click="authPromptOpen=false" aria-label="Close">&times;</button>
                 </div>
-                <div class="mb-2 text-muted">Pilih salah satu untuk melanjutkan. Untuk pengguna baru, tes BMI & buta warna wajib sebelum membuat akun.</div>
+                <div class="mb-2 text-muted">Pilih salah satu untuk melanjutkan. Untuk pengguna baru, tes BMI &amp; buta warna wajib sebelum membuat akun.</div>
 
-                <div class="row g-3 mt-1">
-                    <div class="col-6">
-                        <div class="h-100 p-3 border rounded">
-                            <div class="d-flex align-items-center mb-2">
-                                <span class="badge bg-soft-primary text-primary me-2"><i class="mdi mdi-account-check-outline"></i></span>
-                                <h6 class="mb-0">Saya sudah punya akun</h6>
+                <div class="row row-cols-2 g-3 mt-1">
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="badge bg-soft-primary text-primary me-2"><i class="mdi mdi-account-check-outline"></i></span>
+                                    <h6 class="mb-0">Sudah punya akun</h6>
+                                </div>
+                                <p class="text-muted small mb-3">Masuk untuk lanjutkan lamaran.</p>
+                                <a href="{{ route('login') }}" class="btn btn-soft-primary w-100">
+                                    <i class="mdi mdi-login me-1"></i> Login
+                                </a>
                             </div>
-                            <p class="text-muted small mb-3">Masuk untuk melanjutkan lamaran dan menyimpan progres.</p>
-                            <a href="{{ route('login') }}" class="btn btn-soft-primary w-100">
-                                <i class="mdi mdi-login me-1"></i> Login
-                            </a>
                         </div>
                     </div>
-                    <div class="col-6">
-                        <div class="h-100 p-3 border rounded">
-                            <div class="d-flex align-items-center mb-2">
-                                <span class="badge bg-soft-success text-success me-2"><i class="mdi mdi-clipboard-text-outline"></i></span>
-                                <h6 class="mb-0">Belum punya akun</h6>
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body p-3">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="badge bg-soft-success text-success me-2"><i class="mdi mdi-clipboard-text-outline"></i></span>
+                                    <h6 class="mb-0">Belum punya akun</h6>
+                                </div>
+                                <p class="text-muted small mb-3">Tes Buta Warna &amp; BMI dulu.</p>
+                                <a href="{{ route('dashboard', [], false) }}?start_test=1" class="btn btn-primary w-100">
+                                    <i class="mdi mdi-clipboard-text-outline me-1"></i> Mulai Tes
+                                </a>
                             </div>
-                            <p class="text-muted small mb-3">Selesaikan Blind Test & BMI Test agar bisa mendaftar.</p>
-                            <a href="{{ route('dashboard', [], false) }}?start_test=1" class="btn btn-primary w-100">
-                                <i class="mdi mdi-clipboard-text-outline me-1"></i> Mulai Tes (Blind & BMI)
-                            </a>
                         </div>
                     </div>
                 </div>

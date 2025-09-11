@@ -4436,3 +4436,45 @@ footer .footer-bar {
 }
 .role-dropdown .dropdown-menu .dropdown-item:first-child{ border-top-left-radius: .5rem; border-top-right-radius: .5rem; }
 .role-dropdown .dropdown-menu .dropdown-item:last-child{ border-bottom-left-radius: .5rem; border-bottom-right-radius: .5rem; }
+
+/* ==========================
+   Guest Auth Modal hover inversion
+   ========================== */
+#guestAuthModal .modal-footer .btn-primary:hover,
+#guestAuthModal .modal-footer .btn-primary:focus {
+  background-color: rgba(59,130,246,.05) !important;
+  border-color: rgba(59,130,246,.05) !important;
+  color: #3b82f6 !important;
+  box-shadow: 0 3px 5px 0 rgba(59,130,246,.1);
+}
+
+#guestAuthModal .modal-footer .btn-soft-primary:hover,
+#guestAuthModal .modal-footer .btn-soft-primary:focus {
+  background-color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+/* Lowongan detail helpers */
+.job-detail{height:560px;display:flex;flex-direction:column}
+.job-detail .cover{width:100%;max-height:240px;object-fit:cover;display:block}
+.job-detail .card-body{display:flex;flex-direction:column;overflow-y:auto}
+.job-detail .job-description{white-space:pre-line;word-break:break-word;overflow-wrap:anywhere}
+.job-list-scroll{scrollbar-gutter:stable}
+@media (max-width: 991.98px){
+  .job-detail{height:auto}
+  .job-detail .card-body{overflow:visible}
+}
+
+/* Compact filter: keep search icon inside input */
+.form-icon{position:relative}
+.form-icon .icons,
+.form-icon svg.icons{
+  position:absolute;
+  left: .875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  opacity: .8;
+}
+.form-icon svg.icons{ width:16px; height:16px; stroke-width:2; }

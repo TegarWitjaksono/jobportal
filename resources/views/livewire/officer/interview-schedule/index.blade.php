@@ -110,11 +110,14 @@
                                         </td>
                                         <td>
                                             @php $hasResult = !empty($progress->catatan) || !empty($progress->dokumen_pendukung); @endphp
-                                            <button class="btn btn-outline-primary btn-sm" wire:click="openResultModal({{ $progress->id }}, {{ $hasResult ? 'true' : 'false' }})">
+                                            <button class="btn btn-soft-primary btn-sm d-inline-flex align-items-center px-2 py-1 text-nowrap"
+                                                    wire:click="openResultModal({{ $progress->id }}, {{ $hasResult ? 'true' : 'false' }})">
                                                 @if($hasResult)
-                                                    <i class="mdi mdi-eye-outline"></i> Lihat Hasil Interview
+                                                    <i class="mdi mdi-eye-outline me-1"></i>
+                                                    <span>Lihat Hasil<span class="d-none d-sm-inline"> Interview</span></span>
                                                 @else
-                                                    <i class="mdi mdi-upload"></i> Hasil Interview
+                                                    <i class="mdi mdi-upload me-1"></i>
+                                                    <span>Hasil<span class="d-none d-sm-inline"> Interview</span></span>
                                                 @endif
                                             </button>
                                         </td>

@@ -133,7 +133,7 @@
                         @endphp
                         <div class="dropdown role-dropdown d-inline-flex align-items-center">
                             <a href="#" class="dropdown-toggle badge rounded-pill {{ $badgeClass }} px-3 py-2 d-inline-flex align-items-center role-badge-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i data-feather="{{ $icon }}" class="fea icon-sm me-1 align-middle"></i>
+                                <i class="mdi {{ $isOfficer ? 'mdi-shield-outline' : 'mdi-account-outline' }} me-1 align-middle"></i>
                                 <span class="fw-semibold">{{ $firstName }}</span>
                                 @if($label)
                                     <span class="mx-1">-</span>
@@ -143,7 +143,7 @@
                             </a>
                             <div class="dropdown-menu dd-menu dropdown-menu-end bg-white rounded shadow border-0 mt-3">
                                 <a href="{{ auth()->user()->is_kandidat ? route('profile.show') : route('officers.index') }}" class="dropdown-item fw-medium fs-6 d-flex align-items-center">
-                                    <i data-feather="user" class="fea icon-sm me-2 align-middle"></i>
+                                    <i class="mdi mdi-account-outline me-2 align-middle"></i>
                                     <span>Profile</span>
                                 </a>
                                 <div class="dropdown-divider border-top"></div>
@@ -151,7 +151,7 @@
                                     @csrf
                                     <button type="submit" class="dropdown-item fw-medium fs-6 d-flex align-items-center w-100 text-start border-0"
                                             onclick="event.preventDefault(); this.closest('form').submit();">
-                                        <i data-feather="log-out" class="fea icon-sm me-2 align-middle"></i>Logout
+                                        <i class="mdi mdi-logout me-2 align-middle"></i>Logout
                                     </button>
                                 </form>
                             </div>
@@ -162,8 +162,8 @@
                     @auth @endauth
                     @guest
                     <li class="list-inline-item ps-1 mb-0">
-                        <a href="javascript:void(0)" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#guestAuthModal">
-                            <i data-feather="log-in" class="fea icon-sm me-1 align-middle"></i>
+                        <a href="javascript:void(0)" class="btn btn-sm btn-soft-primary d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#guestAuthModal" title="Masuk" aria-label="Login">
+                            <i class="mdi mdi-login me-1"></i>
                             Login
                         </a>
                     </li>
@@ -305,33 +305,16 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="text-muted mb-2">Pilih salah satu untuk melanjutkan. Untuk pengguna baru, tes BMI & buta warna wajib sebelum membuat akun.</div>
-                        <div class="row g-3 mt-1">
-                            <div class="col-6">
-                                <div class="h-100 p-3 border rounded">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <span class="badge bg-soft-primary text-primary me-2"><i class="mdi mdi-account-check-outline"></i></span>
-                                        <h6 class="mb-0">Saya sudah punya akun</h6>
-                                    </div>
-                                    <p class="text-muted small mb-3">Masuk untuk melanjutkan lamaran dan menyimpan progres.</p>
-                                    <a href="{{ route('login') }}" class="btn btn-soft-primary w-100">
-                                        <i class="mdi mdi-login me-1"></i> Login
-                                    </a>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="h-100 p-3 border rounded">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <span class="badge bg-soft-success text-success me-2"><i class="mdi mdi-clipboard-text-outline"></i></span>
-                                        <h6 class="mb-0">Belum punya akun</h6>
-                                    </div>
-                                    <p class="text-muted small mb-3">Selesaikan Blind Test & BMI Test agar bisa mendaftar.</p>
-                                    <a href="{{ route('dashboard') }}?start_test=1" class="btn btn-primary w-100">
-                                        <i class="mdi mdi-clipboard-text-outline me-1"></i> Mulai Tes (Blind & BMI)
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
+                        <p class="mb-2 fw-semibold">Apakah Anda sudah punya akun?</p>
+                        <p class="text-muted mb-0">Jika belum, Anda diwajibkan menyelesaikan Blind Test dan BMI Test terlebih dahulu sebelum mendaftar.</p>
+                    </div>
+                    <div class="modal-footer d-flex gap-2">
+                        <a href="{{ route('dashboard') }}?start_test=1" class="btn btn-primary flex-fill">
+                            <i class="mdi mdi-clipboard-text-outline me-1"></i> Mulai Tes (Blind & BMI)
+                        </a>
+                        <a href="{{ route('login') }}" class="btn btn-soft-primary flex-fill">
+                            <i class="mdi mdi-login me-1"></i> Saya sudah punya akun
+                        </a>
                     </div>
                 </div>
             </div>

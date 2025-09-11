@@ -44,12 +44,14 @@
                                     <p class="text-muted mb-0">Pantau progres setiap lamaranmu di sini.</p>
                                 </div>
                                 <div class="w-100 w-md-50" style="max-width: 360px;">
-                                    <div class="position-relative">
-                                        <i class="mdi mdi-magnify position-absolute top-50 translate-middle-y ms-3"></i>
+                                    <div class="input-group input-group-sm">
                                         <input type="text"
                                                wire:model.debounce.300ms="search"
-                                               class="form-control ps-5"
+                                               class="form-control"
                                                placeholder="Cari posisi atau perusahaan...">
+                                        <button class="btn btn-primary btn-sm" type="button">
+                                            <i class="mdi mdi-magnify"></i>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -93,7 +95,7 @@
                                     $showCbtLink = $hasPsikotes && !$hasDecision;
                                 @endphp
 
-                                <div class="card border mb-3">
+                                <div class="card border-0 shadow-sm rounded mb-3">
                                     <div class="card-body p-4">
                                         <div class="row">
                                             <!-- Job Info -->
@@ -103,7 +105,7 @@
                                                 <p class="text-muted mb-1 small">{{ optional($lamaran->lowongan)->lokasi_penugasan ?? '-' }}</p>
                                                 <small class="text-muted">Dilamar: {{ optional($lamaran->created_at)->format('d M Y') }}</small>
                                                 @if(!empty($lamaran->iklan_lowongan))
-                                                    <div class="mt-1"><small class="badge bg-light text-dark">{{ $lamaran->iklan_lowongan }}</small></div>
+                                                    <div class="mt-1"><span class="badge bg-soft-primary text-primary">{{ $lamaran->iklan_lowongan }}</span></div>
                                                 @endif
                                             </div>
 
@@ -113,64 +115,64 @@
                                                     <!-- Step 1: Melamar -->
                                                     <div class="d-flex align-items-center">
                                                         @if($doneMelamar)
-                                                            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
+                                                            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;">
                                                                 <i class="mdi mdi-check" style="font-size: 12px;"></i>
                                                             </div>
                                                             <span class="ms-1 small fw-medium text-success">Melamar</span>
                                                         @elseif($activeStep === 'melamar')
-                                                            <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
-                                                                <i class="mdi mdi-clock" style="font-size: 12px;"></i>
+                                                            <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;">
+                                                                <i class="mdi mdi-clock-outline" style="font-size: 12px;"></i>
                                                             </div>
                                                             <span class="ms-1 small fw-medium text-warning">Melamar</span>
                                                         @else
-                                                            <div class="bg-light text-muted rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
-                                                                <i class="mdi mdi-circle-outline" style="font-size: 12px;"></i>
+                                                            <div class="bg-light text-muted rounded-circle d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;">
+                                                                <i class="mdi mdi-checkbox-blank-circle-outline" style="font-size: 12px;"></i>
                                                             </div>
                                                             <span class="ms-1 small text-muted">Melamar</span>
                                                         @endif
                                                     </div>
 
                                                     <!-- Arrow -->
-                                                    <i class="mdi mdi-arrow-right text-muted"></i>
+                                                    <i class="mdi mdi-chevron-right text-muted"></i>
 
                                                     <!-- Step 2: Interview -->
                                                     <div class="d-flex align-items-center">
                                                         @if($doneInterview)
-                                                            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
+                                                            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;">
                                                                 <i class="mdi mdi-check" style="font-size: 12px;"></i>
                                                             </div>
                                                             <span class="ms-1 small fw-medium text-success">Interview</span>
                                                         @elseif($activeStep === 'interview')
-                                                            <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
-                                                                <i class="mdi mdi-clock" style="font-size: 12px;"></i>
+                                                            <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;">
+                                                                <i class="mdi mdi-clock-outline" style="font-size: 12px;"></i>
                                                             </div>
                                                             <span class="ms-1 small fw-medium text-warning">Interview</span>
                                                         @else
-                                                            <div class="bg-light text-muted rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
-                                                                <i class="mdi mdi-circle-outline" style="font-size: 12px;"></i>
+                                                            <div class="bg-light text-muted rounded-circle d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;">
+                                                                <i class="mdi mdi-checkbox-blank-circle-outline" style="font-size: 12px;"></i>
                                                             </div>
                                                             <span class="ms-1 small text-muted">Interview</span>
                                                         @endif
                                                     </div>
 
                                                     <!-- Arrow -->
-                                                    <i class="mdi mdi-arrow-right text-muted"></i>
+                                                    <i class="mdi mdi-chevron-right text-muted"></i>
 
                                                     <!-- Step 3: Psikotes -->
                                                     <div class="d-flex align-items-center">
                                                         @if($donePsikotes)
-                                                            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
+                                                            <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;">
                                                                 <i class="mdi mdi-check" style="font-size: 12px;"></i>
                                                             </div>
                                                             <span class="ms-1 small fw-medium text-success">Psikotes</span>
                                                         @elseif($activeStep === 'psikotes')
-                                                            <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
-                                                                <i class="mdi mdi-clock" style="font-size: 12px;"></i>
+                                                            <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;">
+                                                                <i class="mdi mdi-clock-outline" style="font-size: 12px;"></i>
                                                             </div>
                                                             <span class="ms-1 small fw-medium text-warning">Psikotes</span>
                                                         @else
-                                                            <div class="bg-light text-muted rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">
-                                                                <i class="mdi mdi-circle-outline" style="font-size: 12px;"></i>
+                                                            <div class="bg-light text-muted rounded-circle d-flex align-items-center justify-content-center" style="width: 22px; height: 22px;">
+                                                                <i class="mdi mdi-checkbox-blank-circle-outline" style="font-size: 12px;"></i>
                                                             </div>
                                                             <span class="ms-1 small text-muted">Psikotes</span>
                                                         @endif
@@ -181,12 +183,12 @@
                                                 @if($hasDecision)
                                                     <div class="mt-2">
                                                         @if ($isAccepted)
-                                                            <span class="badge bg-success px-2 py-1">
-                                                                <i class="mdi mdi-check-circle me-1"></i>Diterima
+                                                            <span class="badge bg-soft-success text-success px-2 py-1">
+                                                                <i class="mdi mdi-check-circle-outline me-1"></i>Diterima
                                                             </span>
                                                         @elseif ($isRejected)
-                                                            <span class="badge bg-danger px-2 py-1">
-                                                                <i class="mdi mdi-close-circle me-1"></i>Ditolak
+                                                            <span class="badge bg-soft-danger text-danger px-2 py-1">
+                                                                <i class="mdi mdi-close-circle-outline me-1"></i>Ditolak
                                                             </span>
                                                         @endif
                                                     </div>
@@ -216,7 +218,7 @@
                                                             @endphp
                                                             @if(!$hasInterviewResult && $withinWindow)
                                                                 <a href="{{ $latestInterview->link_zoom }}" target="_blank" rel="noopener"
-                                                                   class="btn btn-sm btn-primary mt-1">
+                                                                   class="btn btn-sm btn-soft-primary mt-1 d-inline-flex align-items-center">
                                                                     <i class="mdi mdi-video me-1"></i>Join Zoom
                                                                 </a>
                                                             @else
@@ -227,7 +229,7 @@
                                             @endif
                                             @if($showCbtLink)
                                                 <div class="mt-2">
-                                                    <a href="{{ route('cbt.dashboard') }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">
+                                                    <a href="{{ route('cbt.dashboard') }}" target="_blank" rel="noopener" class="btn btn-sm btn-soft-primary d-inline-flex align-items-center">
                                                         <i class="mdi mdi-pencil me-1"></i>Mulai Psikotes
                                                     </a>
                                                 </div>

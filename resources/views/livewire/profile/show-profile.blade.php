@@ -45,6 +45,12 @@
                                 <a href="{{ route('profile.edit') }}" class="btn btn-sm btn-contrast-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit profil Anda">
                                     <i class="mdi mdi-pencil me-1"></i>Edit Profil
                                 </a>
+                                <button type="button" class="btn btn-sm btn-contrast-primary d-inline-flex align-items-center"
+                                        wire:click="exportCv"
+                                        data-bs-toggle="tooltip" data-bs-placement="top"
+                                        title="Export CV (ATS)" aria-label="Export CV (ATS)">
+                                    <i class="mdi mdi-file-account-outline me-1"></i> Export CV
+                                </button>
                             </div>
                         </div>
 

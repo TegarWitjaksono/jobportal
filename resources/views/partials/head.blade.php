@@ -19,6 +19,8 @@
 	    <!-- Custom  Css -->
 	    <link href="{{ asset('css/style.css') }}" rel="stylesheet" type="text/css" id="theme-opt" />
 	    <style>
+	        /* Alpine: hide cloaked elements until hydrated */
+	        [x-cloak]{display:none!important}
 	        .btn.btn-icon { display: inline-flex; align-items: center; justify-content: center; }
 	        .btn.btn-icon .icons, .btn.btn-icon svg.icons { display: block; }
 	        /* Remove dropdown caret in icon-only buttons for perfect centering */
@@ -47,4 +49,5 @@
 	            #topnav.nav-sticky .buy-button .btn.btn-icon { transform: translateY(2px); }
 	        }
 	    </style>
+        @livewireStyles
 	</head>

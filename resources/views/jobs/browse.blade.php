@@ -4,10 +4,10 @@
     @include('partials.navbar')
 
     <!-- Main Content -->
-    <div class="main-content">
-        <!-- Render the Livewire job browser component -->
+    <main id="main">
+        <!-- Livewire: Job browser with themed hero + filters -->
         <livewire:lowongan.list-with-detail />
-    </div>
+    </main>
 
     @include('partials.footer')
 
@@ -24,5 +24,6 @@
     <script src="{{ asset('js/plugins.init.js') }}"></script>
     <script src="{{ asset('js/app.js') }}"></script>
     @livewireScripts
+    @stack('scripts')
 </body>
 </html>

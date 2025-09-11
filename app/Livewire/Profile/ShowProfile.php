@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class ShowProfile extends Component
 {
@@ -124,5 +126,101 @@ class ShowProfile extends Component
     {
         // Memberitahu Livewire untuk menggunakan layout utama 'layouts.app'
         return view('livewire.profile.show-profile');
+    }
+
+    /**
+     * Export kandidat profile data to ATS-friendly CV (PDF)
+     */
+    public function exportCv()
+    {
+        if (!$this->kandidat) {
+            abort(404);
+        }
+
+        $kandidat = $this->kandidat->load('user');
+
+        // Normalize JSON-like fields into arrays
+        $workData = $kandidat->riwayat_pengalaman_kerja;
+        if (!is_array($workData)) {
+            $workData = json_decode($workData ?? '[]', true) ?: [];
+        }
+        $eduData = $kandidat->riwayat_pendidikan;
+        if (!is_array($eduData)) {
+            $eduData = json_decode($eduData ?? '[]', true) ?: [];
+        }
+        $langData = $kandidat->kemampuan_bahasa;
+        if (!is_array($langData)) {
+            $langData = json_decode($langData ?? '[]', true) ?: [];
+        }
+
+        // Decode specific info
+        $specData = $kandidat->informasi_spesifik;
+        if (!is_array($specData)) {
+            $specData = json_decode($specData ?? '[]', true) ?: [];
+        }
+
+        // Build supporting document previews as images only (skip PDF)
+        $docPaths = [
+            'KTP' => $kandidat->ktp_path,
+            'Ijazah' => $kandidat->ijazah_path,
+            'Sertifikat' => $kandidat->sertifikat_path,
+            'Surat Pengalaman Kerja' => $kandidat->surat_pengalaman_path,
+            'SKCK' => $kandidat->skck_path,
+            'Surat Sehat' => $kandidat->surat_sehat_path,
+        ];
+        $docImages = [];
+        foreach ($docPaths as $label => $relPath) {
+            if (!$relPath) continue;
+            $fullPath = storage_path('app/public/' . ltrim($relPath, '/'));
+            if (!is_file($fullPath)) continue;
+
+            $ext = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+            // Only embed common image types; skip PDFs entirely
+            if (!in_array($ext, ['jpg','jpeg','png','gif','webp','bmp'])) {
+                continue;
+            }
+            $mime = match ($ext) {
+                'jpg','jpeg' => 'image/jpeg',
+                'png' => 'image/png',
+                'gif' => 'image/gif',
+                'webp' => 'image/webp',
+                'bmp' => 'image/bmp',
+                default => 'application/octet-stream',
+            };
+            $data = @file_get_contents($fullPath);
+            if ($data !== false) {
+                $docImages[$label] = 'data:' . $mime . ';base64,' . base64_encode($data);
+            }
+        }
+
+        // If neither GD nor Imagick is available for Dompdf, skip embedding images
+        $canRenderImages = extension_loaded('gd');
+        if (!$canRenderImages) {
+            $docImages = [];
+        }
+
+        $html = view('livewire.profile.cv-export', [
+            'kandidat' => $kandidat,
+            'workData' => $workData,
+            'eduData' => $eduData,
+            'langData' => $langData,
+            'specData' => $specData,
+            'docImages' => $docImages,
+        ])->render();
+
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $fileName = 'CV-' . trim(($kandidat->nama_depan . ' ' . $kandidat->nama_belakang)) . '-' . now()->format('Ymd_His') . '.pdf';
+
+        return response()->streamDownload(function () use ($dompdf) {
+            echo $dompdf->output();
+        }, $fileName);
     }
 }
