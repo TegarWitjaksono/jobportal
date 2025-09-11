@@ -35,7 +35,7 @@
                         <a href="{{ route('jadwal-interview.index') }}" class="sub-menu-item {{ request()->routeIs('jadwal-interview.index') ? 'active' : '' }}">{{ __('Jadwal Interview') }}</a>
                     </li>
                     <li>
-                        <a href="{{ route('test-results.index') }}" class="sub-menu-item {{ request()->routeIs('test-results.*') ? 'active' : '' }}">{{ __('Hasil Test CBT') }}</a>
+                        <a href="{{ route('test-results.index') }}" class="sub-menu-item {{ request()->routeIs('test-results.*') ? 'active' : '' }}">{{ __('Hasil Psikotes') }}</a>
                     </li>
                 </ul>
             </li>

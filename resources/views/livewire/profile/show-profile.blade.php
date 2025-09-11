@@ -379,8 +379,24 @@
                         <div class="mb-3">
                             <label class="form-label">KTP</label>
                             @if(isset($documents['ktp']))
+                                @php
+                                    $path = ltrim($documents['ktp'], '/');
+                                    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                    $exists = \Illuminate\Support\Facades\Storage::disk('public')->exists($path);
+                                    $url = $exists ? '/storage/' . $path : null;
+                                @endphp
                                 <div class="mb-2">
-                                    <a href="{{ Storage::url($documents['ktp']) }}" target="_blank" class="text-primary">Lihat dokumen yang sudah diunggah</a>
+                                    @if($exists && in_array($ext, ['jpg','jpeg','png','gif','webp']))
+                                        <img src="{{ $url }}" alt="KTP" class="img-fluid rounded border" style="max-height: 220px;">
+                                    @elseif($exists && $ext === 'pdf')
+                                        <iframe src="{{ $url }}" class="w-100" style="height: 400px; border:1px solid #e5e7eb; border-radius:6px;"></iframe>
+                                    @elseif($exists)
+                                        <a href="{{ $url }}" target="_blank" class="btn btn-sm btn-soft-primary">
+                                            <i class="mdi mdi-file-download-outline me-1"></i> Lihat Dokumen
+                                        </a>
+                                    @else
+                                        <div class="small text-warning">Dokumen tidak ditemukan.</div>
+                                    @endif
                                 </div>
                             @endif
                             <input type="file" class="form-control" wire:model="ktp">
@@ -388,7 +404,12 @@
                                 <div class="mt-2">
                                     <span class="d-block">Preview:</span>
                                     @if(str_contains($ktp->getMimeType(), 'pdf'))
-                                        <iframe src="{{ $ktp->temporaryUrl() }}" class="w-100" style="height: 400px;"></iframe>
+                                        @php $previewPath = $tempPreview['ktp'] ?? null; @endphp
+                                        @if($previewPath)
+                                            <iframe src="{{ Storage::url($previewPath) }}" class="w-100" style="height: 400px;"></iframe>
+                                        @else
+                                            <div class="small text-muted">Menyiapkan pratinjau PDF…</div>
+                                        @endif
                                     @else
                                         <img src="{{ $ktp->temporaryUrl() }}" class="img-fluid rounded" style="max-width: 200px;"/>
                                     @endif
@@ -400,8 +421,24 @@
                         <div class="mb-3">
                             <label class="form-label">Ijazah</label>
                             @if(isset($documents['ijazah']))
+                                @php
+                                    $path = ltrim($documents['ijazah'], '/');
+                                    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                    $exists = \Illuminate\Support\Facades\Storage::disk('public')->exists($path);
+                                    $url = $exists ? '/storage/' . $path : null;
+                                @endphp
                                 <div class="mb-2">
-                                    <a href="{{ Storage::url($documents['ijazah']) }}" target="_blank" class="text-primary">Lihat dokumen yang sudah diunggah</a>
+                                    @if($exists && in_array($ext, ['jpg','jpeg','png','gif','webp']))
+                                        <img src="{{ $url }}" alt="Ijazah" class="img-fluid rounded border" style="max-height: 220px;">
+                                    @elseif($exists && $ext === 'pdf')
+                                        <iframe src="{{ $url }}" class="w-100" style="height: 400px; border:1px solid #e5e7eb; border-radius:6px;"></iframe>
+                                    @elseif($exists)
+                                        <a href="{{ $url }}" target="_blank" class="btn btn-sm btn-soft-primary">
+                                            <i class="mdi mdi-file-download-outline me-1"></i> Lihat Dokumen
+                                        </a>
+                                    @else
+                                        <div class="small text-warning">Dokumen tidak ditemukan.</div>
+                                    @endif
                                 </div>
                             @endif
                             <input type="file" class="form-control" wire:model="ijazah">
@@ -409,7 +446,12 @@
                                 <div class="mt-2">
                                     <span class="d-block">Preview:</span>
                                     @if(str_contains($ijazah->getMimeType(), 'pdf'))
-                                        <iframe src="{{ $ijazah->temporaryUrl() }}" class="w-100" style="height: 400px;"></iframe>
+                                        @php $previewPath = $tempPreview['ijazah'] ?? null; @endphp
+                                        @if($previewPath)
+                                            <iframe src="{{ Storage::url($previewPath) }}" class="w-100" style="height: 400px;"></iframe>
+                                        @else
+                                            <div class="small text-muted">Menyiapkan pratinjau PDF…</div>
+                                        @endif
                                     @else
                                         <img src="{{ $ijazah->temporaryUrl() }}" class="img-fluid rounded" style="max-width: 200px;"/>
                                     @endif
@@ -421,8 +463,24 @@
                         <div class="mb-3">
                             <label class="form-label">Sertifikat</label>
                             @if(isset($documents['sertifikat']))
+                                @php
+                                    $path = ltrim($documents['sertifikat'], '/');
+                                    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                    $exists = \Illuminate\Support\Facades\Storage::disk('public')->exists($path);
+                                    $url = $exists ? '/storage/' . $path : null;
+                                @endphp
                                 <div class="mb-2">
-                                    <a href="{{ Storage::url($documents['sertifikat']) }}" target="_blank" class="text-primary">Lihat dokumen yang sudah diunggah</a>
+                                    @if($exists && in_array($ext, ['jpg','jpeg','png','gif','webp']))
+                                        <img src="{{ $url }}" alt="Sertifikat" class="img-fluid rounded border" style="max-height: 220px;">
+                                    @elseif($exists && $ext === 'pdf')
+                                        <iframe src="{{ $url }}" class="w-100" style="height: 400px; border:1px solid #e5e7eb; border-radius:6px;"></iframe>
+                                    @elseif($exists)
+                                        <a href="{{ $url }}" target="_blank" class="btn btn-sm btn-soft-primary">
+                                            <i class="mdi mdi-file-download-outline me-1"></i> Lihat Dokumen
+                                        </a>
+                                    @else
+                                        <div class="small text-warning">Dokumen tidak ditemukan.</div>
+                                    @endif
                                 </div>
                             @endif
                             <input type="file" class="form-control" wire:model="sertifikat">
@@ -430,7 +488,12 @@
                                 <div class="mt-2">
                                     <span class="d-block">Preview:</span>
                                     @if(str_contains($sertifikat->getMimeType(), 'pdf'))
-                                        <iframe src="{{ $sertifikat->temporaryUrl() }}" class="w-100" style="height: 400px;"></iframe>
+                                        @php $previewPath = $tempPreview['sertifikat'] ?? null; @endphp
+                                        @if($previewPath)
+                                            <iframe src="{{ Storage::url($previewPath) }}" class="w-100" style="height: 400px;"></iframe>
+                                        @else
+                                            <div class="small text-muted">Menyiapkan pratinjau PDF…</div>
+                                        @endif
                                     @else
                                         <img src="{{ $sertifikat->temporaryUrl() }}" class="img-fluid rounded" style="max-width: 200px;"/>
                                     @endif
@@ -442,8 +505,24 @@
                         <div class="mb-3">
                             <label class="form-label">Surat Pengalaman Kerja</label>
                             @if(isset($documents['surat_pengalaman']))
+                                @php
+                                    $path = ltrim($documents['surat_pengalaman'], '/');
+                                    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                    $exists = \Illuminate\Support\Facades\Storage::disk('public')->exists($path);
+                                    $url = $exists ? '/storage/' . $path : null;
+                                @endphp
                                 <div class="mb-2">
-                                    <a href="{{ Storage::url($documents['surat_pengalaman']) }}" target="_blank" class="text-primary">Lihat dokumen yang sudah diunggah</a>
+                                    @if($exists && in_array($ext, ['jpg','jpeg','png','gif','webp']))
+                                        <img src="{{ $url }}" alt="Surat Pengalaman" class="img-fluid rounded border" style="max-height: 220px;">
+                                    @elseif($exists && $ext === 'pdf')
+                                        <iframe src="{{ $url }}" class="w-100" style="height: 400px; border:1px solid #e5e7eb; border-radius:6px;"></iframe>
+                                    @elseif($exists)
+                                        <a href="{{ $url }}" target="_blank" class="btn btn-sm btn-soft-primary">
+                                            <i class="mdi mdi-file-download-outline me-1"></i> Lihat Dokumen
+                                        </a>
+                                    @else
+                                        <div class="small text-warning">Dokumen tidak ditemukan.</div>
+                                    @endif
                                 </div>
                             @endif
                             <input type="file" class="form-control" wire:model="surat_pengalaman">
@@ -451,7 +530,12 @@
                                 <div class="mt-2">
                                     <span class="d-block">Preview:</span>
                                     @if(str_contains($surat_pengalaman->getMimeType(), 'pdf'))
-                                        <iframe src="{{ $surat_pengalaman->temporaryUrl() }}" class="w-100" style="height: 400px;"></iframe>
+                                        @php $previewPath = $tempPreview['surat_pengalaman'] ?? null; @endphp
+                                        @if($previewPath)
+                                            <iframe src="{{ Storage::url($previewPath) }}" class="w-100" style="height: 400px;"></iframe>
+                                        @else
+                                            <div class="small text-muted">Menyiapkan pratinjau PDF…</div>
+                                        @endif
                                     @else
                                         <img src="{{ $surat_pengalaman->temporaryUrl() }}" class="img-fluid rounded" style="max-width: 200px;"/>
                                     @endif
@@ -463,8 +547,24 @@
                         <div class="mb-3">
                             <label class="form-label">SKCK</label>
                             @if(isset($documents['skck']))
+                                @php
+                                    $path = ltrim($documents['skck'], '/');
+                                    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                    $exists = \Illuminate\Support\Facades\Storage::disk('public')->exists($path);
+                                    $url = $exists ? '/storage/' . $path : null;
+                                @endphp
                                 <div class="mb-2">
-                                    <a href="{{ Storage::url($documents['skck']) }}" target="_blank" class="text-primary">Lihat dokumen yang sudah diunggah</a>
+                                    @if($exists && in_array($ext, ['jpg','jpeg','png','gif','webp']))
+                                        <img src="{{ $url }}" alt="SKCK" class="img-fluid rounded border" style="max-height: 220px;">
+                                    @elseif($exists && $ext === 'pdf')
+                                        <iframe src="{{ $url }}" class="w-100" style="height: 400px; border:1px solid #e5e7eb; border-radius:6px;"></iframe>
+                                    @elseif($exists)
+                                        <a href="{{ $url }}" target="_blank" class="btn btn-sm btn-soft-primary">
+                                            <i class="mdi mdi-file-download-outline me-1"></i> Lihat Dokumen
+                                        </a>
+                                    @else
+                                        <div class="small text-warning">Dokumen tidak ditemukan.</div>
+                                    @endif
                                 </div>
                             @endif
                             <input type="file" class="form-control" wire:model="skck">
@@ -472,7 +572,12 @@
                                 <div class="mt-2">
                                     <span class="d-block">Preview:</span>
                                     @if(str_contains($skck->getMimeType(), 'pdf'))
-                                        <iframe src="{{ $skck->temporaryUrl() }}" class="w-100" style="height: 400px;"></iframe>
+                                        @php $previewPath = $tempPreview['skck'] ?? null; @endphp
+                                        @if($previewPath)
+                                            <iframe src="{{ Storage::url($previewPath) }}" class="w-100" style="height: 400px;"></iframe>
+                                        @else
+                                            <div class="small text-muted">Menyiapkan pratinjau PDF…</div>
+                                        @endif
                                     @else
                                         <img src="{{ $skck->temporaryUrl() }}" class="img-fluid rounded" style="max-width: 200px;"/>
                                     @endif
@@ -484,8 +589,24 @@
                         <div class="mb-3">
                             <label class="form-label">Surat Sehat</label>
                             @if(isset($documents['surat_sehat']))
+                                @php
+                                    $path = ltrim($documents['surat_sehat'], '/');
+                                    $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                                    $exists = \Illuminate\Support\Facades\Storage::disk('public')->exists($path);
+                                    $url = $exists ? '/storage/' . $path : null;
+                                @endphp
                                 <div class="mb-2">
-                                    <a href="{{ Storage::url($documents['surat_sehat']) }}" target="_blank" class="text-primary">Lihat dokumen yang sudah diunggah</a>
+                                    @if($exists && in_array($ext, ['jpg','jpeg','png','gif','webp']))
+                                        <img src="{{ $url }}" alt="Surat Sehat" class="img-fluid rounded border" style="max-height: 220px;">
+                                    @elseif($exists && $ext === 'pdf')
+                                        <iframe src="{{ $url }}" class="w-100" style="height: 400px; border:1px solid #e5e7eb; border-radius:6px;"></iframe>
+                                    @elseif($exists)
+                                        <a href="{{ $url }}" target="_blank" class="btn btn-sm btn-soft-primary">
+                                            <i class="mdi mdi-file-download-outline me-1"></i> Lihat Dokumen
+                                        </a>
+                                    @else
+                                        <div class="small text-warning">Dokumen tidak ditemukan.</div>
+                                    @endif
                                 </div>
                             @endif
                             <input type="file" class="form-control" wire:model="surat_sehat">
@@ -493,7 +614,12 @@
                                 <div class="mt-2">
                                     <span class="d-block">Preview:</span>
                                     @if(str_contains($surat_sehat->getMimeType(), 'pdf'))
-                                        <iframe src="{{ $surat_sehat->temporaryUrl() }}" class="w-100" style="height: 400px;"></iframe>
+                                        @php $previewPath = $tempPreview['surat_sehat'] ?? null; @endphp
+                                        @if($previewPath)
+                                            <iframe src="{{ Storage::url($previewPath) }}" class="w-100" style="height: 400px;"></iframe>
+                                        @else
+                                            <div class="small text-muted">Menyiapkan pratinjau PDF…</div>
+                                        @endif
                                     @else
                                         <img src="{{ $surat_sehat->temporaryUrl() }}" class="img-fluid rounded" style="max-width: 200px;"/>
                                     @endif

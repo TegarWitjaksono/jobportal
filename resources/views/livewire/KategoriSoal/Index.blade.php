@@ -125,22 +125,26 @@
     <div class="modal fade show" tabindex="-1" style="display: block;" wire:ignore.self>
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded shadow-lg">
-                <div class="modal-header bg-light p-4">
-                    <h5 class="modal-title">{{ $kategoriId ? 'Edit Kategori' : 'Tambah Kategori' }}</h5>
+                <div class="modal-header bg-soft-primary text-primary p-4 border-0 rounded-top-3">
+                    <h5 class="modal-title d-flex align-items-center mb-0">
+                        <i class="mdi mdi-shape-outline me-2"></i>
+                        {{ $kategoriId ? 'Edit Kategori' : 'Tambah Kategori' }}
+                    </h5>
                     <button type="button" class="btn-close" wire:click="$set('showModal', false)"></button>
                 </div>
                 <form wire:submit.prevent="save">
                     <div class="modal-body p-4" style="max-height: 75vh; overflow-y: auto;">
                         <div class="mb-3">
-                            <label class="form-label">Nama Kategori <span class="text-danger">*</span></label>
-                            <input type="text" wire:model="nama_kategori" class="form-control @error('nama_kategori') is-invalid @enderror">
+                            <label class="form-label d-flex align-items-center"><i class="mdi mdi-label-outline me-2 text-primary"></i> Nama Kategori <span class="text-danger ms-1">*</span></label>
+                            <input type="text" wire:model="nama_kategori" class="form-control @error('nama_kategori') is-invalid @enderror" placeholder="Masukkan nama kategori">
                             @error('nama_kategori') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Deskripsi</label>
-                            <textarea wire:model="deskripsi" class="form-control @error('deskripsi') is-invalid @enderror" rows="3"></textarea>
+                            <label class="form-label d-flex align-items-center"><i class="mdi mdi-text-long me-2 text-primary"></i> Deskripsi</label>
+                            <textarea wire:model="deskripsi" class="form-control @error('deskripsi') is-invalid @enderror" rows="3" placeholder="Opsional: deskripsi singkat kategori"></textarea>
                             @error('deskripsi') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <div class="small text-muted mt-1">Deskripsi membantu membedakan kategori serupa.</div>
                         </div>
 
                         <div class="form-check form-switch">
@@ -148,9 +152,12 @@
                             <label class="form-check-label" for="statusCheck">Aktif</label>
                         </div>
                     </div>
-                    <div class="modal-footer p-4">
+                    <div class="modal-footer p-4 bg-light border-0 rounded-bottom-3">
                         <button type="button" class="btn btn-soft-secondary" wire:click="$set('showModal', false)">Batal</button>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">
+                            <span wire:loading.remove wire:target="save">Simpan</span>
+                            <span wire:loading wire:target="save"><span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...</span>
+                        </button>
                     </div>
                 </form>
             </div>

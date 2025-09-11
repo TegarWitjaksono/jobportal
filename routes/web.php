@@ -44,6 +44,14 @@ Route::middleware([
     Route::get('/test-results', App\Livewire\Officer\TestResults\Index::class)
         ->middleware('role:officer,manager,recruiter,coordinator')
         ->name('test-results.index');
+    Route::get('/test-results/{id}', App\Livewire\Officer\TestResults\Show::class)
+        ->middleware('role:officer,manager,recruiter,coordinator')
+        ->name('test-results.show');
+
+    // Inline media preview (for PDFs/images stored on public disk)
+    Route::get('/media/inline/{encoded}', [App\Http\Controllers\MediaController::class, 'inline'])
+        ->middleware('role:officer,manager,recruiter,coordinator')
+        ->name('media.inline');
 
     // Manajemen Kandidat - asumsi khusus manager
     Route::get('kandidat', App\Livewire\Officer\Kandidat\Index::class)
@@ -77,4 +85,3 @@ Route::middleware([
     Route::get('/profile', App\Livewire\Profile\ShowProfile::class)->name('profile.show');
     Route::get('/profile/edit', App\Livewire\Profile\UpdateKandidatProfileForm::class)->name('profile.edit');
 });
-

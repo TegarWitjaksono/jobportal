@@ -4,6 +4,7 @@ namespace App\Livewire\Cbt;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use App\Models\TestResult;
 
 class Dashboard extends Component
 {
@@ -40,9 +41,15 @@ class Dashboard extends Component
                 || str_contains(strtolower($l->lokasi_penugasan ?? ''), $query);
         });
 
+        $userId = Auth::id();
+        $ongoingTest = $userId ? TestResult::where('user_id', $userId)->whereNull('completed_at')->exists() : false;
+        $hasCompleted = $userId ? TestResult::where('user_id', $userId)->whereNotNull('completed_at')->exists() : false;
+
         return view('livewire.cbt.dashboard', [
             'lamarans' => $filtered,
             'total' => $filtered->count(),
+            'ongoingTest' => $ongoingTest,
+            'hasCompleted' => $hasCompleted,
         ]);
     }
 }

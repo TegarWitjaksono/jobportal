@@ -123,8 +123,8 @@
                             </div>
 
                             <!-- Table -->
-                            <div class="table-responsive">
-                                <table class="table table-hover table-center bg-white mb-0">
+                            <div class="table-responsive test-results-wrap">
+                                <table class="table table-hover table-center bg-white mb-0 test-results-table">
                                     <thead class="table-light">
                                         <tr>
                                             <th class="border-bottom p-3" wire:click="sortBy('user_name')" style="cursor: pointer;">
@@ -214,13 +214,13 @@
                                                 @endif
                                             </td>
                                             <td class="p-3 text-center">
-                                                <div class="dropdown">
-                                                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                <div class="dropdown table-actions">
+                                                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false">
                                                         <i class="mdi mdi-dots-vertical"></i>
                                                     </button>
-                                                    <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-item" href="#"><i class="mdi mdi-eye me-2"></i>Lihat Detail</a></li>
-                                                        <li><a class="dropdown-item" href="#"><i class="mdi mdi-download me-2"></i>Export PDF</a></li>
+                                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                                        <li><a class="dropdown-item" href="#" wire:click.prevent="openDetail({{ $result->id }})"><i class="mdi mdi-eye me-2"></i>Lihat Detail</a></li>
+                                                        <li><a class="dropdown-item" href="#" wire:click.prevent="exportDetail({{ $result->id }})"><i class="mdi mdi-download me-2"></i>Export PDF</a></li>
                                                         <li><hr class="dropdown-divider"></li>
                                                         <li><a class="dropdown-item text-danger" href="#"><i class="mdi mdi-delete me-2"></i>Hapus</a></li>
                                                     </ul>
@@ -261,4 +261,109 @@
             </div>
         </div>
     </section>
+    
+    {{-- Detail Modal --}}
+    @if($detailModal && $detailResult)
+        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,.45);">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg">
+                    <div class="modal-header bg-soft-primary text-primary border-0">
+                        <h6 class="modal-title d-flex align-items-center mb-0">
+                            <i class="mdi mdi-file-document-outline me-2"></i>
+                            Detail Hasil Psikotes
+                        </h6>
+                        <button type="button" class="btn-close" aria-label="Close" wire:click="closeDetail"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <div class="p-3 rounded bg-light">
+                                    <div class="text-muted small">Nama</div>
+                                    <div class="fw-semibold">{{ optional($detailResult->user)->name }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 rounded bg-light">
+                                    <div class="text-muted small">Email</div>
+                                    <div class="fw-semibold">{{ optional($detailResult->user)->email }}</div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="p-3 rounded bg-soft-primary text-primary border">
+                                    <div class="text-muted small">Skor</div>
+                                    <div class="h5 mb-0">{{ number_format($detailResult->score, 1) }}%</div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="p-3 rounded bg-soft-success text-success border">
+                                    <div class="text-muted small">Benar</div>
+                                    <div class="h5 mb-0">{{ $detailResult->correct_answers }}</div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="p-3 rounded bg-soft-info text-info border">
+                                    <div class="text-muted small">Total Soal</div>
+                                    <div class="h5 mb-0">{{ $detailResult->total_questions }}</div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="p-3 rounded bg-soft-warning text-warning border">
+                                    <div class="text-muted small">Status</div>
+                                    <div class="h6 mb-0">{{ $detailResult->completed_at ? 'Selesai' : 'Belum Selesai' }}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="p-3 rounded border">
+                                    <div class="text-muted small">Mulai</div>
+                                    <div class="fw-semibold">{{ optional($detailResult->started_at)->format('d M Y, H:i') }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 rounded border">
+                                    <div class="text-muted small">Selesai</div>
+                                    <div class="fw-semibold">{{ optional($detailResult->completed_at)->format('d M Y, H:i') ?? '-' }}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 rounded border">
+                                    <div class="text-muted small">Durasi</div>
+                                    <div class="fw-semibold">
+                                        @if($detailResult->completed_at)
+                                            {{ number_format($detailResult->started_at->diffInSeconds($detailResult->completed_at) / 60, 1) }} menit
+                                        @else
+                                            -
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="p-3 rounded border">
+                                    <div class="text-muted small">Status Akhir</div>
+                                    <div>
+                                        @if($detailResult->score >= 70)
+                                            <span class="badge bg-soft-success text-success">Lulus</span>
+                                        @else
+                                            <span class="badge bg-soft-danger text-danger">Tidak Lulus</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0">
+                        <button type="button" class="btn btn-soft-secondary" wire:click="closeDetail">Tutup</button>
+                        <button type="button" class="btn btn-soft-primary" wire:click.prevent="exportDetail({{ $detailResult->id }})">
+                            <i class="mdi mdi-download me-1"></i> Export PDF
+                        </button>
+                        <a href="{{ route('test-results.show', $detailResult->id) }}" class="btn btn-primary">
+                            <i class="mdi mdi-open-in-new me-1"></i> Buka Review Lengkap
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

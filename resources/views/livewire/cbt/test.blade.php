@@ -1,65 +1,115 @@
 <div class="min-vh-100 bg-white">
     <section class="section">
-    @if(!$testStarted)
+    @if(!$testStarted && !$testCompleted)
         <div class="container py-5">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <div class="card shadow-lg border-0 rounded-3">
-                        <div class="card-header bg-primary text-white text-center py-4">
-                            <h2 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Computer Based Test</h2>
+                        <div class="card-header bg-primary bg-gradient text-white text-center py-4 border-0 rounded-top-3">
+                            <h2 class="mb-1"><i class="mdi mdi-school-outline me-2"></i>Computer Based Test</h2>
+                            <small class="text-white-50">Silakan baca petunjuk sebelum memulai tes</small>
                         </div>
                         <div class="card-body p-5">
-                            <div class="alert alert-info border-0 shadow-sm mb-4">
+                            <div class="alert alert-info cbt-instructions shadow-sm mb-4">
                                 <div class="d-flex align-items-center mb-3">
-                                    <i class="fas fa-info-circle fs-4 me-3 text-info"></i>
+                                    <i class="mdi mdi-information-outline fs-4 me-3 text-info"></i>
                                     <h5 class="mb-0">Petunjuk Pengerjaan</h5>
                                 </div>
-                                <ul class="mb-0 ps-3">
-                                    <li class="mb-2">Anda akan mengerjakan <strong>{{ min($totalQuestions, $maxQuestions) }} soal</strong></li>
-                                    <li class="mb-2">Waktu pengerjaan: <strong>{{ $testDuration }} menit</strong></li>
-                                    <li class="mb-2">Soal ditampilkan secara acak</li>
-                                    <li class="mb-2">Pastikan koneksi internet Anda stabil selama tes berlangsung</li>
-                                    <li class="mb-2">Jangan merefresh atau menutup halaman browser</li>
-                                    <li class="mb-2">Gunakan tombol navigasi untuk berpindah antar soal</li>
-                                    <li class="mb-0">Anda dapat menandai soal untuk ditinjau kembali</li>
+                                <ul class="list-unstyled mb-0">
+                                    <li class="d-flex align-items-start mb-2">
+                                        <i class="mdi mdi-check-circle-outline text-primary me-2 mt-1 flex-shrink-0"></i>
+                                        <span>Anda akan mengerjakan <strong>{{ min($totalQuestions, $maxQuestions) }} soal</strong></span>
+                                    </li>
+                                    <li class="d-flex align-items-start mb-2">
+                                        <i class="mdi mdi-check-circle-outline text-primary me-2 mt-1 flex-shrink-0"></i>
+                                        <span>Waktu pengerjaan: <strong>{{ $testDuration }} menit</strong></span>
+                                    </li>
+                                    <li class="d-flex align-items-start mb-2">
+                                        <i class="mdi mdi-check-circle-outline text-primary me-2 mt-1 flex-shrink-0"></i>
+                                        <span>Soal ditampilkan secara acak</span>
+                                    </li>
+                                    <li class="d-flex align-items-start mb-2">
+                                        <i class="mdi mdi-check-circle-outline text-primary me-2 mt-1 flex-shrink-0"></i>
+                                        <span>Pastikan koneksi internet Anda stabil selama tes berlangsung</span>
+                                    </li>
+                                    <li class="d-flex align-items-start mb-2">
+                                        <i class="mdi mdi-check-circle-outline text-primary me-2 mt-1 flex-shrink-0"></i>
+                                        <span>Jangan merefresh atau menutup halaman browser</span>
+                                    </li>
+                                    <li class="d-flex align-items-start mb-2">
+                                        <i class="mdi mdi-check-circle-outline text-primary me-2 mt-1 flex-shrink-0"></i>
+                                        <span>Gunakan tombol navigasi untuk berpindah antar soal</span>
+                                    </li>
+                                    <li class="d-flex align-items-start mb-0">
+                                        <i class="mdi mdi-check-circle-outline text-primary me-2 mt-1 flex-shrink-0"></i>
+                                        <span>Anda dapat menandai soal untuk ditinjau kembali</span>
+                                    </li>
                                 </ul>
                             </div>
                             
-                            <div class="row g-4 mb-4">
-                                <div class="col-md-3">
-                                    <div class="text-center p-3 bg-light rounded-3">
-                                        <i class="fas fa-clock text-primary fs-2 mb-2"></i>
-                                        <h6 class="text-muted mb-0">Waktu</h6>
-                                        <div class="fw-bold">{{ $testDuration }} Menit</div>
+                            <div class="row g-3 mb-4">
+                                <div class="col-6 col-md-3">
+                                    <div class="metric-box d-flex align-items-center p-3 rounded-3 bg-white border shadow-sm">
+                                        <div class="metric-icon bg-soft-primary text-primary me-3">
+                                            <i class="mdi mdi-clock-outline"></i>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <div class="text-muted small">Waktu</div>
+                                            <div class="fw-semibold">{{ $testDuration }} Menit</div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="text-center p-3 bg-light rounded-3">
-                                        <i class="fas fa-question-circle text-success fs-2 mb-2"></i>
-                                        <h6 class="text-muted mb-0">Jumlah Soal</h6>
-                                        <div class="fw-bold">{{ min($totalQuestions, $maxQuestions) }} Soal</div>
+                                <div class="col-6 col-md-3">
+                                    <div class="metric-box d-flex align-items-center p-3 rounded-3 bg-white border shadow-sm">
+                                        <div class="metric-icon bg-soft-success text-success me-3">
+                                            <i class="mdi mdi-help-circle-outline"></i>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <div class="text-muted small">Jumlah Soal</div>
+                                            <div class="fw-semibold">{{ min($totalQuestions, $maxQuestions) }} Soal</div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="text-center p-3 bg-light rounded-3">
-                                        <i class="fas fa-random text-info fs-2 mb-2"></i>
-                                        <h6 class="text-muted mb-0">Soal Acak</h6>
-                                        <div class="fw-bold">Ya</div>
+                                <div class="col-6 col-md-3">
+                                    <div class="metric-box d-flex align-items-center p-3 rounded-3 bg-white border shadow-sm">
+                                        <div class="metric-icon bg-soft-info text-info me-3">
+                                            <i class="mdi mdi-shuffle-variant"></i>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <div class="text-muted small">Soal Acak</div>
+                                            <div class="fw-semibold">Ya</div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="text-center p-3 bg-light rounded-3">
-                                        <i class="fas fa-award text-warning fs-2 mb-2"></i>
-                                        <h6 class="text-muted mb-0">Passing Grade</h6>
-                                        <div class="fw-bold">70%</div>
+                                <div class="col-6 col-md-3">
+                                    <div class="metric-box d-flex align-items-center p-3 rounded-3 bg-white border shadow-sm">
+                                        <div class="metric-icon bg-soft-warning text-warning me-3">
+                                            <i class="mdi mdi-trophy-outline"></i>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <div class="text-muted small">Passing Grade</div>
+                                            <div class="fw-semibold">70%</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="text-center">
-                                <button wire:click="startTest" class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow">
-                                    <i class="fas fa-play me-2"></i>Mulai Tes Sekarang
+                                <button
+                                    wire:click.prevent="startTest"
+                                    wire:loading.attr="disabled"
+                                    wire:target="startTest"
+                                    class="btn btn-cta-primary btn-lg px-5 py-3 rounded-pill shadow-sm d-inline-flex align-items-center justify-content-center w-100 w-md-auto">
+                                    <span wire:loading.remove wire:target="startTest">
+                                        <i class="mdi mdi-play-circle-outline me-2"></i>
+                                        Mulai Tes Sekarang
+                                    </span>
+                                    <span wire:loading wire:target="startTest">
+                                        <i class="mdi mdi-loading mdi-spin me-2"></i>
+                                        Menyiapkan tes...
+                                    </span>
                                 </button>
+                                <div class="small text-muted mt-2" wire:loading wire:target="startTest">Jangan tutup atau refresh halaman</div>
                             </div>
                         </div>
                     </div>
@@ -72,57 +122,69 @@
             <div class="row justify-content-center">
                 <div class="col-lg-10">
                     <div class="card shadow-lg border-0 rounded-3">
-                        <div class="card-header bg-success text-white text-center py-4">
-                            <h3 class="mb-0"><i class="fas fa-check-circle me-2"></i>Tes Selesai</h3>
-                            <p class="mb-0 mt-2 fs-5"><strong>{{ $testResult->user->name }}</strong></p>
+                        <div class="card-header bg-soft-success text-success text-center py-4 border-0 rounded-top-3">
+                            <h3 class="mb-0 d-inline-flex align-items-center"><i class="mdi mdi-check-circle me-2"></i>Tes Selesai</h3>
+                            <p class="mb-0 mt-2 fs-6 text-success opacity-75"><strong>{{ $testResult->user->name }}</strong></p>
                         </div>
                         <div class="card-body p-5">
-                            <div class="row g-4 mb-5">
-                                <div class="col-md-3">
-                                    <div class="text-center p-4 bg-primary text-white rounded-3">
-                                        <i class="fas fa-percentage fs-1 mb-3"></i>
-                                        <h4 class="mb-0">{{ number_format($testResult->score, 1) }}%</h4>
-                                        <small>Skor Anda</small>
+                            <div class="row g-3 g-md-4 mb-5">
+                                <div class="col-6 col-md-3">
+                                    <div class="text-center p-4 bg-soft-primary text-primary rounded-3 border">
+                                        <i class="mdi mdi-percent-outline fs-1 mb-2"></i>
+                                        <div class="h4 mb-0">{{ number_format($testResult->score, 1) }}%</div>
+                                        <small class="opacity-75">Skor Anda</small>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="text-center p-4 bg-success text-white rounded-3">
-                                        <i class="fas fa-check fs-1 mb-3"></i>
-                                        <h4 class="mb-0">{{ $testResult->correct_answers }}</h4>
-                                        <small>Jawaban Benar</small>
+                                <div class="col-6 col-md-3">
+                                    <div class="text-center p-4 bg-soft-success text-success rounded-3 border">
+                                        <i class="mdi mdi-check fs-1 mb-2"></i>
+                                        <div class="h4 mb-0">{{ $testResult->correct_answers }}</div>
+                                        <small class="opacity-75">Jawaban Benar</small>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="text-center p-4 bg-danger text-white rounded-3">
-                                        <i class="fas fa-times fs-1 mb-3"></i>
-                                        <h4 class="mb-0">{{ min($totalQuestions, $maxQuestions) - $testResult->correct_answers }}</h4>
-                                        <small>Jawaban Salah</small>
+                                <div class="col-6 col-md-3">
+                                    <div class="text-center p-4 bg-soft-danger text-danger rounded-3 border">
+                                        <i class="mdi mdi-close fs-1 mb-2"></i>
+                                        <div class="h4 mb-0">{{ min($totalQuestions, $maxQuestions) - $testResult->correct_answers }}</div>
+                                        <small class="opacity-75">Jawaban Salah</small>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
-                                    <div class="text-center p-4 bg-info text-white rounded-3">
-                                        <i class="fas fa-random fs-1 mb-3"></i>
-                                        <h4 class="mb-0">{{ min($totalQuestions, $maxQuestions) }}</h4>
-                                        <small>Total Soal</small>
+                                <div class="col-6 col-md-3">
+                                    <div class="text-center p-4 bg-soft-info text-info rounded-3 border">
+                                        <i class="mdi mdi-shuffle-variant fs-1 mb-2"></i>
+                                        <div class="h4 mb-0">{{ min($totalQuestions, $maxQuestions) }}</div>
+                                        <small class="opacity-75">Total Soal</small>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="text-center mb-4">
                                 @if($testResult->score >= 70)
-                                    <span class="badge bg-success fs-5 px-4 py-2 rounded-pill">
-                                        <i class="fas fa-trophy me-2"></i>LULUS
+                                    <span class="badge bg-soft-success text-success fs-6 px-4 py-2 rounded-pill">
+                                        <i class="mdi mdi-trophy-outline me-2"></i>LULUS
                                     </span>
                                 @else
-                                    <span class="badge bg-danger fs-5 px-4 py-2 rounded-pill">
-                                        <i class="fas fa-exclamation-triangle me-2"></i>TIDAK LULUS
+                                    <span class="badge bg-soft-danger text-danger fs-6 px-4 py-2 rounded-pill">
+                                        <i class="mdi mdi-alert-outline me-2"></i>TIDAK LULUS
                                     </span>
                                 @endif
                             </div>
 
-                            <div class="mt-5">
-                                <h5 class="mb-4"><i class="fas fa-clipboard-list me-2"></i>Review Jawaban</h5>
-                                <div class="accordion" id="answerAccordion">
+                            <div class="mt-5" x-data="{ reviewMode: 'accordion' }">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="mb-0"><i class="mdi mdi-clipboard-list-outline me-2"></i>Review Jawaban</h5>
+                                    <div class="btn-group btn-group-sm" role="group" aria-label="Pilih tampilan">
+                                        <button type="button" class="btn" :class="reviewMode==='accordion' ? 'btn-soft-primary' : 'btn-outline-secondary'" @click="reviewMode='accordion'">
+                                            <i class="mdi mdi-view-agenda-outline me-1"></i> Accordion
+                                        </button>
+                                        <button type="button" class="btn" :class="reviewMode==='table' ? 'btn-soft-primary' : 'btn-outline-secondary'" @click="reviewMode='table'">
+                                            <i class="mdi mdi-table me-1"></i> Tabel
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Mode: Accordion (default) -->
+                                <div class="accordion" id="answerAccordion" x-show="reviewMode==='accordion'" x-cloak>
                                     @foreach($questions as $index => $question)
                                         @php
                                             $isCorrect = isset($userAnswers[$index]) && $userAnswers[$index] == $question->jawaban;
@@ -136,11 +198,11 @@
                                                         data-bs-target="#question{{ $index + 1 }}"
                                                         aria-expanded="false">
                                                     <div class="d-flex align-items-center w-100">
-                                                        <span class="badge {{ $isCorrect ? 'bg-success' : 'bg-danger' }} me-3">
-                                                            <i class="fas {{ $isCorrect ? 'fa-check' : 'fa-times' }}"></i>
+                                                        <span class="badge {{ $isCorrect ? 'bg-soft-success text-success' : 'bg-soft-danger text-danger' }} me-3">
+                                                            <i class="mdi {{ $isCorrect ? 'mdi-check' : 'mdi-close' }}"></i>
                                                         </span>
                                                         <span class="fw-bold">Soal {{ $index + 1 }}</span>
-                                                        <span class="ms-auto badge {{ $isCorrect ? 'bg-success' : 'bg-danger' }}">
+                                                        <span class="ms-auto badge {{ $isCorrect ? 'bg-soft-success text-success' : 'bg-soft-danger text-danger' }}">
                                                             {{ $isCorrect ? 'Benar' : 'Salah' }}
                                                         </span>
                                                     </div>
@@ -177,7 +239,7 @@
                                                             @endif
                                                         @else
                                                             <div class="p-3 rounded bg-warning-subtle border-warning border">
-                                                                <i class="fas fa-exclamation-triangle me-2"></i>Tidak dijawab
+                                                                 <i class="mdi mdi-alert-outline me-2"></i>Tidak dijawab
                                                             </div>
                                                         @endif
                                                     </div>
@@ -201,11 +263,73 @@
                                         </div>
                                     @endforeach
                                 </div>
+
+                                <!-- Mode: Table (compact) -->
+                                <div x-show="reviewMode==='table'" x-cloak>
+                                    <div class="table-responsive shadow-sm rounded border">
+                                        <table class="table align-middle mb-0">
+                                            <thead class="bg-light">
+                                                <tr>
+                                                    <th style="width: 60px;" class="text-center">#</th>
+                                                    <th style="width: 120px;">Status</th>
+                                                    <th>Pertanyaan</th>
+                                                    <th>Jawaban Anda</th>
+                                                    <th style="width: 160px;">Jawaban Benar</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            @foreach($questions as $index => $question)
+                                                @php
+                                                    $isCorrect = isset($userAnswers[$index]) && $userAnswers[$index] == $question->jawaban;
+                                                    $userAnswer = $userAnswers[$index] ?? null;
+                                                @endphp
+                                                <tr>
+                                                    <td class="text-center fw-semibold">{{ $index + 1 }}</td>
+                                                    <td>
+                                                        <span class="badge {{ $isCorrect ? 'bg-soft-success text-success' : 'bg-soft-danger text-danger' }}">
+                                                            {{ $isCorrect ? 'Benar' : 'Salah' }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-muted">
+                                                        @if($question->type_soal == 'foto')
+                                                            <img src="{{ Storage::url($question->soal) }}" alt="Soal" class="rounded border" style="max-height: 48px;">
+                                                        @else
+                                                            <span class="d-inline-block" style="max-width: 420px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $question->soal }}</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if($userAnswer)
+                                                            @if($question->type_jawaban == 'foto')
+                                                                <img src="{{ Storage::url($question->{'pilihan_' . $userAnswer}) }}" alt="Jawaban Anda" class="rounded border" style="max-height: 48px;">
+                                                            @else
+                                                                <span class="d-inline-block {{ $isCorrect ? 'text-success' : 'text-danger' }}" style="max-width: 360px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                                    {{ $question->{'pilihan_' . $userAnswer} }}
+                                                                </span>
+                                                            @endif
+                                                        @else
+                                                            <span class="badge bg-soft-warning text-warning"><i class="mdi mdi-alert-outline me-1"></i> Tidak dijawab</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if($question->type_jawaban === 'foto')
+                                                            <img src="{{ Storage::url($question->{'pilihan_' . $question->jawaban}) }}" alt="Jawaban Benar" class="rounded border" style="max-height: 48px;">
+                                                        @else
+                                                            <span class="d-inline-block text-success" style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                                                {{ $question->{'pilihan_' . $question->jawaban} }}
+                                                            </span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="text-center mt-5">
-                                <a href="{{ route('dashboard') }}" class="btn btn-primary btn-lg px-5 py-3 rounded-pill">
-                                    <i class="fas fa-home me-2"></i>Kembali ke Dashboard
+                                <a href="{{ route('dashboard') }}" class="btn btn-cta-primary btn-lg px-5 py-3 rounded-pill">
+                                    <i class="mdi mdi-home-outline me-2"></i>Kembali ke Dashboard
                                 </a>
                             </div>
                         </div>
@@ -221,8 +345,8 @@
                     <div class="sticky-top" style="top: 1rem;">
                         <div class="card shadow-sm mb-3 border-0">
                             <div class="card-header bg-gradient text-white text-center py-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                                <h5 class="mb-2" style="text-transform: uppercase; color: #3c4858;"><i class="fas fa-clock me-2"></i>Waktu Tersisa</h5>
-                                <div x-data="timer()" x-init="startTimer()">
+                                <h5 class="mb-2" style="text-transform: uppercase; color: #3c4858;"><i class="mdi mdi-clock-outline me-2"></i>Waktu Tersisa</h5>
+                                <div x-data="timer({{ $testResult?->started_at?->timestamp ?? 'null' }}, {{ (int) $testDuration }}, {{ (int) ($timeLeft ?? 0) }})" x-init="startTimer()">
                                     {{-- The text-dark class is removed from here --}}
                                     <div class="timer-display bg-white rounded-3 p-3 shadow-sm">
                                         {{-- The :class directive is added here to dynamically change color --}}
@@ -235,48 +359,52 @@
                         </div>
 
                         <div class="card shadow-sm mb-3 border-0">
-                            <div class="card-header bg-info text-white">
-                                <h6 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Progress</h6>
+                            <div class="card-header bg-soft-info text-info py-3 border-0 rounded-top-3 d-flex align-items-center justify-content-between">
+                                <h6 class="mb-0 d-flex align-items-center">
+                                    <i class="mdi mdi-chart-pie me-2"></i>
+                                    Progress
+                                </h6>
+                                <small class="opacity-75 text-info">{{ $this->getAnsweredCount() }}/{{ $totalQuestions }}</small>
                             </div>
                             <div class="card-body">
                                 <div class="row g-2 text-center">
                                     <div class="col-4">
-                                        <div class="p-2 bg-success-subtle rounded">
-                                            <div class="fw-bold text-success">{{ $this->getAnsweredCount() }}</div>
-                                            <small class="text-muted">Dijawab</small>
+                                        <div class="py-2 px-3 bg-soft-success text-success rounded-3 d-flex flex-column align-items-center">
+                                            <div class="fw-semibold">{{ $this->getAnsweredCount() }}</div>
+                                            <small class="opacity-75 stat-label">Dijawab</small>
                                         </div>
                                     </div>
                                     <div class="col-4">
-                                        <div class="p-2 bg-warning-subtle rounded">
-                                            <div class="fw-bold text-warning">{{ $this->getMarkedCount() }}</div>
-                                            <small class="text-muted">Ditandai</small>
+                                        <div class="py-2 px-3 bg-soft-warning text-warning rounded-3 d-flex flex-column align-items-center">
+                                            <div class="fw-semibold">{{ $this->getMarkedCount() }}</div>
+                                            <small class="opacity-75 stat-label">Ditandai</small>
                                         </div>
                                     </div>
                                     <div class="col-4">
-                                        <div class="p-2 bg-danger-subtle rounded">
-                                            <div class="fw-bold text-danger">{{ $this->getUnansweredCount() }}</div>
-                                            <small class="text-muted">Kosong</small>
+                                        <div class="py-2 px-3 bg-soft-danger text-danger rounded-3 d-flex flex-column align-items-center">
+                                            <div class="fw-semibold">{{ $this->getUnansweredCount() }}</div>
+                                            <small class="opacity-75 stat-label">Kosong</small>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="progress mt-3" style="height: 8px;">
-                                    <div class="progress-bar bg-success" 
+                                <div class="progress mt-3 bg-light rounded-pill" style="height: 8px;">
+                                    <div class="progress-bar bg-success rounded-pill" 
                                          style="width: {{ ($this->getAnsweredCount() / count($questions)) * 100 }}%"></div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="card shadow-sm border-0">
-                            <div class="card-header bg-primary text-white">
-                                <h6 class="mb-0"><i class="fas fa-list me-2"></i>Navigasi Soal</h6>
+                            <div class="card-header bg-soft-primary text-primary py-3 border-0 rounded-top-3">
+                                <h6 class="mb-0"><i class="mdi mdi-format-list-bulleted-square me-2"></i>Navigasi Soal</h6>
                             </div>
                             <div class="card-body">
                                 <div class="question-grid mb-3">
                                     @foreach($questions as $index => $question)
                                         <button wire:click="goToQuestion({{ $index }})"
-                                                class="btn question-btn {{ $currentQuestion === $index ? 'btn-primary' : 
-                                                    ($this->isQuestionMarked($index) ? 'btn-warning' : 
-                                                    ($this->isQuestionAnswered($index) ? 'btn-success' : 'btn-outline-secondary')) }}"
+                                                class="btn btn-sm rounded-pill question-btn {{ $currentQuestion === $index ? 'btn-soft-primary' : 
+                                                    ($this->isQuestionMarked($index) ? 'btn-soft-warning' : 
+                                                    ($this->isQuestionAnswered($index) ? 'btn-soft-success' : 'btn-outline-secondary')) }}"
                                                 title="Soal {{ $index + 1 }}{{ $this->isQuestionAnswered($index) ? ' (Dijawab)' : '' }}{{ $this->isQuestionMarked($index) ? ' (Ditandai)' : '' }}">
                                             {{ $index + 1 }}
                                         </button>
@@ -287,15 +415,15 @@
                                     <button class="btn {{ $this->isQuestionMarked($currentQuestion) ? 'btn-warning' : 'btn-outline-warning' }}" 
                                             wire:click="toggleMarkQuestion">
                                         @if($this->isQuestionMarked($currentQuestion))
-                                            <i class="fas fa-bookmark me-1"></i>Hapus Tanda
+                                            <i class="mdi mdi-bookmark me-1"></i>Hapus Tanda
                                         @else
-                                            <i class="far fa-bookmark me-1"></i>Tandai Soal
+                                            <i class="mdi mdi-bookmark-outline me-1"></i>Tandai Soal
                                         @endif
                                     </button>
                                     
                                     @if($currentQuestion === count($questions) - 1)
                                         <button class="btn btn-success" wire:click="showConfirmation">
-                                            <i class="fas fa-check me-1"></i>Selesai
+                                            <i class="mdi mdi-check me-1"></i>Selesai
                                         </button>
                                     @endif
                                 </div>
@@ -306,14 +434,15 @@
 
                 <div class="col-lg-9">
                     <div class="card shadow-sm border-0 h-100">
-                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">
-                                <i class="fas fa-question-circle me-2"></i>
-                                Soal {{ $currentQuestion + 1 }} dari {{ count($questions) }}
-                            </h5>
-                            <div class="badge bg-light text-dark">
-                                {{ $this->isQuestionAnswered($currentQuestion) ? 'Dijawab' : 'Belum Dijawab' }}
-                            </div>
+                        <div class="card-header bg-soft-primary text-primary py-3 border-0 rounded-top-3 d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 d-flex align-items-center">
+                                <i class="mdi mdi-help-circle-outline me-2"></i>
+                                Soal {{ $currentQuestion + 1 }} / {{ count($questions) }}
+                            </h6>
+                            @php $answered = $this->isQuestionAnswered($currentQuestion); @endphp
+                            <span class="badge {{ $answered ? 'bg-soft-success text-success' : 'bg-soft-warning text-warning' }}">
+                                {{ $answered ? 'Dijawab' : 'Belum Dijawab' }}
+                            </span>
                         </div>
                         
                         <div class="card-body p-4">
@@ -368,24 +497,24 @@
                             </div>
                         </div>
 
-                        <div class="card-footer bg-light d-flex justify-content-between align-items-center py-3">
-                            <button class="btn btn-outline-secondary" 
+                        <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center py-3">
+                            <button class="btn btn-soft-secondary" 
                                     wire:click="previousQuestion"
                                     @if($currentQuestion === 0) disabled @endif>
-                                <i class="fas fa-chevron-left me-1"></i>Sebelumnya
+                                <i class="mdi mdi-chevron-left me-1"></i>Sebelumnya
                             </button>
                             
-                            <div class="text-muted">
+                            <span class="badge bg-soft-secondary text-secondary rounded-pill px-3">
                                 {{ $currentQuestion + 1 }} / {{ count($questions) }}
-                            </div>
+                            </span>
                             
                             @if($currentQuestion < count($questions) - 1)
-                                <button class="btn btn-primary" wire:click="nextQuestion">
-                                    Selanjutnya<i class="fas fa-chevron-right ms-1"></i>
+                                <button class="btn btn-soft-primary" wire:click="nextQuestion">
+                                    Selanjutnya<i class="mdi mdi-chevron-right ms-1"></i>
                                 </button>
                             @else
-                                <button class="btn btn-success" wire:click="showConfirmation">
-                                    <i class="fas fa-check me-1"></i>Selesai
+                                <button class="btn btn-soft-success" wire:click="showConfirmation">
+                                    <i class="mdi mdi-check me-1"></i>Selesai
                                 </button>
                             @endif
                         </div>
@@ -396,15 +525,15 @@
     @endif
 
     @if($showConfirmModal)
-        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.45);">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content border-0 shadow-lg">
-                    <div class="modal-header bg-warning text-dark">
-                        <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Konfirmasi Selesai</h5>
+                    <div class="modal-header bg-soft-warning text-warning border-0 rounded-top-3">
+                        <h5 class="modal-title d-flex align-items-center mb-0"><i class="mdi mdi-alert-outline me-2"></i>Konfirmasi Selesai</h5>
                     </div>
                     <div class="modal-body p-4">
                         <div class="text-center mb-4">
-                            <i class="fas fa-question-circle text-warning" style="font-size: 4rem;"></i>
+                            <i class="mdi mdi-help-circle-outline text-warning" style="font-size: 4rem;"></i>
                         </div>
                         <p class="text-center fs-5 mb-4">Apakah Anda yakin ingin menyelesaikan tes?</p>
                         
@@ -430,18 +559,18 @@
                         </div>
                         
                         @if($this->getUnansweredCount() > 0)
-                            <div class="alert alert-warning">
-                                <i class="fas fa-exclamation-triangle me-2"></i>
+                            <div class="alert border-0 bg-warning-subtle text-warning">
+                                <i class="mdi mdi-alert-outline me-2"></i>
                                 Masih ada {{ $this->getUnansweredCount() }} soal yang belum dijawab.
                             </div>
                         @endif
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" wire:click="hideConfirmation">
-                            <i class="fas fa-times me-1"></i>Batal
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-soft-secondary" wire:click="hideConfirmation">
+                            <i class="mdi mdi-close me-1"></i>Batal
                         </button>
-                        <button type="button" class="btn btn-success" wire:click="completeTest">
-                            <i class="fas fa-check me-1"></i>Ya, Selesai
+                        <button type="button" class="btn btn-soft-success" wire:click="completeTest">
+                            <i class="mdi mdi-check me-1"></i>Ya, Selesai
                         </button>
                     </div>
                 </div>
@@ -458,27 +587,33 @@
 
         .question-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr); /* Konsisten 5 kolom */
-            gap: 8px;
-            margin-bottom: 1rem;
+            grid-template-columns: repeat(5, 44px); /* 5 kolom, lebar tetap */
+            justify-content: center; /* pusatkan grid di dalam container */
+            justify-items: center; /* pusatkan item di tiap sel */
+            gap: 10px;
+            margin: 0 auto 1rem auto; /* center secara aman */
         }
+        .question-grid .btn{ box-sizing: border-box; }
         .question-btn {
-            aspect-ratio: 1; /* Membuat tombol persegi */
-            display: flex;
+            width: 100%;
+            aspect-ratio: 1; /* fix circle sizing */
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
+            font-weight: 600;
             font-size: 0.9rem;
-            transition: all 0.3s ease;
-            border-radius: 8px;
-            min-height: 40px; /* Tinggi minimum konsisten */
-            padding: 0; /* Hilangkan padding default Bootstrap */
-            border: 2px solid;
+            line-height: 1;
+            transition: transform .15s ease, box-shadow .15s ease;
+            border-radius: 50%;
+            padding: 0 !important; /* remove bootstrap btn padding */
+            margin: 2px; /* small inset so circle fits inside cell */
+            min-height: 0; /* allow aspect-ratio to control height */
+            border: 2px solid; /* keep outline variant thickness */
         }
 
         .question-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08);
         }
 
         .answer-option {
@@ -486,27 +621,28 @@
         }
 
         .answer-option:hover .answer-label {
-            transform: translateX(5px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateX(2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+            border-color: rgba(var(--bs-primary-rgb), .3);
         }
 
         .answer-option.selected .answer-label {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: #667eea;
-            transform: translateX(5px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+            background-color: rgba(var(--bs-primary-rgb), .08);
+            color: var(--bs-primary);
+            border-color: rgba(var(--bs-primary-rgb), .45);
+            transform: none;
+            box-shadow: 0 6px 16px rgba(13,110,253,.12);
         }
 
         .answer-option.selected .option-letter {
-            background: rgba(255,255,255,0.2);
-            color: white;
+            background: rgba(var(--bs-primary-rgb), .12);
+            color: var(--bs-primary);
         }
 
         .answer-label {
             transition: all 0.3s ease;
-            border: 2px solid #e9ecef;
-            background: white;
+            border: 2px solid #e5e7eb;
+            background: #fff;
         }
 
         .answer-label:hover {
@@ -568,15 +704,11 @@
         }
 
         @media (max-width: 576px) {
-            .question-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
+            .question-grid { grid-template-columns: repeat(3, 40px); }
         }
 
         @media (max-width: 768px) {
-            .question-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
+            .question-grid { grid-template-columns: repeat(4, 42px); }
             
             .col-lg-3 {
                 order: 2;
@@ -630,21 +762,35 @@
     </style>
 
     <script>
-        function timer() {
+        function timer(startedAtEpoch, durationMinutes, initialLeft) {
             return {
-                timeLeft: {{ $timeLeft }},
+                endsAt: startedAtEpoch ? (startedAtEpoch * 1000) + (durationMinutes * 60 * 1000) : null,
+                timeLeft: Number(initialLeft || 0),
+                interval: null,
                 
                 startTimer() {
-                    this.updateDisplay();
-                    const interval = setInterval(() => {
-                        this.timeLeft--;
-                        this.updateDisplay();
-                        
-                        if (this.timeLeft <= 0) {
-                            clearInterval(interval);
-                            @this.call('completeTest');
-                        }
-                    }, 1000);
+                    if (this.endsAt) {
+                        this.tick();
+                        this.interval = setInterval(() => this.tick(), 1000);
+                    } else {
+                        // Fallback if endsAt not available
+                        this.interval = setInterval(() => {
+                            this.timeLeft = Math.max(0, this.timeLeft - 1);
+                            if (this.timeLeft <= 0) {
+                                clearInterval(this.interval);
+                                @this.call('completeTest');
+                            }
+                        }, 1000);
+                    }
+                },
+                
+                tick() {
+                    const now = Date.now();
+                    this.timeLeft = Math.max(0, Math.floor((this.endsAt - now) / 1000));
+                    if (this.timeLeft <= 0) {
+                        clearInterval(this.interval);
+                        @this.call('completeTest');
+                    }
                 },
                 
                 updateDisplay() {
@@ -653,9 +799,7 @@
                     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
                 },
                 
-                formatTime() {
-                    return this.updateDisplay();
-                },
+                formatTime() { return this.updateDisplay(); },
             }
         }
 

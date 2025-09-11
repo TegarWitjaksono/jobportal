@@ -29,6 +29,8 @@ class ShowProfile extends Component
     public $showDocumentModal = false;
     public $documents = [];
     public $documentType = null;
+    // Temp preview paths for PDFs (stored on public disk)
+    public $tempPreview = [];
 
     public function mount()
     {
@@ -51,6 +53,8 @@ class ShowProfile extends Component
     {
         $this->showDocumentModal = false;
         $this->documentType = null;
+        $this->cleanupTempPreviews();
+        $this->tempPreview = [];
     }
 
     protected function resetUploadFields()
@@ -95,6 +99,10 @@ class ShowProfile extends Component
 
         $this->kandidat->save();
 
+        // Bersihkan file preview sementara (jika ada)
+        $this->cleanupTempPreviews($fields);
+        $this->tempPreview = [];
+
         $this->refreshDocuments();
         $this->closeDocumentModal();
     }
@@ -126,6 +134,58 @@ class ShowProfile extends Component
     {
         // Memberitahu Livewire untuk menggunakan layout utama 'layouts.app'
         return view('livewire.profile.show-profile');
+    }
+
+    /**
+     * Handle preview generation for newly selected files.
+     * For PDFs: store a public temporary copy to allow inline iframe preview.
+     */
+    public function updated($name)
+    {
+        $fields = ['ktp','ijazah','sertifikat','surat_pengalaman','skck','surat_sehat'];
+        if (!in_array($name, $fields)) return;
+
+        $file = $this->$name;
+        if (!$file) {
+            unset($this->tempPreview[$name]);
+            return;
+        }
+
+        $ext = strtolower($file->getClientOriginalExtension() ?? $file->extension());
+
+        // Only create temp public preview for PDFs. Images can use temporaryUrl directly.
+        if ($ext === 'pdf') {
+            $userId = Auth::id();
+            // Overwrite same filename to avoid piling up temp files
+            $relPath = $file->storeAs(
+                "previews/{$userId}",
+                $name . '-preview.' . $ext,
+                'public'
+            );
+            $this->tempPreview[$name] = $relPath; // store relative path
+        } else {
+            // Clear any old preview path if switching away from PDF
+            if (isset($this->tempPreview[$name])) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($this->tempPreview[$name]);
+            }
+            unset($this->tempPreview[$name]);
+        }
+    }
+
+    /**
+     * Remove any generated temporary previews on public disk.
+     * If $onlyFields provided, limit cleanup to those fields.
+     */
+    protected function cleanupTempPreviews(array $onlyFields = null): void
+    {
+        $paths = $this->tempPreview ?: [];
+        foreach ($paths as $field => $relPath) {
+            if ($onlyFields && !in_array($field, $onlyFields)) continue;
+            if (!$relPath) continue;
+            if (str_starts_with($relPath, 'previews/')) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($relPath);
+            }
+        }
     }
 
     /**

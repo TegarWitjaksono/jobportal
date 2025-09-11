@@ -11,6 +11,11 @@
             font-size: 12px;
             color: #333;
         }
+        .letterhead{ display:flex; align-items:center; gap:12px; padding-bottom:8px; border-bottom:2px solid #e5e7eb; margin-bottom:14px; }
+        .lh-left img{ max-height:42px; }
+        .lh-right .company{ font-size:16px; font-weight:700; line-height:1.2; color:#111827; }
+        .lh-right .tagline{ font-size:12px; font-weight:600; color:#1f2937; }
+        .lh-right .address{ font-size:11px; color:#6b7280; }
         .header {
             text-align: center;
             margin-bottom: 20px;
@@ -43,6 +48,19 @@
     </style>
     </head>
 <body>
+    @php
+        $logoUrl = 'https://toploker.com/assets/images/perusahaan/profile/multindo.jpg';
+    @endphp
+    <div class="letterhead">
+        <div class="lh-left">
+            <img src="{{ $logoUrl }}" alt="Logo">
+        </div>
+        <div class="lh-right">
+            <div class="company">PT. Multindo Technology Utama</div>
+            <div class="tagline">Mining &amp; Industrial Service</div>
+            <div class="address">Jl. Raya Mustikasari No.124, RT.001/RW.4, Padurenan, Kec. Mustika Jaya, Kota Bks, Jawa Barat 16340</div>
+        </div>
+    </div>
     <div class="header">
         <h1>Daftar Lamaran Lowongan</h1>
         <p>Laporan diekspor pada: {{ now()->translatedFormat('d F Y, H:i') }}</p>
@@ -80,4 +98,5 @@
     </table>
 </body>
 </html>
+
 

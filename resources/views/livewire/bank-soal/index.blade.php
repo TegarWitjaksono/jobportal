@@ -150,8 +150,11 @@
     <div class="modal fade show" tabindex="-1" style="display: block;" wire:ignore.self>
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content rounded shadow-lg">
-                <div class="modal-header bg-light p-4">
-                    <h5 class="modal-title">{{ $soalId ? 'Edit Soal' : 'Tambah Soal Baru' }}</h5>
+                <div class="modal-header bg-soft-primary text-primary p-4 border-0 rounded-top-3">
+                    <h5 class="modal-title d-flex align-items-center mb-0">
+                        <i class="mdi mdi-file-document-edit-outline me-2"></i>
+                        {{ $soalId ? 'Edit Soal' : 'Tambah Soal Baru' }}
+                    </h5>
                     <button type="button" class="btn-close" wire:click="$set('showModal', false)"></button>
                 </div>
                 <form wire:submit.prevent="save" x-data="{ type_soal: @entangle('type_soal').live, type_jawaban: @entangle('type_jawaban').live }">
@@ -159,11 +162,13 @@
                         <div class="row g-4">
                             {{-- Left Column: Basic Info & Question --}}
                             <div class="col-lg-6 border-end pe-lg-4">
-                                <h6 class="text-muted">Informasi Dasar</h6>
+                                <h6 class="text-muted d-flex align-items-center">
+                                    <i class="mdi mdi-information-outline me-2"></i> Informasi Dasar
+                                </h6>
                                 <hr class="mt-1 mb-3">
                                 
                                 <div class="mb-3">
-                                    <label class="form-label">Kategori Soal <span class="text-danger">*</span></label>
+                                    <label class="form-label d-flex align-items-center"><i class="mdi mdi-shape-outline me-2 text-primary"></i> Kategori Soal <span class="text-danger ms-1">*</span></label>
                                     <select wire:model="id_kategori_soal" class="form-select @error('id_kategori_soal') is-invalid @enderror">
                                         <option value="">Pilih Kategori...</option>
                                         @foreach($kategoriSoals as $kategori)
@@ -174,36 +179,48 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-sm-6 mb-3">
-                                        <label class="form-label">Tipe Soal</label>
+                                        <label class="form-label d-flex align-items-center"><i class="mdi mdi-view-grid-plus-outline me-2 text-primary"></i> Tipe Soal</label>
                                         <select wire:model.live="type_soal" class="form-select">
                                             @foreach($types as $value => $label)
                                                 <option value="{{ $value }}">{{ $label }}</option>
                                             @endforeach
                                         </select>
+                                        <div class="small text-muted mt-1">Pilih “Foto” jika pertanyaan berupa gambar.</div>
                                     </div>
                                     <div class="col-sm-6 mb-3">
-                                        <label class="form-label">Tipe Jawaban</label>
+                                        <label class="form-label d-flex align-items-center"><i class="mdi mdi-format-list-bulleted-square me-2 text-primary"></i> Tipe Jawaban</label>
                                         <select wire:model.live="type_jawaban" class="form-select">
                                             @foreach($types as $value => $label)
                                                 <option value="{{ $value }}">{{ $label }}</option>
                                             @endforeach
                                         </select>
+                                        <div class="small text-muted mt-1">Pilih “Foto” jika pilihan jawaban berupa gambar.</div>
                                     </div>
                                 </div>
 
-                                <h6 class="text-muted mt-3">Isi Soal</h6>
+                                <h6 class="text-muted mt-3 d-flex align-items-center">
+                                    <i class="mdi mdi-comment-text-outline me-2"></i> Isi Soal
+                                </h6>
                                 <hr class="mt-1 mb-3">
                                 <div class="mb-3">
-                                    <label class="form-label">Pertanyaan <span class="text-danger">*</span></label>
-                                    <div x-show="type_soal == 'foto'">
+                                    <label class="form-label d-flex align-items-center"><i class="mdi mdi-help-circle-outline me-2 text-primary"></i> Pertanyaan <span class="text-danger ms-1">*</span></label>
+                                    <div x-show="type_soal == 'foto'" x-transition.opacity>
                                         <input type="file" wire:model="soal" class="form-control" accept="image/*">
+                                        <div class="small text-muted mt-1" wire:loading wire:target="soal">
+                                            <i class="mdi mdi-loading mdi-spin me-1"></i> Mengunggah gambar...
+                                        </div>
                                         @if ($soal && method_exists($soal, 'temporaryUrl'))
-                                            <img src="{{ $soal->temporaryUrl() }}" class="img-fluid rounded my-2" style="max-height: 150px; border: 1px solid #ddd; padding: 3px;">
+                                            <div class="bg-soft-light rounded border p-2 my-2 shadow-sm">
+                                                <img src="{{ $soal->temporaryUrl() }}" class="img-fluid rounded" style="max-height: 150px;">
+                                            </div>
                                         @elseif(is_string($oldSoal) && $soal == $oldSoal)
-                                            <img src="{{ Storage::url($oldSoal) }}" class="img-fluid rounded my-2" style="max-height: 150px; border: 1px solid #ddd; padding: 3px;">
+                                            <div class="bg-soft-light rounded border p-2 my-2 shadow-sm">
+                                                <img src="{{ Storage::url($oldSoal) }}" class="img-fluid rounded" style="max-height: 150px;">
+                                            </div>
                                         @endif
+                                        <div class="small text-muted">Format: JPG/PNG • Disarankan rasio 1:1 atau 4:3</div>
                                     </div>
-                                    <div x-show="type_soal != 'foto'">
+                                    <div x-show="type_soal != 'foto'" x-transition.opacity>
                                         <textarea wire:model="soal" class="form-control" rows="4" placeholder="Tulis pertanyaan soal di sini..."></textarea>
                                     </div>
                                     @error('soal') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
@@ -212,22 +229,31 @@
 
                             {{-- Right Column: Answer Choices --}}
                             <div class="col-lg-6 ps-lg-4">
-                                <h6 class="text-muted">Pilihan Jawaban</h6>
+                                <h6 class="text-muted d-flex align-items-center">
+                                    <i class="mdi mdi-format-list-bulleted me-2"></i> Pilihan Jawaban
+                                </h6>
                                 <hr class="mt-1 mb-3">
                                 <div class="row g-3">
                                 @for($i = 1; $i <= 4; $i++)
                                     @php $pilihan = "pilihan_$i"; $oldPilihan = "oldPilihan$i"; @endphp
                                     <div class="col-sm-6">
                                         <label class="form-label">Pilihan {{ $i }} <span class="text-danger">*</span></label>
-                                        <div x-show="type_jawaban == 'foto'">
+                                        <div x-show="type_jawaban == 'foto'" x-transition.opacity>
                                             <input type="file" wire:model="{{ $pilihan }}" class="form-control" accept="image/*">
+                                            <div class="small text-muted mt-1" wire:loading wire:target="{{ $pilihan }}">
+                                                <i class="mdi mdi-loading mdi-spin me-1"></i> Mengunggah gambar...
+                                            </div>
                                             @if ($$pilihan && method_exists($$pilihan, 'temporaryUrl'))
-                                                <img src="{{ $$pilihan->temporaryUrl() }}" class="img-fluid rounded my-2" style="max-height: 80px; border: 1px solid #ddd; padding: 3px;">
+                                                <div class="bg-soft-light rounded border p-2 my-2 shadow-sm">
+                                                    <img src="{{ $$pilihan->temporaryUrl() }}" class="img-fluid rounded" style="max-height: 80px;">
+                                                </div>
                                             @elseif(is_string($$oldPilihan) && $$pilihan == $$oldPilihan)
-                                                <img src="{{ Storage::url($$oldPilihan) }}" class="img-fluid rounded my-2" style="max-height: 80px; border: 1px solid #ddd; padding: 3px;">
+                                                <div class="bg-soft-light rounded border p-2 my-2 shadow-sm">
+                                                    <img src="{{ Storage::url($$oldPilihan) }}" class="img-fluid rounded" style="max-height: 80px;">
+                                                </div>
                                             @endif
                                         </div>
-                                        <div x-show="type_jawaban != 'foto'">
+                                        <div x-show="type_jawaban != 'foto'" x-transition.opacity>
                                             <input type="text" wire:model="{{ $pilihan }}" class="form-control" placeholder="Teks jawaban {{ $i }}">
                                         </div>
                                         @error($pilihan) <div class="text-danger small mt-1">{{ $message }}</div> @enderror
@@ -235,7 +261,9 @@
                                 @endfor
                                 </div>
                                 
-                                <h6 class="text-muted mt-4">Kunci Jawaban & Status</h6>
+                                <h6 class="text-muted mt-4 d-flex align-items-center">
+                                    <i class="mdi mdi-key-outline me-2"></i> Kunci Jawaban & Status
+                                </h6>
                                 <hr class="mt-1 mb-3">
                                 <div class="row">
                                     <div class="col-sm-8">
@@ -259,7 +287,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer p-3 bg-light">
+                    <div class="modal-footer p-3 bg-light border-0 rounded-bottom-3">
                         <button type="button" class="btn btn-soft-secondary" wire:click="$set('showModal', false)">Batal</button>
                         <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">
                             <span wire:loading.remove wire:target="save">Simpan</span>

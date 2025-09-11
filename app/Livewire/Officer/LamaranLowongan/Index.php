@@ -7,6 +7,7 @@ use Livewire\WithPagination;
 use App\Models\LamarLowongan;
 use App\Models\User;
 use App\Models\ProgressRekrutmen;
+use App\Models\TestResult;
 use Illuminate\Support\Facades\Log;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -18,6 +19,7 @@ class Index extends Component
     use WithPagination;
 
     public $search = '';
+    public $decisionLocked = [];
 
     protected $listeners = ['refreshLamaran' => '$refresh'];
 
@@ -65,8 +67,32 @@ class Index extends Component
     {
         $lamaran = $this->getLamaranQuery()->paginate(10);
 
+        // Build map of latest (prefer completed) TestResult per user on this page
+        $userIds = $lamaran->getCollection()
+            ->map(fn($l) => optional(optional($l->kandidat)->user)->id)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $resultMap = [];
+        if (!empty($userIds)) {
+            $results = TestResult::whereIn('user_id', $userIds)
+                ->orderByRaw('CASE WHEN completed_at IS NULL THEN 1 ELSE 0 END ASC')
+                ->orderByDesc('completed_at')
+                ->orderByDesc('started_at')
+                ->get();
+
+            foreach ($results as $res) {
+                if (!isset($resultMap[$res->user_id])) {
+                    $resultMap[$res->user_id] = $res->id;
+                }
+            }
+        }
+
         return view('livewire.officer.lamaran-lowongan.index', [
-            'lamaranList' => $lamaran
+            'lamaranList' => $lamaran,
+            'resultMap' => $resultMap,
         ]);
     }
 
@@ -85,6 +111,20 @@ class Index extends Component
         }
 
         $lamaran = LamarLowongan::findOrFail($id);
+        // Cegah klik ganda dan pengubahan keputusan final
+        if (in_array($status, ['diterima','ditolak'], true)) {
+            if (($this->decisionLocked[$id] ?? false)) {
+                return; // sudah terkunci pada sesi ini
+            }
+            $hasFinal = $lamaran->progressRekrutmen()
+                ->whereIn('status', ['diterima','ditolak'])
+                ->exists();
+            if ($hasFinal) {
+                session()->flash('warning', 'Keputusan sudah ditetapkan sebelumnya.');
+                $this->decisionLocked[$id] = true;
+                return;
+            }
+        }
     
         try {
             // Tambahkan progress baru
@@ -100,6 +140,9 @@ class Index extends Component
             // Refresh tabel dan beri notifikasi
             $this->dispatch('refreshLamaran');
             session()->flash('success', "Status lamaran diubah ke: {$status}.");
+            if (in_array($status, ['diterima','ditolak'], true)) {
+                $this->decisionLocked[$id] = true; // kunci setelah keputusan diambil
+            }
         } catch (\Throwable $e) {
             Log::error('Gagal ubah status lamaran: ' . $e->getMessage());
             session()->flash('error', 'Terjadi kesalahan saat menyimpan status.');

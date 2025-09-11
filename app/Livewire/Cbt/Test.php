@@ -85,6 +85,20 @@ class Test extends Component
             abort(403, 'Anda belum memiliki akses ke tes ini.');
         }
 
+        // Cek apakah user sudah menyelesaikan tes sebelumnya
+        $completed = TestResult::where('user_id', Auth::id())
+            ->whereNotNull('completed_at')
+            ->latest('completed_at')
+            ->first();
+
+        if ($completed) {
+            // Tampilkan hasil selesai, jangan tampilkan tombol mulai lagi
+            $this->testResult = $completed;
+            $this->testStarted = false;
+            $this->testCompleted = true;
+            return;
+        }
+
         $ongoingTestId = session('test_in_progress');
 
         if ($ongoingTestId && $testResult = TestResult::where('id', $ongoingTestId)->where('user_id', Auth::id())->whereNull('completed_at')->first()) {
@@ -112,6 +126,21 @@ class Test extends Component
 
     public function startTest()
     {
+        // Guard: cegah klik ganda / mulai lebih dari sekali
+        if ($this->testStarted) return;
+
+        // Jika ada tes berjalan, pulihkan saja
+        if ($existing = TestResult::where('user_id', Auth::id())->whereNull('completed_at')->first()) {
+            $this->testResult = $existing;
+            $this->restoreState();
+            return;
+        }
+        // Jika sudah pernah selesai, jangan mulai lagi
+        if (TestResult::where('user_id', Auth::id())->whereNotNull('completed_at')->exists()) {
+            $this->testCompleted = true;
+            return;
+        }
+
         $this->testStarted = true;
         $this->testResult = TestResult::create([
             'user_id' => Auth::id(),

@@ -5,6 +5,8 @@ namespace App\Livewire\Officer\TestResults;
 use Livewire\Component;
 use App\Models\TestResult;
 use Livewire\WithPagination;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class Index extends Component
 {
@@ -15,6 +17,10 @@ class Index extends Component
     public $search = '';
     public $sortField = 'created_at';
     public $sortDirection = 'desc';
+
+    // Detail modal state
+    public $detailModal = false;
+    public $detailResult; // Holds TestResult model instance
 
     protected $queryString = [
         'search' => ['except' => ''],
@@ -73,5 +79,44 @@ class Index extends Component
             'tidakLulus' => $tidakLulus,
             'rataRataSkor' => $rataRataSkor,
         ]);
+    }
+
+    public function openDetail($resultId)
+    {
+        $this->detailResult = TestResult::with('user')->findOrFail($resultId);
+        $this->detailModal = true;
+    }
+
+    public function closeDetail()
+    {
+        $this->detailModal = false;
+        $this->detailResult = null;
+    }
+
+    /**
+     * Export ringkasan detail (isi modal) ke PDF untuk satu hasil.
+     */
+    public function exportDetail($id)
+    {
+        $result = TestResult::with('user')->findOrFail($id);
+
+        $html = view('livewire.officer.test-results.pdf-detail', [
+            'result' => $result,
+        ])->render();
+
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $fileName = 'detail-hasil-psikotes-' . ($result->user->name ?? 'kandidat') . '-' . now()->format('Ymd_His') . '.pdf';
+
+        return response()->streamDownload(function () use ($dompdf) {
+            echo $dompdf->output();
+        }, $fileName);
     }
 }
