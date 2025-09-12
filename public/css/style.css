@@ -4526,3 +4526,6 @@ footer .footer-bar {
   opacity: .8;
 }
 .form-icon svg.icons{ width:16px; height:16px; stroke-width:2; }
+
+/* Footer logo sizing */
+.footer-logo{max-height:52px; width:auto;}

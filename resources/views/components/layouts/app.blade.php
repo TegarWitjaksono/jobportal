@@ -206,6 +206,8 @@
         
 
         <!-- Footer Start -->
+        @include('partials.footer')
+        {{-- legacy footer below; kept for reference
         <footer class="bg-footer">
             <div class="container">
                 <div class="row">
@@ -256,7 +258,7 @@
                     </div><!--end row-->
                 </div><!--end container-->
             </div>
-        </footer><!--end footer-->
+        </footer><!--end footer--> --}}
         <!-- Footer End -->
 
         <!-- Back to top -->

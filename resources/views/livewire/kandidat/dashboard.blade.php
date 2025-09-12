@@ -91,57 +91,103 @@
             </div>
 
             {{-- Bagian lowongan terbaru --}}
-            <div class="row">
-                @php
-                    $kolomClass = 'col-md-6 col-lg-4 col-xl-3'; // Responsive: 2 di md, 3 di lg, 4 di xl
-                @endphp
-                
-                @forelse($lowonganTerbaru as $lowongan)
-                <div class="{{ $kolomClass }} mb-4">
-                    <div class="card job-box rounded shadow h-100">
-                        <div class="card-body p-4 d-flex flex-column">
-                            <div class="flex-grow-1">
-                                <div class="mb-3" style="height: 150px; overflow: hidden;">
-                                    @if($lowongan->foto)
-                                        <img src="{{ asset('storage/image/lowongan/' . $lowongan->foto) }}" alt="Foto Lowongan" class="img-fluid rounded" style="width: 100%; height: 100%; object-fit: contain;">
-                                    @else
-                                        <div class="d-flex align-items-center justify-content-center bg-light rounded h-100">
-                                            <span class="text-muted">No Image</span>
-                                        </div>
-                                    @endif
-                                </div>
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <h6><a href="#" wire:click.prevent="showJob({{ $lowongan->id }})" class="text-dark">{{ $lowongan->nama_posisi }}</a></h6>
-                                    <span class="badge {{ $lowongan->is_remote ? 'bg-soft-success' : 'bg-soft-primary' }}">
-                                        {{ $lowongan->is_remote ? 'Remote' : 'Fulltime' }}
-                                    </span>
-                                </div>
-
-                                <div class="mt-2">
-                                    <span class="text-muted d-block"><i class="mdi mdi-office-building-outline me-1"></i>{{ $lowongan->departemen }}</span>
-                                    <span class="text-muted d-block mt-1"><i class="mdi mdi-map-marker-outline me-1"></i>{{ $lowongan->lokasi_penugasan }}</span>
-                                    <span class="text-muted d-block mt-1"><i class="mdi mdi-cash-multiple me-1"></i>{{ $lowongan->range_gaji }} Juta</span>
-                                </div>
-
-                                <div class="mt-3">
-                                    <span class="badge bg-soft-primary me-1">{{ optional($lowongan->kategoriLowongan)->nama_kategori }}</span>
-                                    <span class="badge bg-soft-warning">Berakhir: {{ \Carbon\Carbon::parse($lowongan->tanggal_berakhir)->format('d M Y') }}</span>
-                                </div>
-                            </div>
-                            <div class="mt-3">
-                                <a href="#" wire:click.prevent="showJob({{ $lowongan->id }})" class="btn btn-sm btn-primary w-100">Lamar Sekarang</a>
+<div class="row g-3">
+    @php
+        $kolomClass = 'col-sm-6 col-lg-4 col-xl-3'; // Responsive: 1 di xs, 2 di sm, 3 di lg, 4 di xl
+    @endphp
+    
+    @forelse($lowonganTerbaru as $lowongan)
+    <div class="{{ $kolomClass }}">
+        <div class="card job-box border-0 rounded-3 shadow-sm h-100 hover-shadow">
+            <div class="card-body p-3 d-flex flex-column">
+                <!-- Image Container -->
+                <div class="mb-3 position-relative rounded-3 overflow-hidden" style="height: 120px; background-color: #f8f9fa;">
+                    @if($lowongan->foto)
+                        <img src="{{ asset('storage/image/lowongan/' . $lowongan->foto) }}" 
+                             alt="Foto Lowongan" 
+                             class="img-fluid w-100 h-100" 
+                             style="object-fit: contain; object-position: center;">
+                    @else
+                        <div class="d-flex align-items-center justify-content-center h-100 bg-light">
+                            <div class="text-center text-muted">
+                                <i class="mdi mdi-briefcase-outline" style="font-size: 2rem;"></i>
+                                <div class="small mt-1">No Image</div>
                             </div>
                         </div>
+                    @endif
+                </div>
+
+                <!-- Content Area (flex-grow-1 to push button to bottom) -->
+                <div class="flex-grow-1">
+                    <!-- Job Title and Type Badge -->
+                    <div class="d-flex align-items-start justify-content-between mb-2">
+                        <h6 class="mb-0 fw-semibold lh-sm">
+                            <a href="#" 
+                               wire:click.prevent="showJob({{ $lowongan->id }})" 
+                               class="text-dark text-decoration-none stretched-link"
+                               style="font-size: 0.95rem;">
+                                {{ Str::limit($lowongan->nama_posisi, 40) }}
+                            </a>
+                        </h6>
+                        <span class="badge rounded-pill ms-2 flex-shrink-0 {{ $lowongan->is_remote ? 'bg-success' : 'bg-primary' }}"
+                              style="font-size: 0.7rem;">
+                            {{ $lowongan->is_remote ? 'Remote' : 'Fulltime' }}
+                        </span>
+                    </div>
+
+                    <!-- Job Details -->
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-1 text-muted" style="font-size: 0.8rem;">
+                            <i class="mdi mdi-domain me-2" style="font-size: 0.9rem;"></i>
+                            <span class="text-truncate">{{ Str::limit($lowongan->departemen, 25) }}</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-1 text-muted" style="font-size: 0.8rem;">
+                            <i class="mdi mdi-map-marker me-2" style="font-size: 0.9rem;"></i>
+                            <span class="text-truncate">{{ Str::limit($lowongan->lokasi_penugasan, 25) }}</span>
+                        </div>
+                        <div class="d-flex align-items-center text-muted" style="font-size: 0.8rem;">
+                            <i class="mdi mdi-cash-multiple me-2" style="font-size: 0.9rem;"></i>
+                            <span class="fw-medium">{{ $lowongan->range_gaji }} Juta</span>
+                        </div>
+                    </div>
+
+                    <!-- Category and Deadline Badges -->
+                    <div class="d-flex flex-column gap-1">
+                        @if(optional($lowongan->kategoriLowongan)->nama_kategori)
+                        <span class="badge bg-light text-primary border align-self-start" style="font-size: 0.7rem;">
+                            {{ Str::limit(optional($lowongan->kategoriLowongan)->nama_kategori) }}
+                        </span>
+                        @endif
+                        <span class="badge bg-warning text-dark align-self-start" style="font-size: 0.7rem;">
+                            {{ \Carbon\Carbon::parse($lowongan->tanggal_berakhir)->format('d M Y') }}
+                        </span>
                     </div>
                 </div>
-                @empty
-                <div class="col-12">
-                    <div class="alert alert-info text-center">
-                        Belum ada lowongan tersedia saat ini.
-                    </div>
+
+                <!-- Apply Button (positioned at bottom) -->
+                <div class="pt-2 border-top">
+                    <button type="button" 
+                            wire:click.prevent="showJob({{ $lowongan->id }})" 
+                            class="btn btn-primary btn-sm w-100 position-relative"
+                            style="z-index: 10; font-size: 0.85rem;">
+                        <i class="mdi mdi-send me-1"></i>Lamar Sekarang
+                    </button>
                 </div>
-                @endforelse
             </div>
+        </div>
+    </div>
+    @empty
+    <div class="col-12">
+        <div class="alert alert-info text-center border-0 rounded-3 bg-light">
+            <div class="py-4">
+                <i class="mdi mdi-information-outline text-info mb-3" style="font-size: 3rem;"></i>
+                <h5 class="text-info mb-2">Belum Ada Lowongan</h5>
+                <p class="text-muted mb-0">Belum ada lowongan tersedia saat ini. Silakan cek kembali nanti.</p>
+            </div>
+        </div>
+    </div>
+    @endforelse
+</div>
 
             {{-- Link paginasi --}}
             <div class="row">
