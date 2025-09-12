@@ -154,11 +154,11 @@
                     <!-- Category and Deadline Badges -->
                     <div class="d-flex flex-column gap-1">
                         @if(optional($lowongan->kategoriLowongan)->nama_kategori)
-                        <span class="badge bg-light text-primary border align-self-start" style="font-size: 0.7rem;">
+                        <span class="badge bg-soft-primary text-primary align-self-start">
                             {{ Str::limit(optional($lowongan->kategoriLowongan)->nama_kategori) }}
                         </span>
                         @endif
-                        <span class="badge bg-warning text-dark align-self-start" style="font-size: 0.7rem;">
+                        <span class="badge bg-soft-warning text-warning align-self-start">
                             {{ \Carbon\Carbon::parse($lowongan->tanggal_berakhir)->format('d M Y') }}
                         </span>
                     </div>
@@ -804,4 +804,3 @@
     @endguest
     @endpush
 </div>
-

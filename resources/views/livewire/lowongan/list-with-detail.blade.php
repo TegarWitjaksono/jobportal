@@ -116,7 +116,10 @@
                                 <div class="card rounded shadow border-0 w-100 job-detail flex-grow-1">
                                     <div class="card-body">
                                         @if(!empty($selectedJob->foto))
-                                            <img src="{{ asset('storage/image/lowongan/' . $selectedJob->foto) }}" alt="{{ $selectedJob->nama_posisi }}" class="cover img-fluid rounded mb-3">
+                                            <img src="{{ asset('storage/image/lowongan/' . $selectedJob->foto) }}"
+                                                 alt="{{ $selectedJob->nama_posisi }}"
+                                                 class="img-fluid rounded mb-3"
+                                                 style="width:100%; height:240px; object-fit:contain; background:#f8f9fa; display:block;">
                                         @endif
                                         <div class="mb-2">
                                             @if($selectedJob->is_remote)
@@ -176,22 +179,39 @@
                                                             $thumb = asset('storage/image/logo/kategori-lowongan/' . $job->kategoriLowongan->logo);
                                                         }
                                                     @endphp
-                                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 64px; height: 64px; overflow: hidden;">
+                                                    <div class="bg-soft-light border rounded d-flex align-items-center justify-content-center" style="width:64px;height:64px;overflow:hidden;">
                                                         @if($thumb)
-                                                            <img src="{{ $thumb }}" alt="{{ $job->nama_posisi }}" style="width: 100%; height: 100%; object-fit: cover;">
+                                                            <img src="{{ $thumb }}" alt="{{ $job->nama_posisi }}" style="width:100%;height:100%;object-fit:cover;">
                                                         @else
                                                             <i data-feather="image" class="fea icon-md"></i>
                                                         @endif
                                                     </div>
                                                 </div>
                                                 <div class="flex-grow-1">
-                                                    <h6 class="mb-1">{{ $job->nama_posisi }}</h6>
+                                                    <div class="d-flex align-items-center justify-content-between">
+                                                        <h6 class="mb-1 text-truncate pe-2">{{ $job->nama_posisi }}</h6>
+                                                        @if(!empty($job->tanggal_berakhir))
+                                                            <small class="text-muted"><i class="mdi mdi-calendar-clock me-1"></i>{{ \Carbon\Carbon::parse($job->tanggal_berakhir)->format('d M Y') }}</small>
+                                                        @endif
+                                                    </div>
+                                                    <div class="mb-1">
+                                                        @if(optional($job->kategoriLowongan)->nama_kategori)
+                                                            <span class="badge bg-soft-primary text-primary me-1">{{ optional($job->kategoriLowongan)->nama_kategori }}</span>
+                                                        @endif
+                                                        @isset($job->is_remote)
+                                                            <span class="badge {{ $job->is_remote ? 'bg-soft-success text-success' : 'bg-soft-secondary text-secondary' }}">{{ $job->is_remote ? 'Remote' : 'On-site' }}</span>
+                                                        @endisset
+                                                    </div>
                                                     <small class="text-muted d-block mb-1">
                                                         <svg class="fea icon-sm me-1 align-middle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                                             <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 1 1 18 0z"></path>
                                                             <circle cx="12" cy="10" r="3"></circle>
                                                         </svg>
                                                         {{ $job->lokasi_penugasan }}
+                                                        @php($gaji = $job->formatted_gaji ?? ($job->range_gaji ? $job->range_gaji.' Juta' : null))
+                                                        @if($gaji)
+                                                            <span class="mx-2">•</span><i class="mdi mdi-cash-multiple me-1"></i>{{ $gaji }}
+                                                        @endif
                                                     </small>
                                                     @if(!empty($job->deskripsi))
                                                         <div class="text-muted small">{{ \Illuminate\Support\Str::words(strip_tags($job->deskripsi), 16, '...') }}</div>
