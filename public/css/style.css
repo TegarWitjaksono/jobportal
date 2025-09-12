@@ -4529,3 +4529,5 @@ footer .footer-bar {
 
 /* Footer logo sizing */
 .footer-logo{max-height:52px; width:auto;}
+/* Footer active link */
+footer .footer-list li a.active { color: #ffffff; font-weight: 600; }

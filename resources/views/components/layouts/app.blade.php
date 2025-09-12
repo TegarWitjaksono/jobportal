@@ -88,7 +88,28 @@
         @livewireStyles
 		<meta charset="UTF-8">
 	    <meta name="viewport" content="width=device-width, initial-scale=1">
-	    <title>{{ config('app.name', 'Job Portal') }}</title>
+	    @php
+	            $brand = 'Job Portal MTU';
+            $routeName = \Illuminate\Support\Facades\Route::currentRouteName();
+            $map = [
+                'dashboard' => 'Dashboard',
+                'jobs.browse' => 'Jobs',
+                'kandidat.lowongan-dilamar' => 'Lowongan Dilamar',
+                'cbt.dashboard' => 'Tes Seleksi',
+                'profile.show' => 'Profil',
+                'officers.index' => 'Officers',
+                'Lowongan.Index' => 'Lowongan',
+                'kategori-lowongan.Index' => 'Kategori Lowongan',
+                'kandidat.index' => 'Data Kandidat',
+                'lamaran-lowongan.index' => 'Lamaran',
+                'jadwal-interview.index' => 'Jadwal Interview',
+                'test-results.index' => 'Hasil Psikotes',
+                'bank-soal.index' => 'Bank Soal',
+                'kategori-soal.index' => 'Kategori Soal',
+            ];
+            $defaultTitle = $map[$routeName] ?? \Illuminate\Support\Str::title(str_replace(['.', '-'], ' ', (string) $routeName));
+        @endphp
+	    <title>{{ $brand }}@hasSection('title') - @yield('title') @elseif(!empty($defaultTitle)) - {{ $defaultTitle }} @endif</title>
 	    <meta name="description" content="Job Listing Bootstrap 5 Template" />
 	    <meta name="keywords" content="Onepage, creative, modern, bootstrap 5, multipurpose, clean, Job Listing, Job Board, Job, Job Portal" />
 	    <meta name="author" content="Shreethemes" />
@@ -96,7 +117,8 @@
 	    <meta name="email" content="support@shreethemes.in" />
 	    <meta name="version" content="1.0.0" />
 	    <!-- favicon -->
-        <link href="{{ asset('images/favicon.ico') }}" rel="shortcut icon">
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+        <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
 		<!-- Bootstrap core CSS -->
 	    <link href="{{ asset('css/bootstrap.min.css') }}" type="text/css" rel="stylesheet" />
         <link href="{{ asset('css/tobii.min.css') }}" rel="stylesheet" type="text/css" />

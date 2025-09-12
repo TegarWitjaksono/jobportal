@@ -26,10 +26,10 @@
             <div class="col-6 col-lg-2 col-md-6 mt-4 mt-md-0">
                 <h6 class="text-white footer-head mb-3">Pelamar</h6>
                 <ul class="list-unstyled footer-list">
-                    <li><a href="{{ route('jobs.browse') }}" class="text-foot"><i class="mdi mdi-chevron-right me-2"></i>Cari Lowongan</a></li>
-                    <li><a href="{{ route('kandidat.lowongan-dilamar') }}" class="text-foot"><i class="mdi mdi-chevron-right me-2"></i>Lowongan Dilamar</a></li>
-                    <li><a href="{{ route('cbt.dashboard') }}" class="text-foot"><i class="mdi mdi-chevron-right me-2"></i>Tes Seleksi</a></li>
-                    <li><a href="{{ route('profile.show') }}" class="text-foot"><i class="mdi mdi-chevron-right me-2"></i>Profil</a></li>
+                    <li><a href="{{ route('jobs.browse') }}" class="text-foot {{ request()->routeIs('jobs.*') ? 'active' : '' }}"><i class="mdi mdi-chevron-right me-2"></i>Cari Lowongan</a></li>
+                    <li><a href="{{ route('kandidat.lowongan-dilamar') }}" class="text-foot {{ request()->routeIs('kandidat.lowongan-dilamar') ? 'active' : '' }}"><i class="mdi mdi-chevron-right me-2"></i>Lowongan Dilamar</a></li>
+                    <li><a href="{{ route('cbt.dashboard') }}" class="text-foot {{ request()->routeIs('cbt.*') ? 'active' : '' }}"><i class="mdi mdi-chevron-right me-2"></i>Tes Seleksi</a></li>
+                    <li><a href="{{ route('profile.show') }}" class="text-foot {{ request()->routeIs('profile.show') ? 'active' : '' }}"><i class="mdi mdi-chevron-right me-2"></i>Profil</a></li>
                 </ul>
             </div>
 

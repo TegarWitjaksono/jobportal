@@ -12,7 +12,7 @@
 	    <meta name="email" content="support@shreethemes.in" />
 	    <meta name="version" content="1.0.0" />
 	    <!-- favicon -->
-        <link href={{ asset('images/favicon.ico') }} rel="shortcut icon">
+        <link href={{ asset('favicon.ico') }} rel="shortcut icon">
 		<!-- Bootstrap core CSS -->
         {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
 	    <link href="{{ asset('css/bootstrap.min.css') }}" type="text/css" rel="stylesheet" />

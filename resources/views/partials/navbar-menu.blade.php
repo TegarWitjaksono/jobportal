@@ -8,9 +8,14 @@
             <li><a href="{{ route('jobs.browse') }}" class="{{ request()->routeIs('jobs.*') ? 'active' : '' }}">{{ __('Jobs') }}</a></li>
             <li><a href="{{ route('kandidat.lowongan-dilamar') }}" class="{{ request()->routeIs('kandidat.lowongan-dilamar') ? 'active' : '' }}">{{ __('Lamaran Saya') }}</a></li>
         @elseif($role === 'officer')
+            @php
+                $activeLowongan = request()->routeIs('Lowongan.*') || request()->routeIs('kategori-lowongan.*');
+                $activeKandidat = request()->routeIs('kandidat.*') || request()->routeIs('lamaran-lowongan.*') || request()->routeIs('jadwal-interview.*') || request()->routeIs('test-results.*');
+                $activeBankSoal = request()->routeIs('bank-soal.*') || request()->routeIs('kategori-soal.*');
+            @endphp
             <li><a href="{{ route('officers.index') }}" class="{{ request()->routeIs('officers.index') ? 'active' : '' }}">{{ __('Officers') }}</a></li>
             <li class="has-submenu parent-menu-item">
-                <a href="javascript:void(0)">{{ __('Lowongan') }}</a><span class="menu-arrow"></span>
+                <a href="javascript:void(0)" class="{{ $activeLowongan ? 'active' : '' }}">{{ __('Lowongan') }}</a><span class="menu-arrow"></span>
                 <ul class="submenu">
                     <li>
                         <a href="{{ route('Lowongan.Index') }}" class="sub-menu-item {{ request()->routeIs('Lowongan.*') ? 'active' : '' }}">{{ __('Lowongan') }}</a>
@@ -21,7 +26,7 @@
                 </ul>
             </li>
             <li class="has-submenu parent-menu-item">
-                <a href="javascript:void(0)">{{ __('Kandidat') }}</a><span class="menu-arrow"></span>
+                <a href="javascript:void(0)" class="{{ $activeKandidat ? 'active' : '' }}">{{ __('Kandidat') }}</a><span class="menu-arrow"></span>
                 <ul class="submenu">
                     @if(strtolower(optional(auth()->user()->officer)->jabatan) !== 'recruiter')
                         <li>
@@ -46,7 +51,7 @@
             @endphp
             @if($isMgrOrCoord)
                 <li class="has-submenu parent-menu-item">
-                    <a href="javascript:void(0)">{{ __('Bank Soal') }}</a><span class="menu-arrow"></span>
+                    <a href="javascript:void(0)" class="{{ $activeBankSoal ? 'active' : '' }}">{{ __('Bank Soal') }}</a><span class="menu-arrow"></span>
                     <ul class="submenu">
                         <li>
                             <a href="{{ route('bank-soal.index') }}" class="sub-menu-item {{ request()->routeIs('bank-soal.*') ? 'active' : '' }}">{{ __('Bank Soal') }}</a>
