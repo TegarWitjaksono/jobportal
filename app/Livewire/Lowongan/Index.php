@@ -6,6 +6,8 @@ use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\Interfaces\LowonganRepositoryInterface;
 use App\Repositories\Interfaces\KategoriLowonganRepositoryInterface;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class Index extends Component
 {
@@ -186,5 +188,45 @@ class Index extends Component
     {
         $this->notificationStatus = 'success';
         $this->notificationMessage = 'Job vacancy successfully archived.';
+    }
+
+    public function exportPdf()
+    {
+        // Build query mirroring repository filter to get all items
+        $query = \App\Models\Lowongan::query();
+        if ($this->statusFilter) {
+            $query->where('status', $this->statusFilter);
+        }
+        if ($this->kategoriFilter) {
+            $query->where('kategori_lowongan_id', $this->kategoriFilter);
+        }
+        if ($this->namaPosisiFilter) {
+            $query->where('nama_posisi', 'like', '%' . $this->namaPosisiFilter . '%');
+        }
+        if ($this->tanggalMulaiFilter) {
+            $query->whereDate('tanggal_posting', '>=', $this->tanggalMulaiFilter);
+        }
+        if ($this->tanggalAkhirFilter) {
+            $query->whereDate('tanggal_berakhir', '<=', $this->tanggalAkhirFilter);
+        }
+        $query->with('kategoriLowongan')->latest();
+
+        $lowongans = $query->get();
+
+        $html = view('livewire.lowongan.pdf-export', compact('lowongans'))->render();
+
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        $fileName = 'daftar-lowongan-' . now()->format('Y-m-d_H-i-s') . '.pdf';
+        return response()->streamDownload(function () use ($dompdf) {
+            echo $dompdf->output();
+        }, $fileName);
     }
 }

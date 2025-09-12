@@ -245,6 +245,20 @@
                                                 @endif
                                             </div>
                                         </div>
+
+                                        @if($isAccepted)
+                                            <div class="mt-3 d-flex gap-2 flex-wrap">
+                                                <a href="{{ route('kandidat.offer-letter.download', ['lamaranId' => $lamaran->id]) }}" class="btn btn-sm btn-success">
+                                                    <i class="mdi mdi-file-pdf-box me-1"></i> Unduh Offering Letter (PDF)
+                                                </a>
+                                                <a class="btn btn-sm btn-soft-success" data-bs-toggle="collapse" href="#offer-{{ $lamaran->id }}" role="button" aria-expanded="false" aria-controls="offer-{{ $lamaran->id }}">
+                                                    <i class="mdi mdi-eye-outline me-1"></i> Pratinjau (Ringkas)
+                                                </a>
+                                                <div class="collapse mt-2 w-100" id="offer-{{ $lamaran->id }}">
+                                                    @include('livewire.kandidat.lowongan-dilamar.offer-letter', ['lamaran' => $lamaran])
+                                                </div>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             @empty

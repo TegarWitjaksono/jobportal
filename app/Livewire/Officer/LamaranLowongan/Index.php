@@ -13,6 +13,7 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 use App\Services\ZoomService;
 use Illuminate\Support\Carbon;
+use App\Notifications\LamaranDecisionNotification;
 
 class Index extends Component
 {
@@ -136,12 +137,21 @@ class Index extends Component
                 'is_psikotes' => $status === 'psikotes',
                 'user_create' => auth()->user()->name
             ]);
-    
+
             // Refresh tabel dan beri notifikasi
             $this->dispatch('refreshLamaran');
             session()->flash('success', "Status lamaran diubah ke: {$status}.");
             if (in_array($status, ['diterima','ditolak'], true)) {
                 $this->decisionLocked[$id] = true; // kunci setelah keputusan diambil
+                // Kirim email ke kandidat
+                $user = optional($lamaran->kandidat)->user;
+                if ($user && !empty($user->email)) {
+                    try {
+                        $user->notify(new LamaranDecisionNotification($lamaran, $status, auth()->user()->name));
+                    } catch (\Throwable $e) {
+                        Log::warning('Gagal mengirim email keputusan/offering: '.$e->getMessage());
+                    }
+                }
             }
         } catch (\Throwable $e) {
             Log::error('Gagal ubah status lamaran: ' . $e->getMessage());

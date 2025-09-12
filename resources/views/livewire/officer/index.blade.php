@@ -55,11 +55,16 @@
                     <div class="card border-0 rounded shadow">
                         <div class="card-header bg-white d-flex justify-content-between align-items-center">
                             <h5 class="card-title mb-0">{{ __('Daftar Officer') }}</h5>
-                            @if(!$isRecruiter)
-                                <a href="#" wire:click.prevent="openCreateModal" class="btn btn-sm btn-soft-primary d-inline-flex align-items-center" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('Tambah Officer Baru') }}" aria-label="{{ __('Tambah Officer Baru') }}">
-                                    <i class="mdi mdi-account-plus me-1"></i> {{ __('Tambah Officer Baru') }}
-                                </a>
-                            @endif
+                            <div class="d-flex gap-2">
+                                <button wire:click="exportPdf" class="btn btn-sm btn-soft-secondary d-inline-flex align-items-center" title="Export PDF">
+                                    <i class="mdi mdi-file-pdf-box me-1"></i> Export PDF
+                                </button>
+                                @if(!$isRecruiter)
+                                    <a href="#" wire:click.prevent="openCreateModal" class="btn btn-sm btn-soft-primary d-inline-flex align-items-center" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ __('Tambah Officer Baru') }}" aria-label="{{ __('Tambah Officer Baru') }}">
+                                        <i class="mdi mdi-account-plus me-1"></i> {{ __('Tambah Officer Baru') }}
+                                    </a>
+                                @endif
+                            </div>
                         </div>
                         <!-- Filter Section -->
                        <div class="card-body border-bottom">

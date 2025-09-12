@@ -5,6 +5,8 @@ namespace App\Livewire\KategoriSoal;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Repositories\Interfaces\KategoriSoalRepositoryInterface;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class Index extends Component
 {
@@ -86,5 +88,31 @@ class Index extends Component
         $this->deskripsi = '';
         $this->status = true;
         $this->resetErrorBag();
+    }
+
+    public function exportPdf()
+    {
+        // Ambil semua data sesuai pencarian saat ini
+        $kategoris = $this->kategoriRepo->getPaginated($this->search, PHP_INT_MAX);
+
+        $html = view('livewire.KategoriSoal.pdf-export', [
+            'kategoris' => $kategoris instanceof \Illuminate\Contracts\Pagination\Paginator || $kategoris instanceof \Illuminate\Pagination\LengthAwarePaginator
+                ? $kategoris->getCollection()
+                : $kategoris
+        ])->render();
+
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        $fileName = 'kategori-soal-' . now()->format('Y-m-d_H-i-s') . '.pdf';
+        return response()->streamDownload(function () use ($dompdf) {
+            echo $dompdf->output();
+        }, $fileName);
     }
 }

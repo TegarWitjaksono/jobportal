@@ -8,6 +8,8 @@ use App\Models\KategoriSoal;
 use Livewire\WithPagination;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class Index extends Component
 {
@@ -254,5 +256,44 @@ class Index extends Component
         $this->oldPilihan2 = null;
         $this->oldPilihan3 = null;
         $this->oldPilihan4 = null;
+    }
+
+    public function exportPdf()
+    {
+        $query = Soal::with('kategori')
+            ->when($this->id_kategori_soal, function ($q) {
+                $q->where('id_kategori_soal', $this->id_kategori_soal);
+            })
+            ->when($this->search, function ($q) {
+                $q->where(function ($sub) {
+                    $sub->where('soal', 'like', '%' . $this->search . '%')
+                        ->orWhere('pilihan_1', 'like', '%' . $this->search . '%')
+                        ->orWhere('pilihan_2', 'like', '%' . $this->search . '%')
+                        ->orWhere('pilihan_3', 'like', '%' . $this->search . '%')
+                        ->orWhere('pilihan_4', 'like', '%' . $this->search . '%')
+                        ->orWhereHas('kategori', function ($k) {
+                            $k->where('nama_kategori', 'like', '%' . $this->search . '%');
+                        });
+                });
+            })
+            ->latest();
+
+        $soals = $query->get();
+
+        $html = view('livewire.bank-soal.pdf-export', compact('soals'))->render();
+
+        $options = new Options();
+        $options->set('isHtml5ParserEnabled', true);
+        $options->set('isRemoteEnabled', true);
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+
+        $fileName = 'bank-soal-' . now()->format('Y-m-d_H-i-s') . '.pdf';
+        return response()->streamDownload(function () use ($dompdf) {
+            echo $dompdf->output();
+        }, $fileName);
     }
 }

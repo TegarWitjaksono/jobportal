@@ -65,7 +65,10 @@
                     <div class="card border-0 rounded shadow">
                         <!-- Filter Form -->
                         <div class="m-4">
-                            <div class="d-flex justify-content-end mb-3">
+                            <div class="d-flex justify-content-end mb-3 gap-2">
+                                <button wire:click="exportPdf" class="btn btn-sm btn-soft-secondary d-inline-flex align-items-center" title="Export PDF">
+                                    <i class="mdi mdi-file-pdf-box me-1"></i> Export PDF
+                                </button>
                                 <a href="{{ route('Lowongan.Create') }}"
                                    class="btn btn-sm btn-soft-primary d-inline-flex align-items-center"
                                    data-bs-toggle="tooltip" data-bs-placement="top"

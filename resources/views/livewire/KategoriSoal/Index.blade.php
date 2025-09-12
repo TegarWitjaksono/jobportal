@@ -58,12 +58,20 @@
                     </div>
                 </div>
                 <div class="col-md-6 text-md-end mt-3 mt-md-0">
-                    <button wire:click="create"
-                            class="btn btn-soft-primary btn-sm d-inline-flex align-items-center"
-                            data-bs-toggle="tooltip" data-bs-placement="top"
-                            title="Tambah Kategori" aria-label="Tambah Kategori">
-                        <i class="mdi mdi-plus-circle-outline me-1"></i> Tambah Kategori
-                    </button>
+                    <div class="d-inline-flex gap-2">
+                        <button wire:click="exportPdf"
+                                class="btn btn-soft-secondary btn-sm d-inline-flex align-items-center"
+                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                title="Export PDF" aria-label="Export PDF">
+                            <i class="mdi mdi-file-pdf-box me-1"></i> Export PDF
+                        </button>
+                        <button wire:click="create"
+                                class="btn btn-soft-primary btn-sm d-inline-flex align-items-center"
+                                data-bs-toggle="tooltip" data-bs-placement="top"
+                                title="Tambah Kategori" aria-label="Tambah Kategori">
+                            <i class="mdi mdi-plus-circle-outline me-1"></i> Tambah Kategori
+                        </button>
+                    </div>
                 </div>
             </div>
 

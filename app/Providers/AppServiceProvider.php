@@ -11,6 +11,8 @@ use App\Repositories\EloquentKategoriSoalRepository;
 use App\Repositories\Interfaces\BankSoalRepositoryInterface;
 use App\Repositories\BankSoalRepository;
 use App\Providers\EventServiceProvider;
+use Illuminate\Auth\Notifications\VerifyEmail;
+use Illuminate\Notifications\Messages\MailMessage;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -39,5 +41,17 @@ class AppServiceProvider extends ServiceProvider
         // inpute components blade here
         Livewire::component('custom-validation-errors', CustomValidationErrors::class);
         Livewire::component('custom-input-error', CustomInputErrors::class);
+
+        // Customize verification email to use branded template
+        VerifyEmail::toMailUsing(function ($notifiable, string $url) {
+            $subject = 'Verifikasi Email Akun Anda';
+            return (new MailMessage)
+                ->subject($subject)
+                ->view('emails.verify-email', [
+                    'subject' => $subject,
+                    'candidate' => $notifiable->name ?? 'Pengguna',
+                    'verificationUrl' => $url,
+                ]);
+        });
     }
 }

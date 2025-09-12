@@ -79,6 +79,9 @@ Route::middleware([
     Route::get('/lowongan-dilamar', App\Livewire\Kandidat\LowonganDilamar\Index::class)->name('kandidat.lowongan-dilamar');
     Route::get('/kandidat/lowongan-dilamar', App\Livewire\Kandidat\LowonganDilamar\Index::class)
         ->name('kandidat.lowongan-dilamar');
+    // Download Offering Letter (PDF) untuk kandidat pemilik lamaran
+    Route::get('/kandidat/offer-letter/{lamaranId}', [App\Http\Controllers\OfferLetterController::class, 'download'])
+        ->name('kandidat.offer-letter.download');
     Route::get('/cbt', App\Livewire\Cbt\Index::class)->name('cbt.index');
     Route::get('/cbt/test', App\Livewire\Cbt\Test::class)->name('cbt.test');
     Route::get('/cbt/dashboard', App\Livewire\Cbt\Dashboard::class)->name('cbt.dashboard');

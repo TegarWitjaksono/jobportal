@@ -224,31 +224,42 @@
     <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);" tabindex="-1" wire:ignore.self>
         <div class="modal-dialog modal-dialog-centered">
             <form wire:submit.prevent="calculateBmi" class="modal-content rounded shadow-lg">
-                <div class="modal-header p-4">
-                    <h5 class="modal-title fw-bold">Tes BMI (Body Mass Index)</h5>
+                <div class="modal-header p-4 bg-soft-primary text-primary border-0 rounded-top-3">
+                    <h5 class="modal-title fw-bold d-flex align-items-center mb-0">
+                        <i class="mdi mdi-weight-kilogram me-2"></i>
+                        Tes BMI (Body Mass Index)
+                    </h5>
                     <button type="button" class="btn-close" wire:click="closeBmiTest" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <div class="alert alert-info">
+                    <div class="alert alert-info bg-soft-info border-0 text-info">
                         <i class="mdi mdi-information-outline me-2"></i>
-                        Silakan masukkan tinggi dan berat badan Anda untuk melanjutkan proses lamaran.
+                        Silakan masukkan tinggi dan berat badan Anda untuk melanjutkan proses.
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Tinggi Badan (cm) <span class="text-danger">*</span></label>
-                        <input type="number" class="form-control @error('tinggi_badan') is-invalid @enderror" 
-                            wire:model="tinggi_badan" placeholder="Masukkan tinggi badan">
-                        @error('tinggi_badan') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <label class="form-label">Tinggi Badan <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="number" step="1" min="100" max="250" class="form-control @error('tinggi_badan') is-invalid @enderror" 
+                                   wire:model="tinggi_badan" placeholder="Masukkan tinggi badan">
+                            <span class="input-group-text">cm</span>
+                        </div>
+                        <div class="small text-muted mt-1">Rentang disarankan: 100–250 cm</div>
+                        @error('tinggi_badan') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Berat Badan (kg) <span class="text-danger">*</span></label>
-                        <input type="number" class="form-control @error('berat_badan') is-invalid @enderror" 
-                            wire:model="berat_badan" placeholder="Masukkan berat badan">
-                        @error('berat_badan') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <label class="form-label">Berat Badan <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="number" step="0.1" min="30" max="200" class="form-control @error('berat_badan') is-invalid @enderror" 
+                                   wire:model="berat_badan" placeholder="Masukkan berat badan">
+                            <span class="input-group-text">kg</span>
+                        </div>
+                        <div class="small text-muted mt-1">Rentang disarankan: 30–200 kg</div>
+                        @error('berat_badan') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                     </div>
                 </div>
-                <div class="modal-footer p-3 bg-light">
+                <div class="modal-footer p-3 bg-light border-0 rounded-bottom-3">
                     <button type="button" class="btn btn-soft-secondary" wire:click="closeBmiTest">Batal</button>
                     <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">
                         <span wire:loading.remove wire:target="calculateBmi">
@@ -271,21 +282,24 @@
     <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);" tabindex="-1" wire:ignore.self>
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded shadow-lg">
-                <div class="modal-header p-4">
-                    <h5 class="modal-title fw-bold">Tes Buta Warna</h5>
+                <div class="modal-header p-3 bg-soft-primary text-primary border-0 rounded-top-3">
+                    <h5 class="modal-title fw-bold d-flex align-items-center mb-0">
+                        <i class="mdi mdi-eye-outline me-2"></i>
+                        Tes Buta Warna
+                    </h5>
                     <button type="button" class="btn-close" wire:click="closeBlindTest" aria-label="Close"></button>
                 </div>
-                <div class="modal-body p-4">
-                    <div class="progress mb-4" style="height: 10px;">
-                        <div class="progress-bar" role="progressbar" 
+                <div class="modal-body p-3">
+                    <div class="progress mb-3 bg-light rounded-pill" style="height: 6px;">
+                        <div class="progress-bar bg-primary rounded-pill" role="progressbar" 
                             style="width: {{ ($current_blind_test / $total_blind_tests) * 100 }}%" 
                             aria-valuenow="{{ ($current_blind_test / $total_blind_tests) * 100 }}" 
                             aria-valuemin="0" aria-valuemax="100">
                         </div>
                     </div>
 
-                    <div class="text-center mb-4">
-                        <h6>Soal {{ $current_blind_test }} dari {{ $total_blind_tests }}</h6>
+                    <div class="text-center mb-3">
+                        <div class="small text-muted mb-1">Soal {{ $current_blind_test }} dari {{ $total_blind_tests }}</div>
                         @php
                             $fileName = 'bt' . $current_blind_test . '.jpg';
                             $fullPath = public_path('storage/image/colorblind/' . $fileName);
@@ -294,29 +308,44 @@
                                 : null;
                         @endphp
                         @if($imgSrc)
-                            <img src="{{ $imgSrc }}" alt="Color Blind Test Image" class="img-fluid rounded shadow" style="max-width: 300px;">
+                            <div class="d-inline-block bg-white rounded shadow-sm p-1 border" style="max-width: 300px;">
+                                <img src="{{ $imgSrc }}" alt="Color Blind Test Image" class="img-fluid rounded" style="max-width: 260px;">
+                            </div>
                         @else
                             <div class="alert alert-warning p-2 d-inline-block">Gambar tidak ditemukan di storage/image/colorblind ({{ $fileName }})</div>
                         @endif
                     </div>
 
-                    <div class="alert alert-info">
-                        <i class="mdi mdi-information-outline me-2"></i>
-                        Pilih angka yang Anda lihat pada gambar di atas.
+                    <div class="d-flex align-items-center small text-muted mb-2">
+                        <i class="mdi mdi-information-outline me-1"></i>
+                        <span>Pilih angka yang Anda lihat pada gambar di atas.</span>
                     </div>
 
-                    <div class="d-grid gap-2">
+                    <div class="row g-2 mt-1">
                         @foreach(['A', 'B', 'C', 'D'] as $option)
-                        <button type="button" class="btn btn-outline-primary btn-lg text-start" 
-                            wire:click="submitBlindTestAnswer('{{ $option }}')">
-                            {{ $option }}. {{ $blind_test_options[$option] ?? '' }}
-                        </button>
+                        <div class="col-6">
+                            <button type="button"
+                                    class="btn btn-outline-primary btn-sm w-100 py-2 px-3 d-flex align-items-center justify-content-between"
+                                    wire:click="submitBlindTestAnswer('{{ $option }}')"
+                                    wire:loading.attr="disabled" wire:target="submitBlindTestAnswer">
+                                <span class="d-flex align-items-center">
+                                    <span class="me-2 d-inline-flex align-items-center justify-content-center bg-soft-primary text-primary rounded-circle"
+                                          style="width: 28px; height: 28px; font-weight: 700; font-size: 12px;">{{ $option }}</span>
+                                    <span class="fw-semibold" style="font-size: 14px;">{{ $blind_test_options[$option] ?? '' }}</span>
+                                </span>
+                                <i class="mdi mdi-chevron-right"></i>
+                            </button>
+                        </div>
                         @endforeach
                     </div>
                 </div>
-                <div class="modal-footer p-3 bg-light">
+                <div class="modal-footer p-2 bg-light border-0 rounded-bottom-3">
                     <button type="button" class="btn btn-soft-secondary" wire:click="closeBlindTest">Batal</button>
-                    <small class="text-muted">Klik salah satu pilihan jawaban untuk melanjutkan</small>
+                    <small class="text-muted" wire:loading.remove wire:target="submitBlindTestAnswer">Klik salah satu pilihan untuk lanjut</small>
+                    <small class="text-muted d-flex align-items-center" wire:loading wire:target="submitBlindTestAnswer">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Menyimpan jawaban...
+                    </small>
                 </div>
             </div>
         </div>
@@ -329,36 +358,88 @@
     <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);" tabindex="-1" wire:ignore.self>
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content rounded shadow-lg">
-                <div class="modal-header p-4">
-                    <h5 class="modal-title fw-bold">Hasil Tes</h5>
+                <div class="modal-header p-4 bg-soft-primary text-primary border-0 rounded-top-3">
+                    <h5 class="modal-title fw-bold d-flex align-items-center mb-0">
+                        <i class="mdi mdi-clipboard-check-outline me-2"></i>
+                        Hasil Tes
+                    </h5>
                     <button type="button" class="btn-close" wire:click="closeResultModal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    @if(isset($testResults['bmi']))
-                        <p class="mb-2">Skor BMI: {{ $testResults['bmi']['score'] }} ({{ $testResults['bmi']['kategori'] }})</p>
-                    @endif
-                    @if(isset($testResults['blind']))
-                        <p class="mb-0">Skor Tes Buta Warna: {{ $testResults['blind']['score'] }}%</p>
-                    @endif
                     @php
-                        $bmiInvalid = isset($testResults['bmi']) && $testResults['bmi']['kategori'] !== 'Normal';
-                        $blindInvalid = isset($testResults['blind']) && $testResults['blind']['score'] < 60;
+                        $bmiInvalid = isset($testResults['bmi']) && ($testResults['bmi']['kategori'] ?? '') !== 'Normal';
+                        $blindInvalid = isset($testResults['blind']) && (int)($testResults['blind']['score'] ?? 0) < 60;
                     @endphp
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-12 col-md-6">
+                            <div class="border rounded-3 p-3 h-100 shadow-sm">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <div class="d-flex align-items-center text-muted">
+                                        <i class="mdi mdi-scale me-2"></i>
+                                        <span class="fw-semibold">BMI</span>
+                                    </div>
+                                    @if(isset($testResults['bmi']))
+                                        @php($bmiCat = $testResults['bmi']['kategori'] ?? '-')
+                                        <span class="badge {{ $bmiInvalid ? 'bg-soft-danger text-danger' : 'bg-soft-success text-success' }}">{{ $bmiCat }}</span>
+                                    @endif
+                                </div>
+                                @if(isset($testResults['bmi']))
+                                    <div class="fs-5 fw-bold">{{ $testResults['bmi']['score'] }}</div>
+                                    <small class="text-muted">Kategori: {{ $testResults['bmi']['kategori'] }}</small>
+                                @else
+                                    <small class="text-muted">Belum ada data BMI.</small>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="border rounded-3 p-3 h-100 shadow-sm">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <div class="d-flex align-items-center text-muted">
+                                        <i class="mdi mdi-eye-check-outline me-2"></i>
+                                        <span class="fw-semibold">Tes Buta Warna</span>
+                                    </div>
+                                    @if(isset($testResults['blind']))
+                                        @php($blindScore = (int)($testResults['blind']['score'] ?? 0))
+                                        <span class="badge {{ $blindInvalid ? 'bg-soft-danger text-danger' : 'bg-soft-success text-success' }}">{{ $blindScore }}%</span>
+                                    @endif
+                                </div>
+                                @if(isset($testResults['blind']))
+                                    <div class="fs-5 fw-bold">{{ (int)($testResults['blind']['score'] ?? 0) }}%</div>
+                                    <small class="text-muted">Minimal lulus: 60%</small>
+                                @else
+                                    <small class="text-muted">Belum ada data tes buta warna.</small>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
                     @if($bmiInvalid)
-                        <div class="alert alert-danger mt-3">Hasil BMI Anda tidak memenuhi syarat pendaftaran.</div>
+                        <div class="alert bg-soft-danger text-danger border-0">
+                            <i class="mdi mdi-alert-circle-outline me-2"></i>
+                            Hasil BMI Anda tidak memenuhi syarat pendaftaran.
+                        </div>
                     @endif
                     @if($blindInvalid)
-                        <div class="alert alert-danger">Hasil tes buta warna Anda tidak memenuhi syarat pendaftaran.</div>
+                        <div class="alert bg-soft-danger text-danger border-0">
+                            <i class="mdi mdi-alert-circle-outline me-2"></i>
+                            Hasil tes buta warna Anda tidak memenuhi syarat pendaftaran.
+                        </div>
                     @endif
                     @if($bmiInvalid || $blindInvalid)
-                        <div class="alert alert-warning mt-3">Anda tidak dapat melanjutkan tahap registrasi.</div>
+                        <div class="alert bg-soft-warning text-warning border-0">
+                            <i class="mdi mdi-alert-outline me-2"></i>
+                            Anda tidak dapat melanjutkan tahap registrasi.
+                        </div>
                     @endif
                 </div>
-                <div class="modal-footer p-3 bg-light">
+                <div class="modal-footer p-3 bg-light border-0 rounded-bottom-3">
                     @if(!$bmiInvalid && !$blindInvalid)
-                        <button type="button" class="btn btn-primary" wire:click="closeResultModal">Lanjutkan</button>
+                        <button type="button" class="btn btn-primary" wire:click="closeResultModal">
+                            <i class="mdi mdi-arrow-right me-1"></i> Lanjutkan
+                        </button>
                     @else
-                        <button type="button" class="btn btn-secondary" wire:click="closeResultModal">Tutup</button>
+                        <button type="button" class="btn btn-soft-secondary" wire:click="closeResultModal">Tutup</button>
                     @endif
                 </div>
             </div>
