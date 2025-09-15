@@ -165,14 +165,14 @@
                                 <div class="col-6 col-md-3">
                                     <div class="text-center p-4 bg-soft-danger text-danger rounded-3 border">
                                         <i class="mdi mdi-close fs-1 mb-2"></i>
-                                        <div class="h4 mb-0">{{ min($totalQuestions, $maxQuestions) - $testResult->correct_answers }}</div>
+                                        <div class="h4 mb-0">{{ max(0, (int) $testResult->total_questions - (int) $testResult->correct_answers) }}</div>
                                         <small class="opacity-75">Jawaban Salah</small>
                                     </div>
                                 </div>
                                 <div class="col-6 col-md-3">
                                     <div class="text-center p-4 bg-soft-info text-info rounded-3 border">
                                         <i class="mdi mdi-shuffle-variant fs-1 mb-2"></i>
-                                        <div class="h4 mb-0">{{ min($totalQuestions, $maxQuestions) }}</div>
+                                        <div class="h4 mb-0">{{ $testResult?->total_questions ?? min($totalQuestions, $maxQuestions) }}</div>
                                         <small class="opacity-75">Total Soal</small>
                                     </div>
                                 </div>
