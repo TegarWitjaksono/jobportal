@@ -10,12 +10,21 @@ use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use App\Models\CbtSetting;
+use Illuminate\Support\Facades\Schema;
 
 class Index extends Component
 {
     use WithPagination, WithFileUploads;
 
     protected $paginationTheme = 'bootstrap';
+    public string $pageName = 'bank_soal_page';
+
+    protected $queryString = [
+        'search' => ['except' => ''],
+        'id_kategori_soal' => ['except' => ''],
+        // intentionally NOT persisting page to URL to avoid refresh errors
+    ];
 
     public $search = '';
     public $showModal = false;
@@ -39,6 +48,10 @@ class Index extends Component
     ];
 
     public $oldSoal, $oldPilihan1, $oldPilihan2, $oldPilihan3, $oldPilihan4;
+
+    // CBT settings
+    public $cbt_max_questions = 25;
+    public $cbt_test_duration = 30;
 
 
     protected function rules()
@@ -101,6 +114,14 @@ class Index extends Component
         if ($kategori) {
             $this->id_kategori_soal = $kategori;
         }
+
+        // Load CBT settings (guard if table missing)
+        if (Schema::hasTable('cbt_settings')) {
+            if ($s = CbtSetting::query()->first()) {
+                $this->cbt_max_questions = (int) ($s->max_questions ?? 25);
+                $this->cbt_test_duration = (int) ($s->test_duration ?? 30);
+            }
+        }
     }
 
     public function render()
@@ -128,11 +149,45 @@ class Index extends Component
             })
             ->latest();
 
+        $perPage = 10;
+        $soals = $query->paginate($perPage, ['*'], $this->pageName);
+
         return view('livewire.bank-soal.index', [
-            'soals'        => $query->paginate(10),
+            'soals'        => $soals,
             'kategoriSoals'=> KategoriSoal::where('status', true)->get(),
             'types'        => $this->types,
         ]);
+    }
+
+    public function saveCbtSettings()
+    {
+        $data = $this->validate([
+            'cbt_max_questions' => 'required|integer|min:1|max:200',
+            'cbt_test_duration' => 'required|integer|min:1|max:240',
+        ]);
+
+        if (!Schema::hasTable('cbt_settings')) {
+            session()->flash('message', 'Tabel cbt_settings belum ada. Jalankan migrasi: php artisan migrate');
+            return;
+        }
+
+        $setting = CbtSetting::query()->first();
+        if (!$setting) { $setting = new CbtSetting(); }
+        $setting->max_questions = $data['cbt_max_questions'];
+        $setting->test_duration = $data['cbt_test_duration'];
+        $setting->save();
+
+        session()->flash('message', 'Pengaturan CBT berhasil disimpan.');
+    }
+
+    public function updatingSearch()
+    {
+        $this->resetPage($this->pageName);
+    }
+
+    public function updatingIdKategoriSoal()
+    {
+        $this->resetPage($this->pageName);
     }
 
     public function create()
@@ -236,6 +291,14 @@ class Index extends Component
 
         $soal->delete();
         session()->flash('message', 'Soal berhasil dihapus.');
+    }
+
+    public function cancel()
+    {
+        // Clear validation errors and form state, keep current pagination/page
+        $this->resetValidation();
+        $this->resetForm();
+        $this->showModal = false;
     }
 
     private function resetForm()

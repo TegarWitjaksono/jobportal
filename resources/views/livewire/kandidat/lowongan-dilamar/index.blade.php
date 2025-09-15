@@ -229,7 +229,7 @@
                                             @endif
                                             @if($showCbtLink)
                                                 <div class="mt-2">
-                                                    <a href="{{ route('cbt.dashboard') }}" target="_blank" rel="noopener" class="btn btn-sm btn-soft-primary d-inline-flex align-items-center">
+                                                    <a href="{{ route('cbt.dashboard') }}" class="btn btn-sm btn-soft-primary d-inline-flex align-items-center">
                                                         <i class="mdi mdi-pencil me-1"></i>Mulai Psikotes
                                                     </a>
                                                 </div>

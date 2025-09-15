@@ -102,7 +102,7 @@
                                         <div class="col-md-3 mt-3 mt-md-0">
                                             <div class="d-flex flex-md-column align-items-center justify-content-end gap-2 text-md-end">
                                                 @if($ongoingTest)
-                                                    <a href="{{ route('cbt.test') }}" target="_blank" rel="noopener" class="btn btn-sm py-2 btn-primary w-100 w-md-auto">
+                                                    <a href="{{ route('cbt.test') }}" class="btn btn-sm py-2 btn-primary w-100 w-md-auto">
                                                         <i class="mdi mdi-play-circle-outline me-1"></i> Lanjutkan Psikotes
                                                     </a>
                                                 @elseif($hasCompleted)
@@ -110,7 +110,7 @@
                                                         <i class="mdi mdi-check-circle-outline me-1"></i> Psikotes Selesai
                                                     </button>
                                                 @else
-                                                    <a href="{{ route('cbt.test') }}" target="_blank" rel="noopener" class="btn btn-sm py-2 btn-primary w-100 w-md-auto">
+                                                    <a href="{{ route('cbt.test') }}" class="btn btn-sm py-2 btn-primary w-100 w-md-auto">
                                                         <i class="mdi mdi-pencil me-1"></i> Mulai Psikotes
                                                     </a>
                                                 @endif

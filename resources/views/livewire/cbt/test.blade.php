@@ -1,12 +1,13 @@
 <div class="min-vh-100 bg-white">
     <section class="section">
     @if(!$testStarted && !$testCompleted)
+        <div wire:poll.10s="ping"></div>
         <div class="container py-5">
             <div class="row justify-content-center">
                 <div class="col-lg-8">
                     <div class="card shadow-lg border-0 rounded-3">
                         <div class="card-header bg-primary bg-gradient text-white text-center py-4 border-0 rounded-top-3">
-                            <h2 class="mb-1"><i class="mdi mdi-school-outline me-2"></i>Computer Based Test</h2>
+                            <h2 class="mb-1"><i class="mdi mdi-brain me-2"></i>Psikotes</h2>
                             <small class="text-white-50">Silakan baca petunjuk sebelum memulai tes</small>
                         </div>
                         <div class="card-body p-5">
@@ -94,9 +95,27 @@
                                 </div>
                             </div>
 
-                            <div class="text-center">
+                            <div class="text-center" x-data="{
+                                async start(){
+                                    try {
+                                        if (document.documentElement.requestFullscreen) {
+                                            try { await document.documentElement.requestFullscreen(); } catch(e) {}
+                                        }
+                                        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                                            try {
+                                                const s = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 }, audio: false });
+                                                // Simpan stream agar bisa langsung dipakai saat tampilan soal dirender
+                                                window.__proctorStream = s;
+                                            } catch(e) { /* ignore */ }
+                                        }
+                                    } finally {
+                                        $wire.startTest();
+                                    }
+                                }
+                            }">
                                 <button
-                                    wire:click.prevent="startTest"
+                                    type="button"
+                                    @click.prevent="start()"
                                     wire:loading.attr="disabled"
                                     wire:target="startTest"
                                     class="btn btn-cta-primary btn-lg px-5 py-3 rounded-pill shadow-sm d-inline-flex align-items-center justify-content-center w-100 w-md-auto">
@@ -119,6 +138,7 @@
 
     @elseif($testCompleted)
         <div class="container py-5">
+            <div x-data x-init="window.stopProctorCamera && window.stopProctorCamera()"></div>
             <div class="row justify-content-center">
                 <div class="col-lg-10">
                     <div class="card shadow-lg border-0 rounded-3">
@@ -339,7 +359,22 @@
         </div>
 
     @else
-        <div class="container-fluid py-3">
+        <div class="container-fluid py-3 proctor-protect" id="cbt-area">
+            <!-- Proctor: active only during test -->
+            <div id="proctor-active" class="d-none" x-data x-init="window.__initProctor && window.__initProctor()"></div>
+            <div id="proctor-warning" class="proctor-warning" style="display:none;">
+                <i class="mdi mdi-alert-outline me-2"></i>
+                <span id="proctor-warning-text">Peringatan: Perilaku mencurigakan terdeteksi.</span>
+            </div>
+            <div id="proctor-camera" class="proctor-camera shadow border rounded-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <small class="fw-semibold text-muted">Kamera Ujian</small>
+                    <small id="proctor-status" class="text-muted">Memuat kamera…</small>
+                </div>
+                <div class="ratio ratio-4x3 bg-light rounded overflow-hidden">
+                    <video id="proctorVideo" autoplay playsinline muted></video>
+                </div>
+            </div>
             <div class="row g-3">
                 <div class="col-lg-3">
                     <div class="sticky-top" style="top: 1rem;">
@@ -422,9 +457,9 @@
                                     </button>
                                     
                                     @if($currentQuestion === count($questions) - 1)
-                                        <button class="btn btn-success" wire:click="showConfirmation">
-                                            <i class="mdi mdi-check me-1"></i>Selesai
-                                        </button>
+                                <button class="btn btn-success" wire:click="showConfirmation" onclick="window.Proctor && window.Proctor.disable();">
+                                    <i class="mdi mdi-check me-1"></i>Selesai
+                                </button>
                                     @endif
                                 </div>
                             </div>
@@ -566,10 +601,10 @@
                         @endif
                     </div>
                     <div class="modal-footer border-0 pt-0">
-                        <button type="button" class="btn btn-soft-secondary" wire:click="hideConfirmation">
+                        <button type="button" class="btn btn-soft-secondary" wire:click="hideConfirmation" onclick="window.Proctor && window.Proctor.enable();">
                             <i class="mdi mdi-close me-1"></i>Batal
                         </button>
-                        <button type="button" class="btn btn-soft-success" wire:click="completeTest">
+                        <button type="button" class="btn btn-soft-success" wire:click="completeTest" onclick="window.Proctor && window.Proctor.disable(); window.stopProctorCamera && window.stopProctorCamera();">
                             <i class="mdi mdi-check me-1"></i>Ya, Selesai
                         </button>
                     </div>
@@ -759,6 +794,48 @@
         #topnav .logo .l-light {
             display: none !important;
         }
+
+        /* Proctor: disable text selection & copying in test area */
+        .proctor-protect, .proctor-protect * {
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            user-select: none !important;
+        }
+        .proctor-protect img { -webkit-user-drag: none; user-drag: none; }
+    </style>
+
+    <style>
+        /* Proctoring UI */
+        .proctor-camera {
+            position: fixed;
+            right: 1rem;
+            bottom: 1rem;
+            width: 260px;
+            z-index: 1060;
+            padding: .75rem;
+        }
+        .proctor-camera video { width: 100%; height: 100%; object-fit: cover; }
+        .proctor-warning {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            top: .5rem;
+            background: #fff3cd;
+            color: #8a6d3b;
+            border: 1px solid #ffe69c;
+            border-radius: .5rem;
+            padding: .5rem .75rem;
+            z-index: 1065;
+            box-shadow: 0 6px 16px rgba(0,0,0,.12);
+        }
+        .proctor-flash {
+            animation: proctor-flash 1s ease-in-out 3;
+        }
+        @keyframes proctor-flash {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220,53,69,.0); }
+            50% { box-shadow: 0 0 0 6px rgba(220,53,69,.3); }
+        }
     </style>
 
     <script>
@@ -822,5 +899,376 @@
                 });
             });
         });
+
+        // --- Proctoring ---
+        (function(){
+            let initialized = false;
+            function initProctor(){
+                // only start when test area is present
+                const root = document.getElementById('proctor-active');
+                if(!root) return;
+                if(initialized) return; initialized = true;
+
+                const warnEl = document.getElementById('proctor-warning');
+                const warnText = document.getElementById('proctor-warning-text');
+                const camEl = document.getElementById('proctor-camera');
+                const statusEl = document.getElementById('proctor-status');
+                const video = document.getElementById('proctorVideo');
+
+                let audioCtx = null; let lastBeep = 0; let proctorMuted = false;
+                let alarmOsc = null; let alarmGain = null; let alarmTimer = null; let currentWarnMsg = '';
+                const violations = new Set();
+
+                // expose simple control to pause/resume alarms and blocking
+                window.Proctor = window.Proctor || {};
+                window.Proctor.mute = function(){ proctorMuted = true; updateAlarmAndWarning(); };
+                window.Proctor.unmute = function(){ proctorMuted = false; updateAlarmAndWarning(); };
+                window.Proctor.disable = window.Proctor.mute;
+                window.Proctor.enable = window.Proctor.unmute;
+                function startAlarm(){
+                    if (proctorMuted) return;
+                    try {
+                        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+                        if (alarmOsc) return; // already running
+                        alarmOsc = audioCtx.createOscillator();
+                        alarmGain = audioCtx.createGain();
+                        alarmOsc.type = 'square';
+                        alarmOsc.frequency.value = 1000;
+                        alarmGain.gain.value = 0.18;
+                        alarmOsc.connect(alarmGain); alarmGain.connect(audioCtx.destination);
+                        alarmOsc.start();
+                        alarmTimer = setInterval(()=>{
+                            if (!alarmOsc) return; 
+                            alarmOsc.frequency.value = (alarmOsc.frequency.value === 1000 ? 1300 : 1000);
+                        }, 450);
+                    } catch(e) { /* ignore */ }
+                }
+
+                function stopAlarm(){
+                    try {
+                        if (alarmTimer) { clearInterval(alarmTimer); alarmTimer = null; }
+                        if (alarmOsc) { alarmOsc.stop(); alarmOsc.disconnect(); alarmOsc = null; }
+                        if (alarmGain) { try { alarmGain.disconnect(); } catch(_){} alarmGain = null; }
+                    } catch(e) { /* ignore */ }
+                }
+
+                function updateAlarmAndWarning(){
+                    if (proctorMuted) {
+                        stopAlarm();
+                        warnEl.style.display = 'none';
+                        return;
+                    }
+                    if (violations.size > 0){
+                        startAlarm();
+                        warnEl.style.display = 'block';
+                        if (currentWarnMsg) warnText.textContent = currentWarnMsg;
+                    } else {
+                        stopAlarm();
+                        warnEl.style.display = 'none';
+                    }
+                }
+
+                function beep(){
+                    if (proctorMuted) return;
+                    const now = Date.now();
+                    if(now - lastBeep < 1500) return; // throttle
+                    lastBeep = now;
+                    try {
+                        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.type = 'sine'; o.frequency.value = 880; // A5
+                        o.connect(g); g.connect(audioCtx.destination);
+                        g.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+                        g.gain.exponentialRampToValueAtTime(0.3, audioCtx.currentTime + 0.02);
+                        o.start();
+                        setTimeout(()=>{ g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.02); o.stop(); }, 300);
+                    } catch(e) { /* ignore */ }
+                }
+
+                // Ensure audio context can play after a user gesture
+                function primeAudio(){
+                    try { audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)(); audioCtx.resume && audioCtx.resume(); } catch(e) {}
+                    window.removeEventListener('click', primeAudio, { capture: true });
+                    window.removeEventListener('keydown', primeAudio, { capture: true });
+                }
+                window.addEventListener('click', primeAudio, { capture: true, once: true });
+                window.addEventListener('keydown', primeAudio, { capture: true, once: true });
+
+                function showWarning(msg){
+                    if (proctorMuted) return;
+                    if (msg) { currentWarnMsg = msg; warnText.textContent = msg; }
+                    warnEl.style.display = 'block';
+                    camEl.classList.add('proctor-flash');
+                    setTimeout(()=>camEl.classList.remove('proctor-flash'), 1200);
+                }
+
+                function activateViolation(type, meta={}){
+                    if (proctorMuted) return;
+                    violations.add(type);
+                    updateAlarmAndWarning();
+                }
+
+                function clearViolation(type){
+                    if (violations.has(type)) {
+                        violations.delete(type);
+                        updateAlarmAndWarning();
+                    }
+                }
+
+                function captureFrame(){
+                    try {
+                        const canvas = document.createElement('canvas');
+                        const vw = video.videoWidth || 640, vh = video.videoHeight || 480;
+                        canvas.width = vw; canvas.height = vh;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(video, 0, 0, vw, vh);
+                        return canvas.toDataURL('image/png');
+                    } catch(e){ return null; }
+                }
+
+                // track last clicked link (if any) for context
+                (function(){
+                    document.addEventListener('click', (e)=>{
+                        const a = e.target.closest && e.target.closest('a[href]');
+                        if(a && a.href){ window.__lastClickedHref = a.href; }
+                    }, { capture: true });
+                })();
+
+                function reportViolation(type, meta={}){
+                    if (proctorMuted) return;
+                    const messageMap = {
+                        tab_hidden: 'Jangan berpindah tab atau meminimalkan jendela saat ujian berlangsung.',
+                        window_blur: 'Jendela tidak aktif. Kembali ke halaman ujian.',
+                        fullscreen_exit: 'Mohon tetap dalam mode layar penuh selama ujian.',
+                        blocked_shortcut: 'Shortcut tidak diizinkan selama ujian.',
+                        context_menu: 'Klik kanan dinonaktifkan selama ujian.',
+                        camera_denied: 'Izin kamera ditolak. Kamera diperlukan untuk ujian.',
+                        face_count: 'Deteksi wajah tidak valid. Pastikan wajah Anda jelas dan sendiri.',
+                        copy: 'Menyalin konten tidak diizinkan.',
+                        screenshot: 'Tindakan screenshot terdeteksi. Hindari perekaman layar.',
+                        print: 'Mencetak halaman tidak diizinkan selama ujian.',
+                    };
+                    const msg = messageMap[type] || 'Perilaku mencurigakan terdeteksi.';
+                    currentWarnMsg = msg; showWarning(msg);
+                    // enrich meta with evidence when appropriate
+                    try {
+                        if(type === 'face_count'){
+                            const img = captureFrame();
+                            if(img){ meta = Object.assign({}, meta, { image_data: img }); }
+                        }
+                        if(type === 'tab_hidden'){
+                            meta = Object.assign({ last_url: window.__lastClickedHref || null }, meta || {});
+                        }
+                    } catch(_e){}
+                    activateViolation(type, meta);
+                    startAlarm();
+                    if(window.Livewire && window.Livewire.emit){
+                        try { window.Livewire.emit('proctorViolation', { type, meta, at: new Date().toISOString() }); } catch(e) {}
+                    }
+                }
+
+                // Request fullscreen
+                if(document.documentElement.requestFullscreen){
+                    document.documentElement.requestFullscreen().catch(()=>{});
+                }
+                document.addEventListener('fullscreenchange', ()=>{
+                    if(proctorMuted) return;
+                    if(!document.fullscreenElement){
+                        reportViolation('fullscreen_exit');
+                    } else {
+                        clearViolation('fullscreen_exit');
+                    }
+                });
+
+                // Visibility / focus
+                document.addEventListener('visibilitychange', ()=>{
+                    if(proctorMuted) return;
+                    if(document.hidden){ reportViolation('tab_hidden'); } else { clearViolation('tab_hidden'); }
+                });
+                window.addEventListener('blur', ()=>{ if(proctorMuted) return; reportViolation('window_blur'); });
+                window.addEventListener('focus', ()=>{ if(proctorMuted) return; clearViolation('window_blur'); });
+
+                // Block common shortcuts
+                window.addEventListener('keydown', (e)=>{
+                    if(proctorMuted) return;
+                    const k = e.key?.toLowerCase();
+                    if(
+                        e.key === 'F5' || e.key === 'F12' ||
+                        (e.ctrlKey && (k === 'r' || k === 'n' || k === 't' || k === 'w' || k === 'p' || k === 's'))
+                    ){
+                        e.preventDefault(); e.returnValue = false; reportViolation('blocked_shortcut');
+                        setTimeout(()=>clearViolation('blocked_shortcut'), 2500);
+                    }
+                    // Screenshot keys: PrintScreen (Windows), Meta+Shift+3/4/5 (macOS)
+                    if (e.key === 'PrintScreen' || (e.metaKey && e.shiftKey && ['3','4','5'].includes(k))){
+                        e.preventDefault && e.preventDefault();
+                        // Attempt to overwrite clipboard (may fail)
+                        if (navigator.clipboard && navigator.clipboard.writeText){
+                            navigator.clipboard.writeText('').catch(()=>{});
+                        }
+                        reportViolation('screenshot');
+                        setTimeout(()=>clearViolation('screenshot'), 4000);
+                    }
+                }, { capture: true });
+                window.addEventListener('contextmenu', (e)=>{ if(proctorMuted) return; e.preventDefault(); reportViolation('context_menu'); setTimeout(()=>clearViolation('context_menu'), 2500); }, { capture: true });
+
+                // Block copy/cut/paste inside test area
+                const cbtArea = document.getElementById('cbt-area');
+                if (cbtArea){
+                    ['copy','cut'].forEach(evt => cbtArea.addEventListener(evt, (e)=>{ if(proctorMuted) return; e.preventDefault(); reportViolation('copy'); setTimeout(()=>clearViolation('copy'), 3000); }, { capture: true }));
+                    cbtArea.addEventListener('paste', (e)=>{ if(proctorMuted) return; e.preventDefault(); reportViolation('copy'); setTimeout(()=>clearViolation('copy'), 3000); }, { capture: true });
+                    cbtArea.addEventListener('selectstart', (e)=>{ if(proctorMuted) return; e.preventDefault(); }, { capture: true });
+                    cbtArea.addEventListener('dragstart', (e)=>{ if(proctorMuted) return; e.preventDefault(); }, { capture: true });
+                }
+
+                // Printing treated as screenshot attempt
+                window.addEventListener('beforeprint', ()=>{ if(proctorMuted) return; reportViolation('print'); });
+                window.addEventListener('afterprint', ()=>{ if(proctorMuted) return; clearViolation('print'); });
+
+                // Prevent navigation away
+                window.addEventListener('beforeunload', (e)=>{ if(proctorMuted) return; e.preventDefault(); e.returnValue=''; });
+
+                // Camera init
+                async function initCamera(){
+                    try {
+                        let stream = window.__proctorStream;
+                        if (!stream) {
+                            stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 }, audio: false });
+                            window.__proctorStream = stream;
+                        }
+                        video.srcObject = stream;
+                        video.muted = true;
+                        if (video.play) { video.play().catch(()=>{}); }
+                        if ('onloadedmetadata' in video) {
+                            video.onloadedmetadata = () => { try { video.play && video.play(); } catch(e) {} };
+                        }
+                        statusEl.textContent = 'Kamera aktif';
+                        setupFaceCheck();
+                    } catch(err){
+                        statusEl.textContent = 'Kamera tidak tersedia';
+                        reportViolation('camera_denied', { error: String(err) });
+                    }
+                }
+                function stopProctorCamera(){
+                    try {
+                        if (video) {
+                            try { video.pause && video.pause(); } catch(_) {}
+                            video.srcObject = null;
+                        }
+                        if (window.__proctorStream) {
+                            try { window.__proctorStream.getTracks().forEach(t => t.stop()); } catch(_) {}
+                            window.__proctorStream = null;
+                        }
+                        if (statusEl) statusEl.textContent = 'Kamera dimatikan';
+                    } catch(e) { /* ignore */ }
+                }
+                window.stopProctorCamera = stopProctorCamera;
+
+                // Face detection with fallback to face-api.js (CDN)
+                function setupFaceCheck(){
+                    const hasFD = 'FaceDetector' in window;
+                    if(hasFD){
+                        let detector; try { detector = new window.FaceDetector({ fastMode: true }); } catch(e){ detector = null; }
+                        if(!detector) { loadFaceApiAndRun(); return; }
+                        statusEl.textContent = 'Kamera aktif - deteksi wajah';
+                    let consecAnomaly = 0;
+                    const check = async ()=>{
+                        try {
+                            const faces = await detector.detect(video);
+                            const count = faces?.length ?? 0;
+                            if(count !== 1){
+                                consecAnomaly++;
+                                if(consecAnomaly >= 2){
+                                    reportViolation('face_count', { count });
+                                    consecAnomaly = 0;
+                                }
+                            } else {
+                                consecAnomaly = 0;
+                                clearViolation('face_count');
+                            }
+                        } catch(e){ /* ignore */ }
+                    };
+                    setInterval(check, 2000);
+                    } else {
+                        loadFaceApiAndRun();
+                    }
+                }
+
+                async function loadScript(src){
+                    return new Promise((resolve, reject)=>{
+                        const s = document.createElement('script');
+                        s.src = src; s.async = true; s.onload = resolve; s.onerror = reject;
+                        document.head.appendChild(s);
+                    });
+                }
+
+                async function loadFaceApiAndRun(){
+                    try {
+                        // Load library if needed
+                        if(!window.faceapi){
+                            await loadScript('https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.2/dist/face-api.min.js');
+                        }
+                        const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.2/model/';
+                        // Load tiny face detector (fast, enough for presence count)
+                        await Promise.all([
+                            faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+                        ]);
+                        statusEl.textContent = 'Kamera aktif - deteksi wajah';
+                        runFaceApiChecks();
+                    } catch(err){
+                        // If even CDN fails, we silently proceed with camera-only
+                        statusEl.textContent = 'Kamera aktif';
+                    }
+                }
+
+                function runFaceApiChecks(){
+                    let consecAnomaly = 0;
+                    const options = new faceapi.TinyFaceDetectorOptions({
+                        inputSize: 256,
+                        scoreThreshold: 0.5,
+                    });
+                    const check = async ()=>{
+                        try {
+                            const detections = await faceapi.detectAllFaces(video, options);
+                            const count = (detections || []).length;
+                            if(count !== 1){
+                                consecAnomaly++;
+                                if(consecAnomaly >= 2){
+                                    reportViolation('face_count', { count });
+                                    consecAnomaly = 0;
+                                }
+                            } else {
+                                consecAnomaly = 0;
+                                clearViolation('face_count');
+                            }
+                        } catch(e){ /* ignore */ }
+                    };
+                    setInterval(check, 2200);
+                }
+
+                initCamera();
+            }
+
+            // Expose init for Alpine x-init
+            window.__initProctor = initProctor;
+
+            // Initialize after Livewire DOM present
+            if(document.readyState === 'loading'){
+                document.addEventListener('DOMContentLoaded', initProctor);
+            } else { initProctor(); }
+
+            // Re-init if Livewire updates the DOM
+            document.addEventListener('livewire:load', function(){
+                if(window.Livewire && window.Livewire.hook){
+                    window.Livewire.hook('message.processed', (message, component)=>{
+                        if(document.getElementById('proctor-active')) initProctor();
+                    });
+                }
+            });
+            // Ensure camera stops when leaving page
+            window.addEventListener('pagehide', ()=>{ try { window.stopProctorCamera && window.stopProctorCamera(); } catch(_) {} });
+        })();
+        // --- End Proctoring ---
     </script>
 </div>

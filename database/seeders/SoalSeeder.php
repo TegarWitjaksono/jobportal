@@ -401,6 +401,189 @@ class SoalSeeder extends Seeder
             ],
         ];
 
+        // Tambahan 100 soal (otomatis) untuk memperkaya bank soal
+        // Dibagi merata ke 4 kategori (Logika, Umum, Matematika, Kepribadian) secara round-robin
+        // Pola soal dibuat relevan per kategori
+        $kategoriIds = [
+            $kategoriLogika->id_kategori_soal,      // 0
+            $kategoriUmum->id_kategori_soal,        // 1
+            $kategoriMatematika->id_kategori_soal,  // 2
+            $kategoriKepribadian->id_kategori_soal, // 3
+        ];
+
+        // Bank kecil untuk Pengetahuan Umum dan Kepribadian
+        $umumPool = [
+            ['Sinonim dari "besar" adalah...', ['luas','kecil','sempit','kurus'], 1],
+            ['Antonim dari "tinggi" adalah...', ['rendah','panjang','besar','kuat'], 1],
+            ['Ibukota negara Jepang adalah...', ['Seoul','Beijing','Tokyo','Taipei'], 3],
+            ['Lambang kimia untuk air adalah...', ['H2O','CO2','O2','NaCl'], 1],
+            ['Planet terdekat dari Matahari adalah...', ['Venus','Mars','Merkurius','Bumi'], 3],
+            ['Bendera Indonesia berwarna...', ['Merah Putih','Merah Biru','Hijau Putih','Kuning Hitam'], 1],
+            ['Pulau terbesar di Indonesia adalah...', ['Sumatra','Jawa','Kalimantan','Sulawesi'], 3],
+            ['Satuan arus listrik adalah...', ['Volt','Ampere','Ohm','Watt'], 2],
+            ['Seni batik berasal dari...', ['Malaysia','Thailand','Indonesia','Filipina'], 3],
+            ['Gunung aktif di Jawa Timur adalah...', ['Merapi','Semeru','Slamet','Kerinci'], 2],
+            ['Penemu telepon adalah...', ['Nikola Tesla','Alexander Graham Bell','Guglielmo Marconi','Thomas Edison'], 2],
+            ['Ibukota negara Kanada adalah...', ['Toronto','Vancouver','Ottawa','Montreal'], 3],
+            ['Samudra terluas di dunia adalah...', ['Atlantik','Hindia','Pasifik','Arktik'], 3],
+            ['Negara dengan populasi terbesar adalah...', ['India','Amerika Serikat','Cina','Indonesia'], 3],
+            ['Lagu kebangsaan Indonesia berjudul...', ['Indonesia Raya','Garuda Pancasila','Tanah Airku','Satu Nusa Satu Bangsa'], 1],
+            ['Mata uang resmi Uni Eropa adalah...', ['Euro','Dollar','Poundsterling','Yen'], 1],
+            ['Benua terkecil di dunia adalah...', ['Eropa','Australia','Antarktika','Amerika Selatan'], 2],
+            ['Sungai terpanjang di dunia adalah...', ['Amazon','Nil','Yangtze','Mississippi'], 2],
+            ['Rumus kimia karbon dioksida adalah...', ['CO2','O2','H2O','CH4'], 1],
+            ['Tokoh Proklamator Indonesia adalah...', ['Soekarno dan Hatta','Tan Malaka dan Hatta','Soekarno dan Syahrir','Hatta dan Syahrir'], 1],
+            ['Semboyan negara Indonesia adalah...', ['Bhinneka Tunggal Ika','Tut Wuri Handayani','Ing Ngarso Sung Tulodo','Satyam Eva Jayate'], 1],
+            ['Lambang sila ketiga Pancasila adalah...', ['Bintang','Rantai','Pohon Beringin','Kepala Banteng'], 3],
+            ['Ibukota negara Australia adalah...', ['Sydney','Canberra','Melbourne','Perth'], 2],
+            ['Gunung tertinggi di dunia adalah...', ['K2','Kilimanjaro','Everest','Elbrus'], 3],
+            ['Batuan beku terbentuk dari...', ['Sedimentasi','Metamorfosis','Pembekuan magma','Pelapukan'], 3],
+            ['Penemu gravitasi adalah...', ['Galileo Galilei','Isaac Newton','Albert Einstein','Michael Faraday'], 2],
+            ['Satuan SI untuk gaya adalah...', ['Pascal','Joule','Newton','Watt'], 3],
+            ['Kerajaan Hindu-Buddha besar di Jawa adalah...', ['Sriwijaya','Majapahit','Mataram Islam','Tarumanegara'], 2],
+            ['Tari Saman berasal dari...', ['Aceh','Bali','Jawa Barat','Papua'], 1],
+            ['Nama ilmiah padi adalah...', ['Oryza sativa','Zea mays','Triticum aestivum','Glycine max'], 1],
+            ['Ibukota provinsi Kalimantan Timur adalah...', ['Samarinda','Balikpapan','Banjarmasin','Pontianak'], 1],
+        ];
+
+        $kepribadianPool = [
+            ['Dalam tim, saya lebih suka...', ['Memimpin arah tim','Memberi dukungan anggota','Bekerja mandiri','Mengikuti arahan'], 2],
+            ['Saat menghadapi konflik, saya cenderung...', ['Menghindar','Berdiskusi mencari solusi','Mengalah demi ketenangan','Mempertahankan pendapat'], 2],
+            ['Ketika ada tenggat waktu, saya...', ['Menyelesaikan lebih awal','Menunda hingga mendekati tenggat','Mengerjakan bertahap','Menunggu instruksi'], 1],
+            ['Saya paling termotivasi oleh...', ['Penghargaan','Tanggung jawab','Pembelajaran','Bonus/insentif'], 3],
+            ['Jika pekerjaan membosankan, saya...', ['Tetap konsisten','Mencari variasi','Meminta bantuan','Beralih tugas'], 1],
+            ['Saat memulai proyek, saya...', ['Membuat rencana detail','Langsung eksekusi','Kumpulkan masukan','Menunggu arahan'], 1],
+            ['Dalam komunikasi, saya...', ['Langsung dan lugas','Hati-hati dan empatik','Singkat saja','Lebih suka tulisan'], 2],
+            ['Ketika gagal, saya...', ['Mencari penyebab','Menyalahkan situasi','Berhenti sementara','Mencoba cara sama'], 1],
+            ['Di waktu senggang, saya...', ['Belajar hal baru','Bersosialisasi','Istirahat total','Berolahraga'], 1],
+            ['Saya paling nyaman bekerja...', ['Di kantor','Hybrid','Remote','Lapangan'], 2],
+            ['Saya paling produktif pada...', ['Pagi hari','Siang hari','Malam hari','Tidak menentu'], 1],
+            ['Saat mendapat tugas baru, saya...', ['Menyusun prioritas','Mengerjakan yang paling mudah','Mencari referensi dulu','Bertanya ke rekan'], 1],
+            ['Jika ide saya ditolak, saya...', ['Mencari alternatif','Memaksakan pendapat','Diam saja','Mengkritik balik'], 1],
+            ['Cara belajar yang saya suka...', ['Praktik langsung','Membaca materi','Menonton video','Diskusi kelompok'], 1],
+            ['Dalam tekanan tinggi, saya...', ['Tetap tenang','Gugup','Butuh waktu sendiri','Mencari bantuan'], 1],
+            ['Saya menilai kesuksesan dari...', ['Proses belajar','Hasil yang dicapai','Pengakuan orang lain','Stabilitas'], 2],
+            ['Saya lebih nyaman memimpin ketika...', ['Tujuan jelas','Tim kompak','Waktu cukup','Sumber daya lengkap'], 1],
+            ['Jika ada rekan tertinggal, saya...', ['Membantu mengejar','Membiarkan mandiri','Melaporkan atasan','Merevisi target'], 1],
+            ['Saya lebih terdorong oleh...', ['Tanggung jawab','Kreativitas','Stabilitas','Kompetisi'], 2],
+            ['Dalam menghadapi perubahan, saya...', ['Adaptif','Butuh waktu','Menolak dulu','Ikut arus'], 1],
+        ];
+
+        for ($i = 1; $i <= 100; $i++) {
+            $catIdx = ($i - 1) % 4;
+            $kategoriId = $kategoriIds[$catIdx];
+
+            if ($catIdx === 0) {
+                // Tes Logika: seri angka
+                $start = ($i % 13) + 2; // 2..14
+                $a = $start; $b = $start * 2; $c = $start * 4; $d = $start * 8; $next = $start * 16;
+                $options = [$next, $next + $start, max(1, $next - $start), $next + 2 * $start];
+                $shift = $i % 4; $rotated = [];
+                for ($k=0;$k<4;$k++){ $rotated[$k] = $options[($k+$shift)%4]; }
+                $correctIndex = array_search($next, $rotated, true);
+
+                $soalList[] = [
+                    'id_kategori_soal' => $kategoriId,
+                    'soal' => "Seri angka: {$a}, {$b}, {$c}, {$d}, ... Angka selanjutnya adalah?",
+                    'pilihan_1' => (string) $rotated[0],
+                    'pilihan_2' => (string) $rotated[1],
+                    'pilihan_3' => (string) $rotated[2],
+                    'pilihan_4' => (string) $rotated[3],
+                    'jawaban' => ($correctIndex !== false ? $correctIndex + 1 : 1),
+                ];
+            } elseif ($catIdx === 1) {
+                // Pengetahuan Umum: ambil dari pool
+                $item = $umumPool[($i - 1) % count($umumPool)];
+                [$q, $opts, $ans] = $item;
+                // rotasi supaya posisi jawaban tidak selalu sama
+                $shift = $i % 4; $rotated = [];
+                for ($k=0;$k<4;$k++){ $rotated[$k] = $opts[($k+$shift)%4]; }
+                $correctIndex = array_search($opts[$ans-1], $rotated, true);
+                $soalList[] = [
+                    'id_kategori_soal' => $kategoriId,
+                    'soal' => $q,
+                    'pilihan_1' => $rotated[0],
+                    'pilihan_2' => $rotated[1],
+                    'pilihan_3' => $rotated[2],
+                    'pilihan_4' => $rotated[3],
+                    'jawaban' => ($correctIndex !== false ? $correctIndex + 1 : $ans),
+                ];
+            } elseif ($catIdx === 2) {
+                // Matematika Dasar: beragam pola ( +, -, ×, ÷, %, diskon, pecahan, rata-rata )
+                $n1 = 10 + (($i * 3) % 40);
+                $n2 = 5 + (($i * 7) % 20);
+                $opIdx = $i % 8;
+                if ($opIdx === 0) { // +
+                    $res = $n1 + $n2; $q = "Hasil dari {$n1} + {$n2} adalah...";
+                    $opts = [$res, $res+1, $res-1, $res+2];
+                } elseif ($opIdx === 1) { // -
+                    $res = $n1 - $n2; $q = "Hasil dari {$n1} - {$n2} adalah...";
+                    $opts = [$res, $res+2, $res-2, $res+3];
+                } elseif ($opIdx === 2) { // ×
+                    $mul = 2 + ($i % 3); // ×2..×4
+                    $res = $n1 * $mul; $q = "Hasil dari {$n1} × {$mul} adalah...";
+                    $opts = [$res, $res+$mul, $res-$mul, $res+$mul+2];
+                } elseif ($opIdx === 3) { // ÷
+                    $a = $n1 * $n2; $b = $n1; $res = (int) ($a / $b); $q = "Hasil dari {$a} ÷ {$b} adalah...";
+                    $opts = [$res, $res+1, $res-1, $res+2];
+                } elseif ($opIdx === 4) { // persen
+                    $pctList = [5,10,12,15,20,25,30]; $pct = $pctList[$i % count($pctList)];
+                    $base = 80 + (($i*9) % 320); $res = (int) round($base * $pct / 100);
+                    $q = "Berapa {$pct}% dari {$base}?";
+                    $opts = [$res, $res + (int) round($base*0.02), max(0,$res - (int) round($base*0.02)), $res + (int) round($base*0.05)];
+                } elseif ($opIdx === 5) { // diskon
+                    $price = 50000 + (($i*7500) % 200000); $discList = [10,15,20,25,30]; $disc = $discList[$i % count($discList)];
+                    $res = (int) round($price * (100 - $disc) / 100);
+                    $q = "Sebuah barang seharga Rp ".number_format($price,0,',','.')." didiskon {$disc}%. Harga setelah diskon adalah...";
+                    $opts = [
+                        'Rp '.number_format($res,0,',','.'),
+                        'Rp '.number_format($res + 5000,0,',','.'),
+                        'Rp '.number_format(max(0,$res - 5000),0,',','.'),
+                        'Rp '.number_format($res + 10000,0,',','.'),
+                    ];
+                } elseif ($opIdx === 6) { // pecahan (penyebut sama)
+                    $d = 6 + (2 * ($i % 3)); // 6,8,10
+                    $a1 = 1 + ($i % 3); $a2 = 1 + (($i*2) % 3);
+                    $sum = $a1 + $a2; if ($sum >= $d) { $a2 = max(1, $a2-1); $sum = $a1+$a2; }
+                    $resStr = "{$sum}/{$d}";
+                    $q = "Hasil dari {$a1}/{$d} + {$a2}/{$d} adalah...";
+                    $opts = [$resStr, ($sum+1)."/{$d}", max(1,$sum-1)."/{$d}", "{$sum}/".($d+2) ];
+                } else { // rata-rata
+                    $x = 12 + (3 * ($i % 7)); $y = $x + 3; $z = $x + 6; $res = (int) (($x + $y + $z) / 3);
+                    $q = "Rata-rata dari {$x}, {$y}, dan {$z} adalah...";
+                    $opts = [$res, $res+1, $res-1, $res+2];
+                }
+                $shift = $i % 4; $rotated = [];
+                for ($k=0;$k<4;$k++){ $rotated[$k] = (string) $opts[($k+$shift)%4]; }
+                $correctIndex = array_search((string) $opts[0], $rotated, true);
+                $soalList[] = [
+                    'id_kategori_soal' => $kategoriId,
+                    'soal' => $q,
+                    'pilihan_1' => $rotated[0],
+                    'pilihan_2' => $rotated[1],
+                    'pilihan_3' => $rotated[2],
+                    'pilihan_4' => $rotated[3],
+                    'jawaban' => ($correctIndex !== false ? $correctIndex + 1 : 1),
+                ];
+            } else {
+                // Kepribadian: pernyataan preferensi (jawaban ditentukan deterministik untuk konsistensi skema)
+                $item = $kepribadianPool[($i - 1) % count($kepribadianPool)];
+                [$q, $opts, $ans] = $item;
+                $shift = $i % 4; $rotated = [];
+                for ($k=0;$k<4;$k++){ $rotated[$k] = $opts[($k+$shift)%4]; }
+                $correctIndex = array_search($opts[$ans-1], $rotated, true);
+                $soalList[] = [
+                    'id_kategori_soal' => $kategoriId,
+                    'soal' => $q,
+                    'pilihan_1' => $rotated[0],
+                    'pilihan_2' => $rotated[1],
+                    'pilihan_3' => $rotated[2],
+                    'pilihan_4' => $rotated[3],
+                    'jawaban' => ($correctIndex !== false ? $correctIndex + 1 : $ans),
+                ];
+            }
+        }
+
         foreach ($soalList as $soal) {
             Soal::create([
                 'id_kategori_soal' => $soal['id_kategori_soal'],

@@ -11,6 +11,7 @@ use App\Models\TestResult;
 use Illuminate\Support\Facades\Log;
 use Dompdf\Dompdf;
 use Dompdf\Options;
+use App\Models\ProctorEvent;
 use App\Services\ZoomService;
 use Illuminate\Support\Carbon;
 use App\Notifications\LamaranDecisionNotification;
@@ -42,6 +43,11 @@ class Index extends Component
     public $resultModal = false;
     public $resultCatatan;
     public $resultDokumen;
+    
+    // Proctoring
+    public $proctorModal = false;
+    public $proctorEvents = [];
+    public $proctorUserName = null;
 
 
     public function mount()
@@ -77,6 +83,7 @@ class Index extends Component
             ->all();
 
         $resultMap = [];
+        $proctorCountMap = [];
         if (!empty($userIds)) {
             $results = TestResult::whereIn('user_id', $userIds)
                 ->orderByRaw('CASE WHEN completed_at IS NULL THEN 1 ELSE 0 END ASC')
@@ -89,11 +96,19 @@ class Index extends Component
                     $resultMap[$res->user_id] = $res->id;
                 }
             }
+
+            // Count proctor events per user for quick badge
+            $counts = ProctorEvent::selectRaw('user_id, COUNT(*) as c')
+                ->whereIn('user_id', $userIds)
+                ->groupBy('user_id')
+                ->pluck('c','user_id');
+            foreach ($userIds as $uid) { $proctorCountMap[$uid] = (int) ($counts[$uid] ?? 0); }
         }
 
         return view('livewire.officer.lamaran-lowongan.index', [
             'lamaranList' => $lamaran,
             'resultMap' => $resultMap,
+            'proctorCountMap' => $proctorCountMap,
         ]);
     }
 
@@ -289,6 +304,33 @@ class Index extends Component
         $this->resultModal = false;
         $this->resultCatatan = null;
         $this->resultDokumen = null;
+    }
+
+    public function openProctor($userId)
+    {
+        $user = User::find($userId);
+        $this->proctorUserName = optional($user)->name;
+        $events = ProctorEvent::where('user_id', $userId)
+            ->latest()
+            ->limit(100)
+            ->get()
+            ->map(function($e){
+                return [
+                    'type' => $e->type,
+                    'meta' => $e->meta,
+                    'evidence' => $e->evidence_path ? (\Illuminate\Support\Facades\Storage::disk('public')->url($e->evidence_path)) : null,
+                    'time' => optional($e->created_at)->format('d M Y H:i:s'),
+                ];
+            })->toArray();
+        $this->proctorEvents = $events;
+        $this->proctorModal = true;
+    }
+
+    public function closeProctor()
+    {
+        $this->proctorModal = false;
+        $this->proctorEvents = [];
+        $this->proctorUserName = null;
     }
 
     /**

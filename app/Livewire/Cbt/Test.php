@@ -5,7 +5,9 @@ namespace App\Livewire\Cbt;
 use Livewire\Component;
 use App\Models\Soal;
 use App\Models\TestResult;
+use App\Models\CbtSetting;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class Test extends Component
 {
@@ -22,7 +24,21 @@ class Test extends Component
     public $maxQuestions = 25; // Maximum number of questions
     public $testDuration = 30; // in minutes
 
-    protected $listeners = ['timeUp' => 'completeTest'];
+    protected $listeners = ['timeUp' => 'completeTest', 'proctorEvent' => 'handleProctorEvent'];
+
+    protected function refreshCbtSettings(): void
+    {
+        try {
+            if (Schema::hasTable('cbt_settings')) {
+                if ($s = CbtSetting::query()->first()) {
+                    $this->maxQuestions = (int) ($s->max_questions ?? $this->maxQuestions);
+                    $this->testDuration = (int) ($s->test_duration ?? $this->testDuration);
+                }
+            }
+        } catch (\Throwable $e) {
+            // ignore if table not migrated yet
+        }
+    }
 
     public function restoreState()
     {
@@ -68,6 +84,9 @@ class Test extends Component
 
     public function mount()
     {
+        // Load CBT settings if available
+        $this->refreshCbtSettings();
+
         $user = Auth::user();
         $kandidat = $user->kandidat;
 
@@ -110,18 +129,22 @@ class Test extends Component
             $this->initializeNewTest();
             session()->forget('test_in_progress'); // Bersihkan sesi lama jika ada
         }
+    }
 
-        // Get 25 random active questions
-        // $this->questions = Soal::where('status', true)
-        //     ->inRandomOrder()
-        //     ->take($this->maxQuestions)
-        //     ->get();
-            
-        // Initialize answer array based on question count
-        // $this->userAnswers = array_fill(0, $this->questions->count(), null);
-        
-        // $this->timeLeft = $this->testDuration * 60; // Convert to seconds
-        // $this->markedQuestions = [];
+    // Used by wire:poll to keep settings in sync and avoid Livewire errors
+    public function ping(): void
+    {
+        // keep CBT settings synced while waiting to start
+        $oldMax = (int) $this->maxQuestions;
+        $oldDur = (int) $this->testDuration;
+        $this->refreshCbtSettings();
+
+        // If not started or completed, and settings changed, reprepare questions
+        if (!$this->testStarted && !$this->testCompleted) {
+            if (($this->questions?->count() ?? 0) !== (int) $this->maxQuestions || $oldDur !== (int) $this->testDuration) {
+                $this->initializeNewTest();
+            }
+        }
     }
 
     public function startTest()
@@ -264,7 +287,7 @@ class Test extends Component
         $this->testCompleted = true;
         $this->showConfirmModal = false;
 
-        // !! DIUBAH: Hapus sesi setelah ujian selesai !!
+        // Hapus sesi setelah ujian selesai
         session()->forget([
             'test_in_progress',
             'test_question_ids',
@@ -274,18 +297,43 @@ class Test extends Component
         ]);
     }
 
-    public function render()
-    {
-        // Perbarui totalQuestions di view agar dinamis
-        return view('livewire.cbt.test', [
-            'totalQuestions' => $this->questions->count()
-        ]);
-    }
-
-     public function selectAnswer($option)
+    public function selectAnswer($option)
     {
         $this->userAnswers[$this->currentQuestion] = $option;
         // Simpan jawaban ke sesi setiap kali user memilih
         session(['test_user_answers' => $this->userAnswers]);
+    }
+
+    public function handleProctorEvent($eventData)
+    {
+        try {
+            $evidencePath = null;
+            
+            // Handle image evidence if provided
+            if (isset($eventData['image_data'])) {
+                $imageData = $eventData['image_data'];
+                $evidencePath = 'proctor/evidence/'.auth()->id().'_'.time().'_'.uniqid().'.png';
+                \Illuminate\Support\Facades\Storage::disk('public')->put($evidencePath, base64_decode($imageData));
+                unset($eventData['image_data']);
+            }
+
+            \App\Models\ProctorEvent::create([
+                'user_id' => auth()->id(),
+                'test_result_id' => optional($this->testResult)->id,
+                'type' => $eventData['type'] ?? 'unknown',
+                'meta' => $eventData ? (array) $eventData : null,
+                'evidence_path' => $evidencePath,
+            ]);
+        } catch (\Throwable $e) {
+            // Log error silently or handle as needed
+            \Illuminate\Support\Facades\Log::error('Proctor event handling failed: ' . $e->getMessage());
+        }
+    }
+
+    public function render()
+    {
+        return view('livewire.cbt.test', [
+            'totalQuestions' => $this->questions->count()
+        ]);
     }
 }

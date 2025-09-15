@@ -85,6 +85,8 @@
                                                 // Deteksi progres & penyelesaian psikotes (hijau hanya jika sudah selesai)
                                                 $psikotesProgress = optional($lamaran->progressRekrutmen)->where('status', 'psikotes')->sortByDesc('created_at')->first();
                                                 $psikotesCompleted = false;
+                                                // Pastikan $uid terdefinisi lebih awal untuk digunakan pada beberapa bagian di bawah
+                                                $uid = optional(optional($lamaran->kandidat)->user)->id ?? null;
                                                 if ($psikotesProgress) {
                                                     $userId = optional(optional($lamaran->kandidat)->user)->id;
                                                     if ($userId) {
@@ -186,6 +188,19 @@
                                                                             @endif
                                                                         </div>
                                                                     @endif
+
+                                                                    @php $pcount = ($uid && isset($proctorCountMap[$uid])) ? (int) $proctorCountMap[$uid] : 0; @endphp
+                                                                    <button type="button" class="btn btn-sm {{ $pcount ? 'btn-soft-danger' : 'btn-soft-secondary' }}"
+                                                                            wire:click="openProctor({{ (int) $uid }})"
+                                                                            @disabled(!$uid)
+                                                                            data-bs-toggle="tooltip" title="Laporan Proctoring">
+                                                                        <i class="mdi mdi-alert-outline"></i>
+                                                                        @if($pcount)
+                                                                            <span class="badge bg-danger ms-1">{{ $pcount }}</span>
+                                                                        @endif
+                                                                    </button>
+
+                                                                    
                                                                 </div>
                                                             @elseif($isRecruiter && $currentStatus == 'pending')
                                                                 <div class="text-muted small">
@@ -209,7 +224,6 @@
                                                                 </div>
                                                                 <div class="d-flex align-items-center gap-2">
                                                                     @php
-                                                                        $uid = optional(optional($lamaran->kandidat)->user)->id ?? null;
                                                                         $resId = $uid ? ($resultMap[$uid] ?? null) : null;
                                                                     @endphp
                                                                     @if($resId)
@@ -742,3 +756,62 @@
     }
     </style>
 </div>
+
+    {{-- Proctor Modal --}}
+    @if($proctorModal)
+    <div class="modal fade show" style="display:block; background-color: rgba(0,0,0,0.5);" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content rounded shadow-lg">
+                <div class="modal-header bg-soft-danger text-danger border-0">
+                    <h5 class="modal-title d-flex align-items-center mb-0"><i class="mdi mdi-alert-outline me-2"></i>Laporan Proctoring {{ $proctorUserName ? ' - '.$proctorUserName : '' }}</h5>
+                    <button type="button" class="btn-close" wire:click="closeProctor"></button>
+                </div>
+                <div class="modal-body">
+                    @if(empty($proctorEvents))
+                        <div class="text-muted">Belum ada pelanggaran tercatat.</div>
+                    @else
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 140px;">Waktu</th>
+                                        <th>Jenis</th>
+                                        <th>Detail</th>
+                                        <th style="width: 160px;">Bukti</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                @foreach($proctorEvents as $e)
+                                    <tr>
+                                        <td class="text-muted small">{{ $e['time'] ?? '-' }}</td>
+                                        <td><span class="badge bg-soft-danger text-danger text-uppercase">{{ $e['type'] }}</span></td>
+                                        <td class="small">
+                                            @php $m = $e['meta'] ?? []; @endphp
+                                            @if(is_array($m) && !empty($m))
+                                                @if(!empty($m['count']))<div>Faces: {{ $m['count'] }}</div>@endif
+                                                @if(!empty($m['last_url']))<div>Last URL: <a href="{{ $m['last_url'] }}" target="_blank" rel="noopener">{{ $m['last_url'] }}</a></div>@endif
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if(!empty($e['evidence']))
+                                                <img src="{{ $e['evidence'] }}" alt="Evidence" class="img-fluid rounded border" style="max-height:120px;">
+                                            @else
+                                                <span class="text-muted small">Tidak ada</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-soft-secondary" wire:click="closeProctor">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
