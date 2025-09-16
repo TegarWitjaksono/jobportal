@@ -79,10 +79,12 @@
                                                 $hasScreening = !is_null($screeningProgress);
                                                 $isRecruiter = strtolower(optional(auth()->user()->officer)->jabatan) === 'recruiter';
                                                 $canPsikotes = !is_null($interviewProgress);
-                                                
+
                                                 // Status terkini untuk menentukan tahap mana yang aktif
                                                 $currentStatus = $latest ? $latest->status : 'pending';
                                                 $isCompleted = in_array($currentStatus, ['diterima', 'ditolak']);
+                                                $hasInterviewResult = $interviewProgress && (!empty($interviewProgress->catatan) || !empty($interviewProgress->dokumen_pendukung));
+                                                $canDecideInterview = $hasInterviewResult && !$isRecruiter && !$isCompleted && $currentStatus === 'interview';
                                                 $step1Completed = $hasScreening || in_array($currentStatus, ['screening', 'interview', 'psikotes', 'diterima', 'ditolak']);
                                                 $awaitingScreening = !$step1Completed && !$isCompleted;
                                                 $screeningOfficer = optional(optional($screeningProgress)->officer)->name ?? optional($screeningProgress)->user_create;
@@ -240,7 +242,37 @@
                                                                         @endif
                                                                     </button>
 
-                                                                    
+                                                                    @if($canDecideInterview)
+                                                                        <div class="interview-decision-card mt-3 small">
+                                                                            <div class="d-flex align-items-start gap-2">
+                                                                                <div class="decision-icon">
+                                                                                    <i class="mdi mdi-progress-check"></i>
+                                                                                </div>
+                                                                                <div>
+                                                                                    <div class="fw-semibold text-dark">Keputusan Interview</div>
+                                                                                    <div class="text-muted">Hasil interview telah diterima. Tentukan kelanjutan kandidat.</div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="d-flex flex-wrap gap-2 mt-3">
+                                                                                <button type="button" class="btn btn-success btn-sm d-inline-flex align-items-center"
+                                                                                        wire:click.prevent="setStatus({{ $lamaran->id }}, 'psikotes')"
+                                                                                        wire:loading.attr="disabled" wire:target="setStatus">
+                                                                                    <i class="mdi mdi-check-circle-outline me-1"></i> Lanjut ke Psikotes
+                                                                                </button>
+                                                                                <button type="button" class="btn btn-outline-danger btn-sm d-inline-flex align-items-center"
+                                                                                        wire:click.prevent="setStatus({{ $lamaran->id }}, 'ditolak')"
+                                                                                        wire:loading.attr="disabled" wire:target="setStatus">
+                                                                                    <i class="mdi mdi-close-circle-outline me-1"></i> Tidak Lanjut
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                    @elseif($hasInterviewResult && $currentStatus === 'interview')
+                                                                        <div class="mt-3 text-muted small">
+                                                                            <i class="mdi mdi-information-outline me-1"></i>Hasil interview telah dikirim. Menunggu keputusan HR.
+                                                                        </div>
+                                                                    @endif
+
+
                                                                 </div>
                                                             @elseif($step1Completed && $isRecruiter && !$isCompleted)
                                                                 <div class="text-muted small">
@@ -280,12 +312,14 @@
                                                                         </a>
                                                                     @endif
 
-                                                                    @if($canPsikotes && $currentStatus == 'interview' && !$isRecruiter && !$isCompleted)
-                                                                        <button type="button" class="btn btn-sm btn-soft-warning" 
-                                                                                wire:click.prevent="setStatus({{ $lamaran->id }}, 'psikotes')"
-                                                                                data-bs-toggle="tooltip" title="Lanjut ke Psikotes">
-                                                                            <i class="mdi mdi-arrow-right"></i>
-                                                                        </button>
+                                                                    @if($canPsikotes && $currentStatus == 'interview')
+                                                                        @if(!$hasInterviewResult)
+                                                                            <div class="text-muted small flex-grow-1">Menunggu hasil interview dari recruiter.</div>
+                                                                        @elseif($isRecruiter)
+                                                                            <div class="text-muted small flex-grow-1">Hasil interview telah dikirim. Menunggu keputusan HR.</div>
+                                                                        @else
+                                                                            <div class="text-muted small flex-grow-1">Silakan tentukan kelanjutan pada tahap interview.</div>
+                                                                        @endif
                                                                     @elseif(!$canPsikotes)
                                                                         <small class="text-muted">Setelah interview</small>
                                                                     @endif
@@ -784,6 +818,25 @@
     .interview-details {
         margin-left: 44px;
         margin-top: 8px;
+    }
+
+    .interview-decision-card {
+        background-color: #ffffff;
+        border: 1px solid rgba(13, 110, 253, 0.15);
+        border-radius: 8px;
+        padding: 14px 16px;
+    }
+
+    .interview-decision-card .decision-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: rgba(13, 110, 253, 0.12);
+        color: #0d6efd;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
     }
 
     .flow-step .btn-sm {
