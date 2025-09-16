@@ -120,7 +120,7 @@ class Index extends Component
 
     public function setStatus($id, $status)
     {
-        $allowed = ['diterima', 'psikotes', 'ditolak'];
+        $allowed = ['screening', 'diterima', 'psikotes', 'ditolak'];
         if (!in_array($status, $allowed, true)) {
             session()->flash('error', 'Status tidak valid.');
             return;

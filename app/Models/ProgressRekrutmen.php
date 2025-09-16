@@ -36,9 +36,10 @@ class ProgressRekrutmen extends Model
 
     // Daftar status yang diizinkan
     public static $allowedStatuses = [
-        'diterima',
+        'screening',
         'interview',
         'psikotes',
+        'diterima',
         'ditolak'
     ];
 

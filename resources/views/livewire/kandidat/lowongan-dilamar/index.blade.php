@@ -67,10 +67,11 @@
 
                                     $latestStatus = optional($progress->last())->status;
 
+                                    $hasScreening = $doneStatuses->contains('screening');
                                     $hasInterview = $doneStatuses->contains('interview');
                                     $hasPsikotes = $doneStatuses->contains('psikotes');
 
-                                    $doneMelamar = in_array($latestStatus, ['interview', 'psikotes', 'diterima', 'ditolak']);
+                                    $doneMelamar = in_array($latestStatus, ['screening', 'interview', 'psikotes', 'diterima', 'ditolak']);
                                     $doneInterview = in_array($latestStatus, ['psikotes', 'diterima', 'ditolak']);
                                     $donePsikotes = in_array($latestStatus, ['diterima', 'ditolak']);
 
@@ -78,7 +79,7 @@
                                     if (!$hasDecision) {
                                         if ($latestStatus === 'psikotes') {
                                             $activeStep = 'psikotes';
-                                        } elseif ($latestStatus === 'interview') {
+                                        } elseif (in_array($latestStatus, ['interview', 'screening'], true)) {
                                             $activeStep = 'interview';
                                         } else {
                                             $activeStep = 'melamar';
