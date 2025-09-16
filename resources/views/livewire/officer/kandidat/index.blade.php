@@ -85,7 +85,7 @@
                         </table>
                     </div>
                     <div class="mt-4">
-                        {{ $kandidats->links('pagination::bootstrap-5') }}
+                        {{ $kandidats->links('vendor.livewire.custom-pagination') }}
                     </div>
                 </div>
             </div>
@@ -365,4 +365,39 @@
             });
         });
     </script>
+@endpush
+@push('styles')
+<style>
+    /* Pagination styling */
+    .pagination-clean .pagination { 
+        gap: .25rem; 
+        flex-wrap: wrap; 
+    }
+    .pagination-clean .page-link {
+        border-radius: .5rem;
+        min-width: 38px;
+        height: 38px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        background: #fff;
+        border: 1px solid rgba(0,0,0,.08);
+        transition: .15s ease-in-out;
+    }
+    .pagination-clean .page-item.active .page-link {
+        background-color: var(--bs-primary);
+        border-color: var(--bs-primary);
+        color: #fff;
+        box-shadow: 0 0 0 .15rem rgba(var(--bs-primary-rgb, 13,110,253), .15);
+    }
+    .pagination-clean .page-link:hover {
+        background: #f8f9fa;
+        color: #495057;
+    }
+    .pagination-clean .page-item.disabled .page-link {
+        color: #adb5bd;
+        background: #fff;
+    }
+</style>
 @endpush
