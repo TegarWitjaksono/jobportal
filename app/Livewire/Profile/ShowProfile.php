@@ -17,6 +17,13 @@ class ShowProfile extends Component
     public $kandidat;
 
     /**
+     * Temporary uploaded photo for kandidat profile.
+     *
+     * @var \Livewire\Features\SupportFileUploads\TemporaryUploadedFile|null
+     */
+    public $photo = null;
+
+    /**
      * Uploaded document placeholders
      */
     public $ktp;
@@ -39,6 +46,42 @@ class ShowProfile extends Component
         $this->kandidat = $user->kandidat;
 
         $this->refreshDocuments();
+    }
+
+    public function saveProfilePhoto(): void
+    {
+        if (! $this->kandidat) {
+            $this->addError('photo', __('Profil kandidat belum tersedia.')); // Guard when kandidat record missing
+            return;
+        }
+
+        if (! $this->photo) {
+            $this->addError('photo', __('Silakan pilih foto profil terlebih dahulu.'));
+            return;
+        }
+
+        $this->validate([
+            'photo' => ['image', 'max:2048'],
+        ]);
+
+        $this->kandidat->updateProfilePhoto($this->photo);
+        $this->kandidat->refresh();
+        $this->photo = null;
+
+        session()->flash('status', __('Foto profil berhasil diperbarui.'));
+    }
+
+    public function removeProfilePhoto(): void
+    {
+        if (! $this->kandidat || ! $this->kandidat->profile_photo_path) {
+            return;
+        }
+
+        $this->kandidat->deleteProfilePhoto();
+        $this->kandidat->refresh();
+        $this->photo = null;
+
+        session()->flash('status', __('Foto profil berhasil dihapus.'));
     }
 
     public function openDocumentModal($type = null)

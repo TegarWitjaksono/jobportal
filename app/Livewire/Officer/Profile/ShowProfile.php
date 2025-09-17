@@ -38,6 +38,11 @@ class ShowProfile extends Component
 
     public function saveProfilePhoto(): void
     {
+        if (! $this->officer) {
+            $this->addError('photo', __('Profil officer belum tersedia.'));
+            return;
+        }
+
         if (! $this->photo) {
             $this->addError('photo', __('Silakan pilih foto profil terlebih dahulu.'));
             return;
@@ -56,11 +61,15 @@ class ShowProfile extends Component
 
     public function removeProfilePhoto(): void
     {
-        if ($this->officer && $this->officer->profile_photo_path) {
-            $this->officer->deleteProfilePhoto();
-            $this->officer->refresh();
-            session()->flash('status', __('Foto profil berhasil dihapus.'));
+        if (! $this->officer || ! $this->officer->profile_photo_path) {
+            return;
         }
+
+        $this->officer->deleteProfilePhoto();
+        $this->officer->refresh();
+        $this->photo = null;
+
+        session()->flash('status', __('Foto profil berhasil dihapus.'));
     }
 
     public function updatePassword(): void

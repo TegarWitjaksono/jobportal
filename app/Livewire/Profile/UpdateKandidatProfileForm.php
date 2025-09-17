@@ -139,13 +139,14 @@ class UpdateKandidatProfileForm extends Component
         }
 
         // Gunakan updateOrCreate untuk membuat profil jika belum ada, atau memperbarui jika sudah ada
-        Kandidat::updateOrCreate(
+        $this->kandidat = Kandidat::updateOrCreate(
             ['user_id' => $user->id],
             $validatedData['state']
         );
 
-        if ($this->photo) {
+        if ($this->photo && $this->kandidat) {
             $this->kandidat->updateProfilePhoto($this->photo);
+            $this->kandidat->refresh();
             $this->photo = null;
         }
 
