@@ -47,8 +47,8 @@ class ShowProfile extends Component
             'photo' => ['image', 'max:2048'],
         ]);
 
-        $this->user->updateProfilePhoto($this->photo);
-        $this->user->refresh();
+        $this->officer->updateProfilePhoto($this->photo);
+        $this->officer->refresh();
         $this->photo = null;
 
         session()->flash('status', __('Foto profil berhasil diperbarui.'));
@@ -56,9 +56,9 @@ class ShowProfile extends Component
 
     public function removeProfilePhoto(): void
     {
-        if ($this->user->profile_photo_path) {
-            $this->user->deleteProfilePhoto();
-            $this->user->refresh();
+        if ($this->officer && $this->officer->profile_photo_path) {
+            $this->officer->deleteProfilePhoto();
+            $this->officer->refresh();
             session()->flash('status', __('Foto profil berhasil dihapus.'));
         }
     }

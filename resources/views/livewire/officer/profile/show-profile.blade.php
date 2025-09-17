@@ -50,12 +50,12 @@
                                 <div class="card-body p-4">
                                     <div class="text-center mb-4">
                                         <div class="position-relative d-inline-block">
-                                            <img src="{{ $photo ? $photo->temporaryUrl() : $user->profile_photo_url }}" alt="{{ $user->name }}" class="rounded-circle object-cover border" style="width: 96px; height: 96px;">
+                                            <img src="{{ $photo ? $photo->temporaryUrl() : $officer->profile_photo_url }}" alt="{{ $officer->full_name }}" class="rounded-circle object-cover border" style="width: 96px; height: 96px;">
                                             <span class="position-absolute top-50 start-50 translate-middle d-none" wire:loading.class.remove="d-none" wire:target="photo">
                                                 <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
                                             </span>
                                         </div>
-                                        <h5 class="fw-semibold mb-0 mt-3">{{ $user->name }}</h5>
+                                        <h5 class="fw-semibold mb-0 mt-3">{{ $officer->full_name }}</h5>
                                         <span class="badge {{ $user->role_badge_class }} px-3 py-1 mt-2">{{ $user->role_badge_label }}</span>
                                     </div>
 
@@ -65,7 +65,7 @@
                                                 <i class="mdi mdi-camera me-1"></i>{{ __('Pilih Foto Baru') }}
                                                 <input type="file" id="officer-photo" class="d-none" wire:model.live="photo" accept="image/*">
                                             </label>
-                                            @if($user->profile_photo_path)
+                                            @if($officer && $officer->profile_photo_path)
                                                 <button type="button" class="btn btn-outline-danger" wire:click="removeProfilePhoto" wire:loading.attr="disabled" wire:target="removeProfilePhoto">
                                                     <i class="mdi mdi-trash-can-outline me-1"></i>{{ __('Hapus Foto') }}
                                                 </button>

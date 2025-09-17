@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\UserStampable;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Jetstream\HasProfilePhoto;
 
 /**
  * Model perwakilan kandidat dalam sistem.
@@ -15,11 +16,12 @@ use Illuminate\Database\Eloquent\Model;
 class Kandidat extends Model
 {
     /** @use HasFactory<\Database\Factories\KandidatFactory> */
-    use HasFactory, UserStampable;
+    use HasFactory, UserStampable, HasProfilePhoto;
 
     protected $table = 'kandidats';
     protected $fillable = [
         'user_id',
+        'profile_photo_path',
         'nama_depan',
         'nama_belakang',
         'no_telpon',
@@ -54,6 +56,15 @@ class Kandidat extends Model
 
     protected $casts = [
         'tanggal_lahir' => 'date:Y-m-d'
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'profile_photo_url',
     ];
 
     /**

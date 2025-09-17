@@ -5,14 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\UserStampable;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Jetstream\HasProfilePhoto;
 
 class Officer extends Model
 {
     /** @use HasFactory<\Database\Factories\OfficerFactory> */
-    use HasFactory, UserStampable;
+    use HasFactory, UserStampable, HasProfilePhoto;
 
     protected $fillable = [
         'user_id',
+        'profile_photo_path',
         'nama_depan',
         'nama_belakang',
         'nik',
@@ -32,6 +34,15 @@ class Officer extends Model
     protected $hidden = [
         'user_id',
         'atasan_id',
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'profile_photo_url',
     ];
 
     /**

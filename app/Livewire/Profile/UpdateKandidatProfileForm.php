@@ -145,7 +145,7 @@ class UpdateKandidatProfileForm extends Component
         );
 
         if ($this->photo) {
-            $user->updateProfilePhoto($this->photo);
+            $this->kandidat->updateProfilePhoto($this->photo);
             $this->photo = null;
         }
 
@@ -164,11 +164,9 @@ class UpdateKandidatProfileForm extends Component
      */
     public function removeProfilePhoto(): void
     {
-        $user = Auth::user();
-
-        if ($user->profile_photo_path) {
-            $user->deleteProfilePhoto();
-            $this->user->refresh();
+        if ($this->kandidat && $this->kandidat->profile_photo_path) {
+            $this->kandidat->deleteProfilePhoto();
+            $this->kandidat->refresh();
             session()->flash('success', 'Foto profil berhasil dihapus.');
         }
 

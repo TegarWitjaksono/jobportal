@@ -60,7 +60,7 @@
                                     <h6 class="fw-semibold mb-3">{{ __('Foto Profil') }}</h6>
                                     <div class="d-flex flex-wrap align-items-center gap-3">
                                         <div class="position-relative">
-                                            <img src="{{ $photo ? $photo->temporaryUrl() : optional($user)->profile_photo_url }}" alt="{{ optional($user)->name }}"
+                                            <img src="{{ $photo ? $photo->temporaryUrl() : optional($kandidat)->profile_photo_url }}" alt="{{ optional($kandidat)->full_name }}"
                                                  class="rounded-circle object-cover" style="width: 96px; height: 96px;">
                                             <div class="position-absolute top-50 start-50 translate-middle d-none" wire:loading.class.remove="d-none" wire:target="photo">
                                                 <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
@@ -72,7 +72,7 @@
                                                     <i class="mdi mdi-camera me-1"></i>{{ __('Pilih Foto Baru') }}
                                                     <input type="file" id="photo" class="d-none" wire:model.live="photo" accept="image/*">
                                                 </label>
-                                                @if(optional($user)->profile_photo_path)
+                                                @if(optional($kandidat)->profile_photo_path)
                                                     <button type="button" class="btn btn-outline-danger" wire:click="removeProfilePhoto" wire:loading.attr="disabled" wire:target="removeProfilePhoto">
                                                         <i class="mdi mdi-trash-can-outline me-1"></i>{{ __('Hapus Foto') }}
                                                     </button>
