@@ -47,9 +47,20 @@
                                     Status: {{ $accepted ? 'DITERIMA' : ( ($status ?? '') === 'ditolak' ? 'DITOLAK' : strtoupper($status ?? '')) }}
                                 </span>
                             </div>
-
+        
                             @if($accepted)
-                                <p style="margin:0 0 12px 0;font-size:14px;color:#334155;">Selamat! Anda lolos pada proses seleksi ini. Tim kami akan menghubungi Anda untuk informasi tahap berikutnya.</p>
+                                @if(!empty($schedule))
+                                    <p style="margin:0 0 12px 0;font-size:14px;color:#334155;">
+                                        Selamat! Anda lolos pada proses seleksi ini. Sebagai tahap selanjutnya, kami mengundang Anda untuk pertemuan penandatanganan kontrak kerja yang akan dilaksanakan secara offline pada:
+                                    </p>
+                                    <div style="padding:12px;background:#f1f5f9;border-radius:6px;margin:16px 0;border-left:4px solid #3b82f6;">
+                                        <p style="margin:0 0 4px 0;font-size:14px;color:#1e293b;"><strong>Jadwal:</strong> {{ \Carbon\Carbon::parse($schedule['waktu'])->locale('id')->translatedFormat('l, d F Y, H:i') }} - {{ \Carbon\Carbon::parse($schedule['waktu_selesai'])->locale('id')->translatedFormat('H:i') }}</p>
+                                        <p style="margin:0;font-size:14px;color:#1e293b;"><strong>Lokasi:</strong> {{ $schedule['lokasi'] }}</p>
+                                    </div>
+                                    <p style="margin:0 0 12px 0;font-size:14px;color:#334155;">Mohon konfirmasi kehadiran Anda dengan membalas email ini. Terima kasih.</p>
+                                @else
+                                    <p style="margin:0 0 12px 0;font-size:14px;color:#334155;">Selamat! Anda lolos pada proses seleksi ini. Terlampir adalah surat penawaran kerja (Offering Letter) untuk Anda. Tim kami akan menghubungi Anda untuk informasi tahap berikutnya.</p>
+                                @endif
                             @elseif(($status ?? '') === 'ditolak')
                                 <p style="margin:0 0 12px 0;font-size:14px;color:#334155;">Terima kasih telah meluangkan waktu untuk mengikuti proses seleksi. Saat ini kami belum dapat melanjutkan proses lamaran Anda.</p>
                             @endif
@@ -83,4 +94,3 @@
     </table>
 </body>
 </html>
-

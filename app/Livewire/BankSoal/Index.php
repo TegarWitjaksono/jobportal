@@ -88,21 +88,11 @@ class Index extends Component
 
     public function updated($propertyName)
     {
-        // Ketika tipe soal berubah, reset field soal
-        if ($propertyName === 'type_soal') {
-            $this->soal = '';
-            $this->tempImage = null;
-            // $this->emit('typeChanged');
-        }
+        // Logika reset field soal dan jawaban dipindahkan dari sini
+        // untuk mencegah data terhapus saat mode edit.
+        // Saat pengguna mengubah tipe di form, validasi akan
+        // secara otomatis meminta input baru yang sesuai.
 
-        // Ketika tipe jawaban berubah, reset semua field pilihan
-        if ($propertyName === 'type_jawaban') {
-            $this->pilihan_1 = '';
-            $this->pilihan_2 = '';
-            $this->pilihan_3 = '';
-            $this->pilihan_4 = '';
-        }
-        
         $this->validateOnly($propertyName);
     }
 

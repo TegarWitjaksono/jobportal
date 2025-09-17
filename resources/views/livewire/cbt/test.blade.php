@@ -1,6 +1,30 @@
 <div class="min-vh-100 bg-white">
     <section class="section">
-    @if(!$testStarted && !$testCompleted)
+    @if(!($scheduleValid ?? false) && !$testCompleted)
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card shadow-lg border-0 rounded-3 text-center">
+                        <div class="card-header bg-danger bg-gradient text-white py-4 border-0 rounded-top-3">
+                            <h2 class="mb-1"><i class="mdi mdi-calendar-remove me-2"></i>Akses Ditolak</h2>
+                        </div>
+                        <div class="card-body p-5">
+                            <p class="fs-5">Anda tidak dapat mengakses halaman ini di luar jadwal yang telah ditentukan.</p>
+                            @if($scheduleInfo)
+                                <div class="alert alert-warning">
+                                    Jadwal tes Anda adalah: <br>
+                                    <strong>{{ $scheduleInfo['start'] }}</strong> sampai <strong>{{ $scheduleInfo['end'] }}</strong>.
+                                </div>
+                            @endif
+                            <a href="{{ route('cbt.dashboard') }}" class="btn btn-primary mt-3">
+                                <i class="mdi mdi-arrow-left me-1"></i> Kembali ke Dashboard Psikotes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @elseif(!$testStarted && !$testCompleted)
         <div wire:poll.10s="ping"></div>
         <div class="container py-5">
             <div class="row justify-content-center">

@@ -235,15 +235,10 @@
                                                                     @if($hasInterviewResult && $currentStatus === 'interview' && !$isCompleted)
                                                                         @if(!$isRecruiter)
                                                                             {{-- HRD dapat membuat keputusan --}}
-                                                                            <div class="interview-decision-card mt-3">
-                                                                                <div class="d-flex align-items-start gap-3 mb-3">
-                                                                                    <div class="decision-icon">
-                                                                                        <i class="mdi mdi-clipboard-check-outline"></i>
-                                                                                    </div>
-                                                                                    <div class="flex-grow-1">
-                                                                                        <div class="fw-semibold text-dark mb-1">Keputusan Interview</div>
-                                                                                        <div class="text-muted small">Hasil interview telah diterima. Tentukan apakah kandidat lanjut ke tahap psikotes atau tidak.</div>
-                                                                                    </div>
+                                                                            <div class="mt-3 bg-light rounded p-3 small">
+                                                                                <div class="fw-semibold text-dark mb-2">Keputusan Interview</div>
+                                                                                <div class="d-flex flex-column gap-1 mb-3">
+                                                                                    <div><span class="text-muted">Status:</span> Hasil interview telah diterima.</div>
                                                                                 </div>
                                                                                 <div class="d-flex flex-wrap gap-2">
                                                                                     <button type="button" class="btn btn-success btn-sm d-inline-flex align-items-center"
@@ -251,18 +246,18 @@
                                                                                             wire:loading.attr="disabled" wire:target="setStatus"
                                                                                             data-bs-toggle="tooltip" title="Lanjutkan ke tahap psikotes">
                                                                                         <span wire:loading.remove wire:target="setStatus">
-                                                                                            <i class="mdi mdi-arrow-right-circle me-1"></i> Lanjut
+                                                                                            <i class="mdi mdi-check me-1"></i> Lanjut
                                                                                         </span>
                                                                                         <span wire:loading wire:target="setStatus">
                                                                                             <i class="mdi mdi-loading mdi-spin me-1"></i> Memproses...
                                                                                         </span>
                                                                                     </button>
-                                                                                    <button type="button" class="btn btn-danger btn-sm d-inline-flex align-items-center"
+                                                                                    <button type="button" class="btn btn-outline-danger btn-sm d-inline-flex align-items-center"
                                                                                             wire:click.prevent="setStatus({{ $lamaran->id }}, 'ditolak')"
                                                                                             wire:loading.attr="disabled" wire:target="setStatus"
                                                                                             data-bs-toggle="tooltip" title="Tolak kandidat">
                                                                                         <span wire:loading.remove wire:target="setStatus">
-                                                                                            <i class="mdi mdi-close-circle me-1"></i> Tidak
+                                                                                            <i class="mdi mdi-close me-1"></i> Tidak
                                                                                         </span>
                                                                                         <span wire:loading wire:target="setStatus">
                                                                                             <i class="mdi mdi-loading mdi-spin me-1"></i> Memproses...
@@ -329,19 +324,44 @@
                                                                         </a>
                                                                     @endif
 
-                                                                    @if($canPsikotes && $currentStatus == 'interview')
-                                                                        @if(!$hasInterviewResult)
-                                                                            <div class="text-muted small flex-grow-1">Menunggu hasil interview dari recruiter.</div>
-                                                                        @elseif($isRecruiter)
-                                                                            <div class="text-muted small flex-grow-1">Hasil interview telah dikirim. Menunggu keputusan HR.</div>
-                                                                        @else
-                                                                            <div class="text-muted small flex-grow-1">Silakan tentukan kelanjutan pada tahap interview.</div>
-                                                                        @endif
-                                                                    @elseif(!$canPsikotes)
+                                                                    @if(!$canPsikotes)
                                                                         <small class="text-muted">Setelah interview</small>
                                                                     @endif
                                                                 </div>
                                                             </div>
+                                                            @if($psikotesProgress)
+                                                                @if($psikotesProgress->waktu_pelaksanaan)
+                                                                    <div class="interview-details bg-light rounded p-2 small mt-2">
+                                                                        <div class="d-flex align-items-center justify-content-between">
+                                                                            <div>
+                                                                                <div class="text-muted">Jadwal Psikotes:</div>
+                                                                                <div class="fw-medium">{{ \Carbon\Carbon::parse($psikotesProgress->waktu_pelaksanaan)->format('d M Y, H:i') }}</div>
+                                                                                <div class="text-muted small">Berakhir: {{ \Carbon\Carbon::parse($psikotesProgress->waktu_selesai)->format('d M Y, H:i') }}</div>
+                                                                            </div>
+                                                                            @if($psikotesCompleted)
+                                                                                <span class="badge bg-soft-success text-success p-2">
+                                                                                    <i class="mdi mdi-check-circle-outline me-1"></i>
+                                                                                    Sudah Dikerjakan
+                                                                                </span>
+                                                                            @elseif(!$isRecruiter && !$isCompleted)
+                                                                                <button type="button" class="btn btn-sm btn-soft-secondary" wire:click="preparePsikotesSchedule({{ $psikotesProgress->id }})">
+                                                                                    <i class="mdi mdi-pencil"></i>
+                                                                                </button>
+                                                                            @endif
+                                                                        </div>
+                                                                    </div>
+                                                                @elseif(!$isRecruiter && !$isCompleted)
+                                                                    <div class="mt-2">
+                                                                        <button type="button" class="btn btn-sm btn-soft-primary d-inline-flex align-items-center" wire:click="preparePsikotesSchedule({{ $psikotesProgress->id }})">
+                                                                            <i class="mdi mdi-calendar-plus me-1"></i> Jadwalkan Psikotes
+                                                                        </button>
+                                                                    </div>
+                                                                @else
+                                                                    <div class="text-muted small mt-2">Menunggu penjadwalan psikotes oleh HRD.</div>
+                                                                @endif
+                                                            @elseif($canPsikotes && $currentStatus == 'interview')
+                                                                <div class="text-muted small mt-2">Lanjutkan dari tahap interview untuk membuka penjadwalan.</div>
+                                                            @endif
                                                         </div>
 
                                                         {{-- Connection Line --}}
@@ -371,7 +391,7 @@
                                                                 @if($psikotesCompleted && !$isRecruiter && !$hasFinal)
                                                                     <div class="d-flex gap-1">
                                                                         <button type="button" class="btn btn-sm btn-soft-success"
-                                                                                wire:click.prevent="setStatus({{ $lamaran->id }}, 'diterima')"
+                                                                                wire:click.prevent="prepareOffering({{ $lamaran->id }})"
                                                                                 wire:loading.attr="disabled" wire:target="setStatus"
                                                                                 data-bs-toggle="tooltip" title="Terima Kandidat"
                                                                                 @disabled(($decisionLocked[$lamaran->id] ?? false))>
@@ -430,7 +450,27 @@
                                                                         </div>
                                                                     @endif
                                                                 </div>
+
+                                                                {{-- Detail Tambahan untuk Status Diterima --}}
+                                                                @if($finalProgress && $finalProgress->status === 'diterima')
+                                                                    <hr class="my-2">
+                                                                    @if($finalProgress->nama_progress === 'Diterima (Offline)' && $finalProgress->waktu_pelaksanaan)
+                                                                        <div>
+                                                                            <div class="text-muted">Jenis Penawaran: Offline (Pertemuan)</div>
+                                                                            <div class="fw-medium mt-1">Jadwal: {{ \Carbon\Carbon::parse($finalProgress->waktu_pelaksanaan)->locale('id')->translatedFormat('d M Y, H:i') }}</div>
+                                                                            <div class="fw-medium">Lokasi: {{ $finalProgress->catatan }}</div>
+                                                                        </div>
+                                                                    @elseif(($finalProgress->nama_progress === 'Diterima (Online)' || !$finalProgress->nama_progress) && $finalProgress->dokumen_pendukung)
+                                                                        <div>
+                                                                            <div class="text-muted mb-1">Jenis Penawaran: Online (Email)</div>
+                                                                            <a href="{{ \Illuminate\Support\Facades\Storage::url($finalProgress->dokumen_pendukung) }}" target="_blank" class="btn btn-sm btn-soft-info d-inline-flex align-items-center">
+                                                                                <i class="mdi mdi-file-download-outline me-1"></i> Lihat Offering Letter
+                                                                            </a>
+                                                                        </div>
+                                                                    @endif
+                                                                </div>
                                                             </div>
+                                                        @endif
                                                         @endif
                                                     </div>
                                                 </td>
@@ -497,6 +537,98 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" wire:click="$set('interviewModal', false)">Batal</button>
                         <button type="submit" class="btn btn-primary">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Jadwalkan Psikotes -->
+    <div class="modal fade @if($psikotesModal) show @endif" tabindex="-1" style="@if($psikotesModal) display:block; @endif">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form wire:submit.prevent="savePsikotesSchedule">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Jadwalkan Psikotes</h5>
+                        <button type="button" class="btn-close" wire:click="$set('psikotesModal', false)"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Waktu Mulai</label>
+                            <input type="datetime-local" class="form-control" wire:model.defer="psikotesWaktu" required>
+                            @error('psikotesWaktu') <div class="small text-danger">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Waktu Selesai</label>
+                            <input type="datetime-local" class="form-control" wire:model.defer="psikotesWaktuSelesai" required>
+                            @error('psikotesWaktuSelesai') <div class="small text-danger">{{ $message }}</div> @enderror
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" wire:click="$set('psikotesModal', false)">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan Jadwal</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Offering Letter -->
+    <div class="modal fade @if($offeringModal) show @endif" tabindex="-1" style="@if($offeringModal) display:block; background-color: rgba(0,0,0,0.5); @endif">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form wire:submit.prevent="sendOffer">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Kirim Penawaran Kerja</h5>
+                        <button type="button" class="btn-close" wire:click="$set('offeringModal', false)"></button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="nav nav-pills nav-justified mb-3" id="pills-tab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link w-100 @if($offeringType == 'online') active @endif" type="button" wire:click.prevent="$set('offeringType', 'online')">Online</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link w-100 @if($offeringType == 'offline') active @endif" type="button" wire:click.prevent="$set('offeringType', 'offline')">Offline</button>
+                            </li>
+                        </ul>
+
+                        @if($offeringType == 'online')
+                            <div wire:key="offer-online">
+                                <p class="text-muted small">Kirim penawaran kerja dengan melampirkan file PDF. File ini akan dikirimkan ke email kandidat.</p>
+                                <div class="mb-3">
+                                    <label class="form-label">Upload Offering Letter (PDF)</label>
+                                    <input type="file" wire:model="offeringFile" class="form-control @error('offeringFile') is-invalid @enderror" accept=".pdf">
+                                    <div wire:loading wire:target="offeringFile" class="small text-muted mt-1">Mengunggah...</div>
+                                    @error('offeringFile') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                        @else
+                            <div wire:key="offer-offline">
+                                <p class="text-muted small">Jadwalkan pertemuan tatap muka dengan kandidat untuk penandatanganan kontrak. Jadwal akan dikirimkan ke email kandidat.</p>
+                                <div class="mb-3">
+                                    <label class="form-label">Waktu Mulai Pertemuan</label>
+                                    <input type="datetime-local" wire:model.defer="offeringWaktu" class="form-control @error('offeringWaktu') is-invalid @enderror">
+                                    @error('offeringWaktu') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Waktu Selesai Pertemuan</label>
+                                    <input type="datetime-local" wire:model.defer="offeringWaktuSelesai" class="form-control @error('offeringWaktuSelesai') is-invalid @enderror">
+                                    @error('offeringWaktuSelesai') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Lokasi Pertemuan</label>
+                                    <input type="text" wire:model.defer="offeringLokasi" class="form-control @error('offeringLokasi') is-invalid @enderror" placeholder="Contoh: Kantor Pusat, Ruang Meeting Lt. 2">
+                                    @error('offeringLokasi') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" wire:click="$set('offeringModal', false)">Batal</button>
+                        <button type="submit" class="btn btn-primary" wire:loading.attr="disabled">
+                            <span wire:loading.remove wire:target="sendOffer">Kirim Penawaran</span>
+                            <span wire:loading wire:target="sendOffer"><i class="mdi mdi-loading mdi-spin me-1"></i>Mengirim...</span>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -588,7 +720,7 @@
                                     <div class="text-muted small mb-1">Tempat, Tanggal Lahir</div>
                                     <div class="fw-semibold">
                                         {{ optional($selectedKandidat)->tempat_lahir }},
-                                        {{ optional($selectedKandidat->tanggal_lahir)->translatedFormat('d F Y') }}
+                                        {{ optional(optional($selectedKandidat)->tanggal_lahir)->locale('id')->translatedFormat('d F Y') }}
                                     </div>
                                 </div>
                             </div>
@@ -969,4 +1101,3 @@
         </div>
     </div>
     @endif
-

@@ -20,6 +20,9 @@ class Test extends Component
     public $timeLeft;
     public $testResult;
     public $showConfirmModal = false;
+
+    public bool $scheduleValid = false;
+    public ?array $scheduleInfo = null;
     
     public $maxQuestions = 25; // Maximum number of questions
     public $testDuration = 30; // in minutes
@@ -82,9 +85,53 @@ class Test extends Component
         $this->testCompleted = false;
     }
 
+    public function validateSchedule()
+    {
+        // Jika tes sedang berlangsung, izinkan masuk kembali. Timer di dalam tes akan menangani batas waktu.
+        if ($this->testStarted && !$this->testCompleted) {
+            $this->scheduleValid = true;
+            return;
+        }
+
+        // Cari lamaran yang relevan untuk psikotes
+        $lamaran = \App\Models\LamarLowongan::where('kandidat_id', auth()->user()->kandidat->id)
+            ->whereHas('progressRekrutmen', fn($q) => $q->where('status', 'psikotes'))
+            ->whereDoesntHave('progressRekrutmen', fn($q) => $q->whereIn('status', ['diterima', 'ditolak']))
+            ->latest()
+            ->first();
+
+        if (!$lamaran) {
+            $this->scheduleValid = false;
+            return;
+        }
+
+        $psikotesProgress = $lamaran->progressRekrutmen
+            ->where('status', 'psikotes')
+            ->sortByDesc('created_at')
+            ->first();
+
+        $waktuMulai = optional($psikotesProgress)->waktu_pelaksanaan ? \Carbon\Carbon::parse($psikotesProgress->waktu_pelaksanaan) : null;
+        $waktuSelesai = optional($psikotesProgress)->waktu_selesai ? \Carbon\Carbon::parse($psikotesProgress->waktu_selesai) : null;
+
+        if (!$waktuMulai || !$waktuSelesai) {
+            $this->scheduleValid = false;
+            return;
+        }
+
+        // Siapkan info jadwal untuk ditampilkan di pesan "Akses Ditolak"
+        $this->scheduleInfo = [
+            'start' => $waktuMulai->translatedFormat('d F Y, H:i'),
+            'end' => $waktuSelesai->translatedFormat('d F Y, H:i'),
+        ];
+
+        // Jadwal valid jika waktu saat ini berada di antara waktu mulai dan selesai
+        $this->scheduleValid = now()->between($waktuMulai, $waktuSelesai);
+    }
+
     public function mount()
     {
         // Load CBT settings if available
+        $this->validateSchedule();
         $this->refreshCbtSettings();
 
         $user = Auth::user();

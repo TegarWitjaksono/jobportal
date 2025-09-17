@@ -93,7 +93,10 @@
 
                                     $lastUpdate = optional($progress->last())->created_at;
 
-                                    $showCbtLink = $hasPsikotes && !$hasDecision;
+                                    $hasCompletedPsikotes = !is_null($testResult);
+                                    $showCbtLink = $hasPsikotes && !$hasDecision && !$hasCompletedPsikotes;
+
+                                    $acceptedProgress = $isAccepted ? $progress->where('status', 'diterima')->sortByDesc('created_at')->first() : null;
                                 @endphp
 
                                 <div class="card border-0 shadow-sm rounded mb-3">
@@ -234,7 +237,19 @@
                                                         <i class="mdi mdi-pencil me-1"></i>Mulai Psikotes
                                                     </a>
                                                 </div>
-                                            @endif
+                                        @elseif($hasPsikotes && $hasCompletedPsikotes)
+                                            <div class="mt-2">
+                                                <div class="alert alert-soft-success p-2 small mb-0">
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="mdi mdi-check-circle-outline me-2"></i>
+                                                        <div>
+                                                            <strong>Psikotes Selesai</strong><br>
+                                                            Skor: {{ number_format($testResult->score, 1) }}%
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
                                         </div>
 
                                         <!-- Last Update -->
@@ -247,18 +262,27 @@
                                             </div>
                                         </div>
 
-                                        @if($isAccepted)
-                                            <div class="mt-3 d-flex gap-2 flex-wrap">
-                                                <a href="{{ route('kandidat.offer-letter.download', ['lamaranId' => $lamaran->id]) }}" class="btn btn-sm btn-success">
-                                                    <i class="mdi mdi-file-pdf-box me-1"></i> Unduh Offering Letter (PDF)
-                                                </a>
-                                                <a class="btn btn-sm btn-soft-success" data-bs-toggle="collapse" href="#offer-{{ $lamaran->id }}" role="button" aria-expanded="false" aria-controls="offer-{{ $lamaran->id }}">
-                                                    <i class="mdi mdi-eye-outline me-1"></i> Pratinjau (Ringkas)
-                                                </a>
-                                                <div class="collapse mt-2 w-100" id="offer-{{ $lamaran->id }}">
-                                                    @include('livewire.kandidat.lowongan-dilamar.offer-letter', ['lamaran' => $lamaran])
+                                        @if($isAccepted && $acceptedProgress)
+                                            @if($acceptedProgress->nama_progress === 'Diterima (Offline)' && $acceptedProgress->waktu_pelaksanaan)
+                                                <div class="alert alert-soft-info mt-3 border-info shadow-sm">
+                                                    <h6 class="alert-heading text-info"><i class="mdi mdi-calendar-clock me-1"></i> Undangan Pertemuan</h6>
+                                                    <p class="mb-2">Anda diundang untuk pertemuan penandatanganan kontrak kerja. Berikut detailnya:</p>
+                                                    <hr class="my-2">
+                                                    <p class="mb-1"><strong>Jadwal:</strong> {{ \Carbon\Carbon::parse($acceptedProgress->waktu_pelaksanaan)->locale('id')->translatedFormat('l, d F Y, H:i') }} - {{ \Carbon\Carbon::parse($acceptedProgress->waktu_selesai)->locale('id')->translatedFormat('H:i') }}</p>
+                                                    <p class="mb-0"><strong>Lokasi:</strong> {{ $acceptedProgress->catatan }}</p>
                                                 </div>
-                                            </div>
+                                            @else
+                                                <div class="alert alert-soft-success mt-3 border-success shadow-sm">
+                                                    <h6 class="alert-heading text-success"><i class="mdi mdi-party-popper me-1"></i> Selamat! Anda Diterima</h6>
+                                                    <p class="mb-2">Kami dengan senang hati memberitahukan bahwa Anda telah diterima untuk posisi ini. Silakan tinjau surat penawaran (offering letter) yang telah kami lampirkan.</p>
+                                                    <hr class="my-2">
+                                                    @if($acceptedProgress->dokumen_pendukung)
+                                                        <a href="{{ Storage::url($acceptedProgress->dokumen_pendukung) }}" target="_blank" class="btn btn-sm btn-success">
+                                                            <i class="mdi mdi-file-pdf-box me-1"></i> Unduh Offering Letter
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                            @endif
                                         @endif
                                     </div>
                                 </div>

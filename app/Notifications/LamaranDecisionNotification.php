@@ -16,15 +16,17 @@ class LamaranDecisionNotification extends Notification
     public LamarLowongan $lamaran;
     public string $status;
     public ?string $officerName;
+    public array $data;
 
     /**
      * Create a new notification instance.
      */
-    public function __construct(LamarLowongan $lamaran, string $status, ?string $officerName = null)
+    public function __construct(LamarLowongan $lamaran, string $status, ?string $officerName = null, array $data = [])
     {
         $this->lamaran = $lamaran;
         $this->status = $status;
         $this->officerName = $officerName;
+        $this->data = $data;
     }
 
     /**
@@ -57,35 +59,15 @@ class LamaranDecisionNotification extends Notification
                 'statusLabel' => $statusLabel,
                 'officerName' => $this->officerName,
                 'dashboardUrl' => $dashboardUrl,
+                'schedule' => $this->data['schedule'] ?? null,
             ]);
 
-        // If accepted, attach PDF offer letter
-        if ($this->status === 'diterima') {
-            $lowonganModel = optional($this->lamaran->lowongan);
-
-            $vars = [
-                'candidateName' => $candidate,
-                'position' => $lowonganModel->nama_posisi ?? null,
-                'department' => $lowonganModel->departemen ?? null,
-                'location' => $lowonganModel->lokasi_penugasan ?? null,
-                'salary' => $lowonganModel->formatted_gaji ?? $lowonganModel->range_gaji ?? null,
-                'issuedDate' => now(),
-            ];
-
-            $html = view('pdf.offer-letter', $vars)->render();
-
-            $options = new Options();
-            $options->set('isHtml5ParserEnabled', true);
-            $options->set('isRemoteEnabled', true);
-
-            $dompdf = new Dompdf($options);
-            $dompdf->loadHtml($html);
-            $dompdf->setPaper('A4', 'portrait');
-            $dompdf->render();
-
-            $pdf = $dompdf->output();
-            $fileName = 'offering-letter-' . now()->format('Ymd_His') . '.pdf';
-            $mail->attachData($pdf, $fileName, ['mime' => 'application/pdf']);
+        // Jika diterima dan ada path lampiran (untuk penawaran online), lampirkan filenya.
+        if ($this->status === 'diterima' && !empty($this->data['attachment'])) {
+            $mail->attach($this->data['attachment'], [
+                'as' => 'offering-letter.pdf',
+                'mime' => 'application/pdf',
+            ]);
         }
 
         return $mail;

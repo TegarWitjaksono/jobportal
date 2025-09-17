@@ -63,7 +63,7 @@
     </div>
     <div class="header">
         <h1>Daftar Lamaran Lowongan</h1>
-        <p>Laporan diekspor pada: {{ now()->translatedFormat('d F Y, H:i') }}</p>
+        <p>Laporan diekspor pada: {{ now()->locale('id')->translatedFormat('d F Y, H:i') }}</p>
     </div>
 
     <table>
@@ -86,7 +86,7 @@
                     <td class="text-center">{{ $index + 1 }}</td>
                     <td>{{ optional(optional($lamaran->kandidat)->user)->name ?? '-' }}</td>
                     <td>{{ optional($lamaran->lowongan)->nama_posisi ?? '-' }}</td>
-                    <td>{{ optional($lamaran->created_at)->translatedFormat('d F Y, H:i') }}</td>
+                    <td>{{ optional($lamaran->created_at)->locale('id')->translatedFormat('d F Y, H:i') }}</td>
                     <td>{{ ucfirst($status) }}</td>
                 </tr>
             @empty
@@ -98,5 +98,3 @@
     </table>
 </body>
 </html>
-
-

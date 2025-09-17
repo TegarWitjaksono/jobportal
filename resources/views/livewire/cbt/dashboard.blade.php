@@ -59,6 +59,14 @@
                                 @php
                                     $l = $lamaran->lowongan;
                                     $lastUpdate = optional(optional($lamaran->progressRekrutmen)->last())->created_at;
+
+                                    $psikotesProgress = $lamaran->progressRekrutmen->where('status', 'psikotes')->sortByDesc('created_at')->first();
+                                    $waktuMulai = optional($psikotesProgress)->waktu_pelaksanaan ? \Carbon\Carbon::parse($psikotesProgress->waktu_pelaksanaan) : null;
+                                    $waktuSelesai = optional($psikotesProgress)->waktu_selesai ? \Carbon\Carbon::parse($psikotesProgress->waktu_selesai) : null;
+                                    $now = now();
+
+                                    $isScheduled = $waktuMulai && $waktuSelesai;
+                                    $canStartTest = $isScheduled ? $now->between($waktuMulai, $waktuSelesai) : false;
                                 @endphp
                                 <div class="job-box card rounded shadow border-0 overflow-hidden mb-3">
                                     <div class="p-3 p-md-4">
@@ -73,7 +81,7 @@
                                                 @endphp
                                                 <div class="avatar avatar-md-sm rounded-circle bg-light d-flex align-items-center justify-content-center flex-shrink-0" style="width:44px;height:44px;overflow:hidden;">
                                                     @if($thumb)
-                                                        <img src="{{ $thumb }}" alt="{{ $l->nama_posisi ?? 'Lowongan' }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                                                        <img src="{{ $thumb }}" alt="{{ $l->nama_posisi ?? 'Lowongan' }}" style="width:100%;height:100%;object-fit:contain;border-radius:50%;">
                                                     @else
                                                         <svg class="fea icon-20 text-muted" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                                                             <path d="M16 4h2a2 2 0 0 1 2 2v14l-4-2-4 2-4-2-4 2V6a2 2 0 0 1 2-2h2"></path>
@@ -100,19 +108,43 @@
                                             </div>
                                         </div>
                                         <div class="col-md-3 mt-3 mt-md-0">
-                                            <div class="d-flex flex-md-column align-items-center justify-content-end gap-2 text-md-end">
-                                                @if($ongoingTest)
+                                            <div class="d-flex flex-md-column align-items-center align-items-md-stretch justify-content-end gap-3 text-md-end">
+                                                @if($hasCompleted && $testResult)
+                                                    @php
+                                                        $scoreValue = (float) $testResult->score;
+                                                        $isPassed = $scoreValue >= 70;
+                                                        $scoreTone = $isPassed ? 'text-success' : 'text-danger';
+                                                        $scoreSurface = $isPassed ? 'bg-soft-success' : 'bg-soft-danger';
+                                                    @endphp
+                                                    <div class="w-100">
+                                                        <div class="text-center p-3 {{ $scoreSurface }} rounded-3 border {{ $isPassed ? 'border-success-subtle' : 'border-danger-subtle' }} shadow-sm">
+                                                            <div class="small text-muted fw-semibold">Skor Psikotes</div>
+                                                            <div class="h4 fw-bold {{ $scoreTone }} mb-0">{{ number_format($scoreValue, 1) }}<span class="fs-6">%</span></div>
+                                                        </div>
+                                                    </div>
+                                                @elseif($ongoingTest && $canStartTest)
                                                     <a href="{{ route('cbt.test') }}" class="btn btn-sm py-2 btn-primary w-100 w-md-auto">
                                                         <i class="mdi mdi-play-circle-outline me-1"></i> Lanjutkan Psikotes
                                                     </a>
-                                                @elseif($hasCompleted)
-                                                    <button class="btn btn-sm py-2 btn-soft-secondary w-100 w-md-auto" disabled>
-                                                        <i class="mdi mdi-check-circle-outline me-1"></i> Psikotes Selesai
-                                                    </button>
-                                                @else
+                                                @elseif($canStartTest)
                                                     <a href="{{ route('cbt.test') }}" class="btn btn-sm py-2 btn-primary w-100 w-md-auto">
                                                         <i class="mdi mdi-pencil me-1"></i> Mulai Psikotes
                                                     </a>
+                                                @else
+                                                    <div class="text-center p-3 bg-soft-info rounded w-100 w-md-auto border border-info-subtle shadow-sm">
+                                                        @if($isScheduled)
+                                                            @if($now->isBefore($waktuMulai))
+                                                                <div class="fw-semibold text-info">Tes Belum Dibuka</div>
+                                                                <small class="text-muted d-block"><strong>Jadwal: {{ $waktuMulai->format('d M, H:i') }}</strong></small>
+                                                            @else
+                                                                <div class="fw-semibold text-danger">Waktu Habis</div>
+                                                                <small class="text-muted d-block">Berakhir pada {{ $waktuSelesai->format('d M, H:i') }}</small>
+                                                            @endif
+                                                        @else
+                                                            <div class="fw-semibold text-warning">Menunggu Jadwal</div>
+                                                            <small class="text-muted d-block">HRD akan segera menjadwalkan tes.</small>
+                                                        @endif
+                                                    </div>
                                                 @endif
                                                 @if ($lastUpdate)
                                                     <small class="text-muted">Update: {{ $lastUpdate->format('d M Y') }}</small>
