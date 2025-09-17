@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\UserStampable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Jetstream\HasProfilePhoto;
 
 /**
@@ -66,6 +68,45 @@ class Kandidat extends Model
     protected $appends = [
         'profile_photo_url',
     ];
+
+    /**
+     * Override Jetstream's profile photo URL accessor to be more tolerant
+     * of various stored path formats (absolute URL, storage path, or
+     * public path) and always return a browser-accessible URL.
+     */
+    protected function profilePhotoUrl(): Attribute
+    {
+        return Attribute::get(function (): string {
+            $path = (string) ($this->profile_photo_path ?? '');
+
+            // 1) Absolute URL already
+            if ($path && preg_match('~^https?://~i', $path)) {
+                return $path;
+            }
+
+            // Normalize leading slash
+            $normalized = ltrim($path, '/');
+
+            // 2) Already points under public/storage
+            if ($normalized && str_starts_with($normalized, 'storage/')) {
+                return asset($normalized);
+            }
+
+            // 3) File stored on public disk (storage/app/public/<path>)
+            if ($normalized && Storage::disk('public')->exists($normalized)) {
+                return asset('storage/' . $normalized);
+            }
+
+            // 4) File directly under public (<project>/public/<path>)
+            if ($normalized && is_file(public_path($normalized))) {
+                return asset($normalized);
+            }
+
+            // 5) Fallback to UI avatar using full_name if available
+            $name = trim(($this->full_name ?? '') ?: (optional($this->user)->name ?? 'User'));
+            return 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&color=7F9CF5&background=EBF4FF';
+        });
+    }
 
     /**
      * Mengembalikan relasi kandidat dengan pengguna.

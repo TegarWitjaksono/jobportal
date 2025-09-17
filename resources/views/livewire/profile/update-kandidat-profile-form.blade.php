@@ -56,37 +56,6 @@
                                     </h6>
                                 </div>
 
-                                <div class="col-12 mb-4">
-                                    <h6 class="fw-semibold mb-3">{{ __('Foto Profil') }}</h6>
-                                    <div class="d-flex flex-wrap align-items-center gap-3">
-                                        <div class="position-relative">
-                                            <img src="{{ $photo ? $photo->temporaryUrl() : optional($kandidat)->profile_photo_url }}" alt="{{ optional($kandidat)->full_name }}"
-                                                 class="rounded-circle object-cover" style="width: 96px; height: 96px;">
-                                            <div class="position-absolute top-50 start-50 translate-middle d-none" wire:loading.class.remove="d-none" wire:target="photo">
-                                                <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div class="d-flex flex-wrap gap-2">
-                                                <label class="btn btn-outline-primary mb-0" for="photo">
-                                                    <i class="mdi mdi-camera me-1"></i>{{ __('Pilih Foto Baru') }}
-                                                    <input type="file" id="photo" class="d-none" wire:model.live="photo" accept="image/*">
-                                                </label>
-                                                @if(optional($kandidat)->profile_photo_path)
-                                                    <button type="button" class="btn btn-outline-danger" wire:click="removeProfilePhoto" wire:loading.attr="disabled" wire:target="removeProfilePhoto">
-                                                        <i class="mdi mdi-trash-can-outline me-1"></i>{{ __('Hapus Foto') }}
-                                                    </button>
-                                                @endif
-                                            </div>
-                                            <p class="text-muted small mb-0 mt-2">{{ __('Format yang didukung: JPG, JPEG, PNG. Maksimal 2 MB.') }}</p>
-                                            @error('photo')
-                                                <div class="text-danger small mt-2">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    <p class="text-muted small mb-0 mt-3">{{ __('Perubahan foto akan tersimpan setelah Anda menekan tombol Simpan Profil.') }}</p>
-                                </div>
-
                                 <div class="col-md-6 mb-3">
                                     <label for="nama_depan" class="form-label">{{ __('Nama Depan') }} <span class="text-danger">*</span></label>
                                     <input id="nama_depan" type="text" class="form-control @error('state.nama_depan') is-invalid @enderror"

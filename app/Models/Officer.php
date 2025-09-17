@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Traits\UserStampable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Jetstream\HasProfilePhoto;
 
 class Officer extends Model
@@ -101,4 +103,40 @@ class Officer extends Model
         return trim("{$this->lokasi_penugasan}, {$this->area}");
     }
 
+    /**
+     * Override Jetstream's profile photo URL accessor to support
+     * multiple stored path shapes and return a valid URL.
+     */
+    protected function profilePhotoUrl(): Attribute
+    {
+        return Attribute::get(function (): string {
+            $path = (string) ($this->profile_photo_path ?? '');
+
+            // 1) Absolute URL
+            if ($path && preg_match('~^https?://~i', $path)) {
+                return $path;
+            }
+
+            $normalized = ltrim($path, '/');
+
+            // 2) Already under public/storage
+            if ($normalized && str_starts_with($normalized, 'storage/')) {
+                return asset($normalized);
+            }
+
+            // 3) Stored on public disk
+            if ($normalized && Storage::disk('public')->exists($normalized)) {
+                return asset('storage/' . $normalized);
+            }
+
+            // 4) Directly under public
+            if ($normalized && is_file(public_path($normalized))) {
+                return asset($normalized);
+            }
+
+            // 5) Fallback avatar using full_name or user name
+            $name = trim(($this->full_name ?? '') ?: (optional($this->user)->name ?? 'User'));
+            return 'https://ui-avatars.com/api/?name=' . urlencode($name) . '&color=7F9CF5&background=EBF4FF';
+        });
+    }
 }
