@@ -106,27 +106,7 @@ class Index extends Component
 
             $progress->save();
             $this->existingResultDokumen = $progress->dokumen_pendukung;
-
-            // Auto-advance to psikotes when interview result is present
-            $hasResult = !empty($progress->catatan) || !empty($progress->dokumen_pendukung);
-            if ($progress->status === 'interview' && $hasResult) {
-                $lamaran = $progress->lamarlowongan; // LamarLowongan instance
-                if ($lamaran) {
-                    $alreadyHasPsikotes = $lamaran->progressRekrutmen()
-                        ->where('status', 'psikotes')
-                        ->exists();
-                    if (!$alreadyHasPsikotes) {
-                        $lamaran->progressRekrutmen()->create([
-                            'status' => 'psikotes',
-                            'officer_id' => auth()->id(),
-                            'nama_progress' => 'Psikotes',
-                            'is_interview' => false,
-                            'is_psikotes' => true,
-                            'user_create' => auth()->user()->name,
-                        ]);
-                    }
-                }
-            }
+            // Biarkan status berada di tahap interview hingga HR menentukan keputusan lanjutan.
 
             $this->reset([
                 'resultModal',
@@ -168,3 +148,4 @@ class Index extends Component
         }, $fileName);
     }
 }
+
