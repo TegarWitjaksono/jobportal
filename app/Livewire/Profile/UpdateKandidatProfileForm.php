@@ -5,10 +5,13 @@ namespace App\Livewire\Profile;
 use App\Models\Kandidat;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Livewire\WithFileUploads;
 use Livewire\Component;
 
 class UpdateKandidatProfileForm extends Component
 {
+    use WithFileUploads;
+
     /**
      * The component's state.
      *
@@ -24,14 +27,28 @@ class UpdateKandidatProfileForm extends Component
     public $kandidat;
 
     /**
+     * The authenticated user instance.
+     *
+     * @var \App\Models\User|null
+     */
+    public $user;
+
+    /**
+     * Holds the uploaded profile photo before it is saved.
+     *
+     * @var \Livewire\Features\SupportFileUploads\TemporaryUploadedFile|null
+     */
+    public $photo = null;
+
+    /**
      * Prepare the component.
      *
      * @return void
      */
     public function mount()
     {
-        $user = Auth::user()->load('kandidat');
-        $this->kandidat = $user->kandidat;
+        $this->user = Auth::user()->load('kandidat');
+        $this->kandidat = $this->user->kandidat;
 
         if ($this->kandidat) {
             // Jika kandidat sudah ada, muat datanya
@@ -98,6 +115,7 @@ class UpdateKandidatProfileForm extends Component
             'state.kemampuan_bahasa' => ['nullable', 'string'],
             'state.informasi_spesifik' => ['nullable', 'string'],
             'state.kemampuan' => ['nullable', 'string'],
+            'photo' => ['nullable', 'image', 'max:2048'],
         ]);
 
         // Tentukan pendidikan tertinggi secara otomatis dari riwayat pendidikan
@@ -126,12 +144,35 @@ class UpdateKandidatProfileForm extends Component
             $validatedData['state']
         );
 
+        if ($this->photo) {
+            $user->updateProfilePhoto($this->photo);
+            $this->photo = null;
+        }
+
+        $this->user->refresh();
+
         // Beri feedback ke pengguna
         $this->dispatch('saved');
 
         session()->flash('success', 'Profil kandidat berhasil diperbarui.');
 
         return redirect()->route('profile.show');
+    }
+
+    /**
+     * Remove the current profile photo for the authenticated user.
+     */
+    public function removeProfilePhoto(): void
+    {
+        $user = Auth::user();
+
+        if ($user->profile_photo_path) {
+            $user->deleteProfilePhoto();
+            $this->user->refresh();
+            session()->flash('success', 'Foto profil berhasil dihapus.');
+        }
+
+        $this->photo = null;
     }
 
     /**

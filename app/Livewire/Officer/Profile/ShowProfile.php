@@ -6,9 +6,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class ShowProfile extends Component
 {
+    use WithFileUploads;
+
     public $user;
     public $officer;
 
@@ -20,10 +23,44 @@ class ShowProfile extends Component
 
     public $status = null;
 
+    /**
+     * Temporary uploaded photo for officer profile.
+     *
+     * @var \Livewire\Features\SupportFileUploads\TemporaryUploadedFile|null
+     */
+    public $photo = null;
+
     public function mount(): void
     {
         $this->user = Auth::user()->load('officer');
         $this->officer = $this->user->officer;
+    }
+
+    public function saveProfilePhoto(): void
+    {
+        if (! $this->photo) {
+            $this->addError('photo', __('Silakan pilih foto profil terlebih dahulu.'));
+            return;
+        }
+
+        $this->validate([
+            'photo' => ['image', 'max:2048'],
+        ]);
+
+        $this->user->updateProfilePhoto($this->photo);
+        $this->user->refresh();
+        $this->photo = null;
+
+        session()->flash('status', __('Foto profil berhasil diperbarui.'));
+    }
+
+    public function removeProfilePhoto(): void
+    {
+        if ($this->user->profile_photo_path) {
+            $this->user->deleteProfilePhoto();
+            $this->user->refresh();
+            session()->flash('status', __('Foto profil berhasil dihapus.'));
+        }
     }
 
     public function updatePassword(): void
