@@ -48,15 +48,37 @@
                         <div class="col-lg-5">
                             <div class="card border-0 shadow h-100">
                                 <div class="card-body p-4">
-                                    <div class="d-flex align-items-center mb-4">
-                                        <div class="avatar avatar-lg bg-soft-primary text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width:72px; height:72px;">
-                                            <i class="mdi mdi-shield-account-outline fs-1"></i>
+                                    <div class="text-center mb-4">
+                                        <div class="position-relative d-inline-block">
+                                            <img src="{{ $photo ? $photo->temporaryUrl() : $user->profile_photo_url }}" alt="{{ $user->name }}" class="rounded-circle object-cover border" style="width: 96px; height: 96px;">
+                                            <span class="position-absolute top-50 start-50 translate-middle d-none" wire:loading.class.remove="d-none" wire:target="photo">
+                                                <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+                                            </span>
                                         </div>
-                                        <div>
-                                            <h5 class="fw-semibold mb-0">{{ $user->name }}</h5>
-                                            <span class="badge {{ $user->role_badge_class }} px-3 py-1 mt-2">{{ $user->role_badge_label }}</span>
-                                        </div>
+                                        <h5 class="fw-semibold mb-0 mt-3">{{ $user->name }}</h5>
+                                        <span class="badge {{ $user->role_badge_class }} px-3 py-1 mt-2">{{ $user->role_badge_label }}</span>
                                     </div>
+
+                                    <form wire:submit.prevent="saveProfilePhoto" class="mb-4">
+                                        <div class="d-flex flex-wrap justify-content-center gap-2">
+                                            <label class="btn btn-outline-primary mb-0" for="officer-photo">
+                                                <i class="mdi mdi-camera me-1"></i>{{ __('Pilih Foto Baru') }}
+                                                <input type="file" id="officer-photo" class="d-none" wire:model.live="photo" accept="image/*">
+                                            </label>
+                                            @if($user->profile_photo_path)
+                                                <button type="button" class="btn btn-outline-danger" wire:click="removeProfilePhoto" wire:loading.attr="disabled" wire:target="removeProfilePhoto">
+                                                    <i class="mdi mdi-trash-can-outline me-1"></i>{{ __('Hapus Foto') }}
+                                                </button>
+                                            @endif
+                                            <button type="submit" class="btn btn-primary" wire:loading.attr="disabled" wire:target="saveProfilePhoto, photo">
+                                                <i class="mdi mdi-content-save me-1"></i>{{ __('Simpan Foto') }}
+                                            </button>
+                                        </div>
+                                        <p class="text-muted small mt-2 mb-0">{{ __('Format yang didukung: JPG, JPEG, PNG. Maksimal 2 MB.') }}</p>
+                                        @error('photo')
+                                            <div class="text-danger small mt-2">{{ $message }}</div>
+                                        @enderror
+                                    </form>
 
                                     <div class="mb-3">
                                         <p class="text-muted small mb-1">{{ __('Email') }}</p>
