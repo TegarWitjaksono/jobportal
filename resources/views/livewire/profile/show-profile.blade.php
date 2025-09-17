@@ -55,7 +55,57 @@
                         </div>
 
                         <div class="card-body p-4">
+                            @foreach (['status', 'success'] as $flashKey)
+                                @if (session($flashKey))
+                                    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                                        <i class="mdi mdi-check-circle-outline me-1"></i>{{ session($flashKey) }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                @endif
+                            @endforeach
+
                             @if ($kandidat)
+                                <div class="row">
+                                    <div class="col-12 mb-4">
+                                        <h6 class="fw-bold text-primary border-bottom pb-2">
+                                            <i class="mdi mdi-camera-account me-2"></i>Foto Profil
+                                        </h6>
+                                        <form wire:submit.prevent="saveProfilePhoto" class="d-flex flex-wrap align-items-center gap-3">
+                                            @php
+                                                $currentPhotoUrl = $photo
+                                                    ? $photo->temporaryUrl()
+                                                    : (optional($kandidat)->profile_photo_url ?? Auth::user()->profile_photo_url);
+                                            @endphp
+                                            <div class="position-relative">
+                                                <img src="{{ $currentPhotoUrl }}" alt="{{ optional($kandidat)->full_name ?? Auth::user()->name }}" class="rounded-circle object-cover border" style="width: 96px; height: 96px;">
+                                                <div class="position-absolute top-50 start-50 translate-middle d-none" wire:loading.class.remove="d-none" wire:target="photo">
+                                                    <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    <label class="btn btn-outline-primary mb-0" for="kandidat-photo">
+                                                        <i class="mdi mdi-camera me-1"></i>{{ __('Pilih Foto Baru') }}
+                                                        <input type="file" id="kandidat-photo" class="d-none" wire:model.live="photo" accept="image/*">
+                                                    </label>
+                                                    @if (optional($kandidat)->profile_photo_path)
+                                                        <button type="button" class="btn btn-outline-danger" wire:click="removeProfilePhoto" wire:loading.attr="disabled" wire:target="removeProfilePhoto">
+                                                            <i class="mdi mdi-trash-can-outline me-1"></i>{{ __('Hapus Foto') }}
+                                                        </button>
+                                                    @endif
+                                                    <button type="submit" class="btn btn-primary" wire:loading.attr="disabled" wire:target="saveProfilePhoto, photo">
+                                                        <i class="mdi mdi-content-save me-1"></i>{{ __('Simpan Foto') }}
+                                                    </button>
+                                                </div>
+                                                <p class="text-muted small mb-0 mt-2">{{ __('Format yang didukung: JPG, JPEG, PNG. Maksimal 2 MB.') }}</p>
+                                                @error('photo')
+                                                    <div class="text-danger small mt-2">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
                                 {{-- Data Test Section --}}
                                 <div class="row">
                                     <div class="col-12 mb-4">
