@@ -86,13 +86,16 @@
                         </x-slot>
 
                         <x-slot name="content">
-                            @php $role = strtolower(auth()->user()->role ?? ''); @endphp
+                            @php
+                                $role = strtolower(auth()->user()->role ?? '');
+                                $profileRouteName = $role === 'officer' ? 'officer.profile.show' : 'profile.show';
+                            @endphp
                             <!-- Account Management -->
                             <div class="block px-4 py-2 text-xs text-gray-400">
                                 {{ __('Manage Account') }}
                             </div>
 
-                            <x-dropdown-link href="{{ route('profile.show') }}">
+                            <x-dropdown-link href="{{ route($profileRouteName) }}">
                                 {{ __('Profile') }}
                             </x-dropdown-link>
 
@@ -160,9 +163,12 @@
             </div>
 
             <div class="mt-3 space-y-1">
-                @php $role = strtolower(auth()->user()->role ?? ''); @endphp
+                @php
+                    $role = strtolower(auth()->user()->role ?? '');
+                    $profileRouteName = $role === 'officer' ? 'officer.profile.show' : 'profile.show';
+                @endphp
                 <!-- Account Management -->
-                <x-responsive-nav-link href="{{ route('profile.show') }}" :active="request()->routeIs('profile.show')">
+                <x-responsive-nav-link href="{{ route($profileRouteName) }}" :active="request()->routeIs($profileRouteName)">
                     {{ __('Profile') }}
                 </x-responsive-nav-link>
 

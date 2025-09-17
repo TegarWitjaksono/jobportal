@@ -14,6 +14,7 @@ Route::middleware([
     'role:officer', // pastikan user adalah officer
 ])->group(function () {
     Route::get('/officers', App\Livewire\Officer\Index::class)->name('officers.index');
+    Route::get('/officer/profile', App\Livewire\Officer\Profile\ShowProfile::class)->name('officer.profile.show');
 
     // Kategori Lowongan - manager, recruiter, coordinator
     Route::get('/kategori-lowongan', App\Livewire\KategoriLowongan\Index::class)

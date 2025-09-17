@@ -166,7 +166,7 @@
                                 <i class="mdi mdi-chevron-down ms-1"></i>
                             </a>
                             <div class="dropdown-menu dd-menu dropdown-menu-end bg-white rounded shadow border-0 mt-3">
-                                <a href="{{ auth()->user()->is_kandidat ? route('profile.show') : route('officers.index') }}" class="dropdown-item fw-medium fs-6 d-flex align-items-center">
+                                <a href="{{ auth()->user()->is_kandidat ? route('profile.show') : route('officer.profile.show') }}" class="dropdown-item fw-medium fs-6 d-flex align-items-center">
                                     <i class="mdi mdi-account-outline me-2 align-middle"></i>
                                     <span>Profile</span>
                                 </a>
