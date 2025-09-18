@@ -94,6 +94,10 @@
                                     <label class="form-label small mb-1">Durasi (menit)</label>
                                     <input type="number" min="1" max="240" class="form-control form-control-sm" wire:model.defer="cbt_test_duration" placeholder="30">
                                 </div>
+                                <div>
+                                    <label class="form-label small mb-1">Passing Grade (%)</label>
+                                    <input type="number" min="1" max="100" class="form-control form-control-sm" wire:model.defer="cbt_passing_grade" placeholder="70">
+                                </div>
                                 <div class="align-self-end pb-1">
                                     <button type="submit" class="btn btn-sm btn-primary" wire:loading.attr="disabled">
                                         <span wire:loading.remove wire:target="saveCbtSettings"><i class="mdi mdi-content-save me-1"></i>Simpan</span>

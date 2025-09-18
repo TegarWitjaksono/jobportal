@@ -41,6 +41,56 @@ class UpdateKandidatProfileForm extends Component
     public $photo = null;
 
     /**
+     * Custom validation messages (Bahasa Indonesia)
+     */
+    protected $messages = [
+        'required' => ':attribute wajib diisi.',
+        'string' => ':attribute harus berupa teks.',
+        'numeric' => ':attribute harus berupa angka.',
+        'digits' => ':attribute harus terdiri dari :digits digit.',
+        'digits_between' => ':attribute harus terdiri dari :min sampai :max digit.',
+        'date' => ':attribute harus berupa tanggal yang valid.',
+        'in' => ':attribute tidak valid.',
+        'max.string' => ':attribute maksimal :max karakter.',
+        'image' => 'File harus berupa gambar.',
+        'max.file' => 'Ukuran file maksimal :max kilobyte.',
+        'unique' => ':attribute sudah terdaftar.',
+        'regex' => ':attribute berisi format yang tidak valid.',
+
+        // Field-specific (lebih informatif)
+        'state.nama_depan.regex' => 'Nama depan hanya boleh berisi huruf, spasi, titik, apostrof, dan tanda hubung.',
+        'state.nama_belakang.regex' => 'Nama belakang hanya boleh berisi huruf, spasi, titik, apostrof, dan tanda hubung.',
+        'state.tempat_lahir.regex' => 'Tempat lahir hanya boleh berisi huruf, spasi, titik, apostrof, dan tanda hubung.',
+    ];
+
+    /**
+     * Human-friendly names for attributes
+     */
+    protected $validationAttributes = [
+        'state.nama_depan' => 'nama depan',
+        'state.nama_belakang' => 'nama belakang',
+        'state.no_telpon' => 'no. telepon',
+        'state.no_telpon_alternatif' => 'no. telepon alternatif',
+        'state.alamat' => 'alamat',
+        'state.kode_pos' => 'kode pos',
+        'state.negara' => 'negara',
+        'state.no_ktp' => 'no. KTP',
+        'state.no_npwp' => 'no. NPWP',
+        'state.tempat_lahir' => 'tempat lahir',
+        'state.tanggal_lahir' => 'tanggal lahir',
+        'state.jenis_kelamin' => 'jenis kelamin',
+        'state.status_perkawinan' => 'status perkawinan',
+        'state.agama' => 'agama',
+        'state.pendidikan' => 'pendidikan',
+        'state.riwayat_pengalaman_kerja' => 'riwayat pengalaman kerja',
+        'state.riwayat_pendidikan' => 'riwayat pendidikan',
+        'state.kemampuan_bahasa' => 'kemampuan bahasa',
+        'state.informasi_spesifik' => 'informasi spesifik',
+        'state.kemampuan' => 'kemampuan',
+        'photo' => 'foto profil',
+    ];
+
+    /**
      * Prepare the component.
      *
      * @return void
@@ -95,16 +145,16 @@ class UpdateKandidatProfileForm extends Component
         $user = Auth::user();
 
         $validatedData = $this->validate([
-            'state.nama_depan' => ['required', 'string', 'max:255'],
-            'state.nama_belakang' => ['required', 'string', 'max:255'],
-            'state.no_telpon' => ['required', 'string', 'max:20'],
-            'state.no_telpon_alternatif' => ['nullable', 'string', 'max:20'],
+            'state.nama_depan' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\.\\\'\-]*$/'],
+            'state.nama_belakang' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s\.\\\'\-]*$/'],
+            'state.no_telpon' => ['required', 'numeric', 'digits_between:9,15'],
+            'state.no_telpon_alternatif' => ['nullable', 'numeric', 'digits_between:9,15'],
             'state.alamat' => ['required', 'string'],
-            'state.kode_pos' => ['required', 'string', 'max:10'],
+            'state.kode_pos' => ['required', 'numeric', 'digits:5'],
             'state.negara' => ['required', 'string', 'max:100'],
-            'state.no_ktp' => ['required', 'string', 'max:20', Rule::unique('kandidats', 'no_ktp')->ignore($user->kandidat->id ?? null)],
-            'state.no_npwp' => ['nullable', 'string', 'max:25'],
-            'state.tempat_lahir' => ['required', 'string', 'max:100'],
+            'state.no_ktp' => ['required', 'numeric', 'digits:16', Rule::unique('kandidats', 'no_ktp')->ignore($this->kandidat->id ?? null)],
+            'state.no_npwp' => ['nullable', 'numeric', 'digits_between:15,16'],
+            'state.tempat_lahir' => ['required', 'string', 'max:100', 'regex:/^[a-zA-Z\s\.\\\'\-]*$/'],
             'state.tanggal_lahir' => ['required', 'date'],
             'state.jenis_kelamin' => ['required', 'in:L,P'],
             'state.status_perkawinan' => ['required', 'string', 'max:50'],

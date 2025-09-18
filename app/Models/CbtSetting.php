@@ -14,6 +14,6 @@ class CbtSetting extends Model
     protected $fillable = [
         'max_questions',
         'test_duration',
+        'passing_grade',
     ];
 }
-

@@ -1,4 +1,5 @@
 <x-guest-layout>
+    
     <!-- Hero Start -->
     <section class="bg-home d-flex align-items-center" style="background: url('{{ asset('images/hero/bg.jpg') }}') center;">
         <div class="bg-overlay bg-gradient-overlay"></div>

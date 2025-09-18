@@ -121,7 +121,7 @@
                                         </div>
                                         <div class="min-w-0">
                                             <div class="text-muted small">Passing Grade</div>
-                                            <div class="fw-semibold">70%</div>
+                                            <div class="fw-semibold">{{ $passingGrade }}%</div>
                                         </div>
                                     </div>
                                 </div>
@@ -211,7 +211,8 @@
                             </div>
 
                             <div class="text-center mb-4">
-                                @if($testResult->score >= 70)
+                                @php $pg = (int) ($passingGrade ?? 70); @endphp
+                                @if($testResult->score >= $pg)
                                     <span class="badge bg-soft-success text-success fs-6 px-4 py-2 rounded-pill">
                                         <i class="mdi mdi-trophy-outline me-2"></i>LULUS
                                     </span>

@@ -23,19 +23,33 @@
                                             <x-input name="nama_depan" id="nama_depan" type="text" class="form-control" placeholder="Budi" :value="old('nama_depan')" required autofocus autocomplete="given-name" />
                                             <x-custom-input-error for="nama_depan" />
                                         </div>
-
+                                        <div class="mb-3">
+                                            <x-label for="nama_belakang" value="{{ __('Nama Belakang') }}" />
+                                            <x-input name="nama_belakang" id="nama_belakang" type="text" class="form-control" placeholder="Santoso" :value="old('nama_belakang')" autocomplete="family-name" />
+                                            <x-custom-input-error for="nama_belakang" />
+                                        </div>
                                         <div class="mb-3">
                                             <x-label for="email" value="{{ __('Your Email') }}" />
                                             <x-input name="email" id="email" type="email" class="form-control" placeholder="example@website.com" :value="old('email')" required autocomplete="email" />
                                             <x-custom-input-error for="email" />
                                         </div>
 
+                                    </div>
+
+                                    <!-- Right Column -->
+                                    <div class="col-md-6">
+                                        
                                         <div class="mb-3">
                                             <x-label for="loginpass" value="{{ __('Password') }}" />
                                             <x-input name="password" id="loginpass" type="password" class="form-control" placeholder="Password" required autocomplete="new-password" />
                                             <x-custom-input-error for="password" />
                                         </div>
 
+                                        <div class="mb-3">
+                                            <x-label for="password_confirmation" value="{{ __('Confirm Password') }}" />
+                                            <x-input name="password_confirmation" id="password_confirmation" type="password" class="form-control" placeholder="Confirm Password" required autocomplete="new-password" />
+                                            <x-custom-input-error for="password_confirmation" />
+                                        </div>
                                         @php
                                             $countries = config('countries');
                                         @endphp
@@ -52,22 +66,12 @@
                                             </select>
                                             <x-custom-input-error for="negara" />
                                         </div>
+                                        
+                                        
                                     </div>
 
-                                    <!-- Right Column -->
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <x-label for="nama_belakang" value="{{ __('Nama Belakang') }}" />
-                                            <x-input name="nama_belakang" id="nama_belakang" type="text" class="form-control" placeholder="Santoso" :value="old('nama_belakang')" autocomplete="family-name" />
-                                            <x-custom-input-error for="nama_belakang" />
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <x-label for="password_confirmation" value="{{ __('Confirm Password') }}" />
-                                            <x-input name="password_confirmation" id="password_confirmation" type="password" class="form-control" placeholder="Confirm Password" required autocomplete="new-password" />
-                                            <x-custom-input-error for="password_confirmation" />
-                                        </div>
-
+                                    <!-- Full Width Buttons -->
+                                    <div class="col-12">
                                         @if (Laravel\Jetstream\Jetstream::hasTermsAndPrivacyPolicyFeature())
                                             <div class="mb-3">
                                                 <div class="form-check">
@@ -82,10 +86,6 @@
                                                 </div>
                                             </div>
                                         @endif
-                                    </div>
-
-                                    <!-- Full Width Buttons -->
-                                    <div class="col-12">
                                         <button class="btn btn-primary w-100 mb-3" type="submit">{{ __('Register') }}</button>
                                         <div class="text-center">
                                             <span><span class="text-muted small me-2">Already have an account ? </span> <a href="{{ route('login') }}" class="text-dark fw-semibold small">Sign in</a></span>

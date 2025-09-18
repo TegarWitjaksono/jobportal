@@ -4,7 +4,33 @@
 		<meta charset="UTF-8">
 	    <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-	    <title>{{ config('app.name', 'Job Portal') }}</title>
+	    @php
+	            $brand = 'Job Portal MTU';
+            $routeName = \Illuminate\Support\Facades\Route::currentRouteName();
+            $map = [
+                'dashboard' => 'Dashboard',
+                'jobs.browse' => 'Jobs',
+                'kandidat.lowongan-dilamar' => 'Lowongan Dilamar',
+                'cbt.dashboard' => 'Tes Seleksi',
+                'profile.show' => 'Profil',
+                'officers.index' => 'Officers',
+                'Lowongan.Index' => 'Lowongan',
+                'kategori-lowongan.Index' => 'Kategori Lowongan',
+                'kandidat.index' => 'Data Kandidat',
+                'lamaran-lowongan.index' => 'Lamaran',
+                'jadwal-interview.index' => 'Jadwal Interview',
+                'test-results.index' => 'Hasil Psikotes',
+                'bank-soal.index' => 'Bank Soal',
+                'kategori-soal.index' => 'Kategori Soal',
+                'login' => 'Login',
+                'register' => 'Register',
+                'password.request' => 'Reset Password',
+                'password.reset' => 'Reset Password',
+                'verification.notice' => 'Verify Email',
+            ];
+            $defaultTitle = $map[$routeName] ?? \Illuminate\Support\Str::title(str_replace(['.', '-'], ' ', (string) $routeName));
+        @endphp
+	    <title>{{ $brand }}@hasSection('title') - @yield('title') @elseif(!empty($defaultTitle)) - {{ $defaultTitle }} @endif</title>
 	    <meta name="description" content="Job Listing Bootstrap 5 Template" />
 	    <meta name="keywords" content="Onepage, creative, modern, bootstrap 5, multipurpose, clean, Job Listing, Job Board, Job, Job Portal" />
 	    <meta name="author" content="Shreethemes" />

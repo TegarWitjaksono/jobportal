@@ -52,6 +52,7 @@ class Index extends Component
     // CBT settings
     public $cbt_max_questions = 25;
     public $cbt_test_duration = 30;
+    public $cbt_passing_grade = 70;
 
 
     protected function rules()
@@ -110,6 +111,7 @@ class Index extends Component
             if ($s = CbtSetting::query()->first()) {
                 $this->cbt_max_questions = (int) ($s->max_questions ?? 25);
                 $this->cbt_test_duration = (int) ($s->test_duration ?? 30);
+                $this->cbt_passing_grade = (int) ($s->passing_grade ?? 70);
             }
         }
     }
@@ -154,6 +156,7 @@ class Index extends Component
         $data = $this->validate([
             'cbt_max_questions' => 'required|integer|min:1|max:200',
             'cbt_test_duration' => 'required|integer|min:1|max:240',
+            'cbt_passing_grade' => 'required|integer|min:1|max:100',
         ]);
 
         if (!Schema::hasTable('cbt_settings')) {
@@ -165,6 +168,9 @@ class Index extends Component
         if (!$setting) { $setting = new CbtSetting(); }
         $setting->max_questions = $data['cbt_max_questions'];
         $setting->test_duration = $data['cbt_test_duration'];
+        if (Schema::hasColumn('cbt_settings', 'passing_grade')) {
+            $setting->passing_grade = $data['cbt_passing_grade'];
+        }
         $setting->save();
 
         session()->flash('message', 'Pengaturan CBT berhasil disimpan.');

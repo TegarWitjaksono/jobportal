@@ -59,7 +59,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label for="nama_depan" class="form-label">{{ __('Nama Depan') }} <span class="text-danger">*</span></label>
                                     <input id="nama_depan" type="text" class="form-control @error('state.nama_depan') is-invalid @enderror"
-                                        wire:model.defer="state.nama_depan" autocomplete="given-name" placeholder="Masukkan nama depan">
+                                        wire:model.defer="state.nama_depan" autocomplete="given-name" placeholder="Masukkan nama depan" pattern="[a-zA-Z\s\.'-]*" title="Nama hanya boleh berisi huruf dan spasi.">
                                     @error('state.nama_depan')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -68,7 +68,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label for="nama_belakang" class="form-label">{{ __('Nama Belakang') }} <span class="text-danger">*</span></label>
                                     <input id="nama_belakang" type="text" class="form-control @error('state.nama_belakang') is-invalid @enderror" 
-                                        wire:model.defer="state.nama_belakang" autocomplete="family-name" placeholder="Masukkan nama belakang">
+                                        wire:model.defer="state.nama_belakang" autocomplete="family-name" placeholder="Masukkan nama belakang" pattern="[a-zA-Z\s\.'-]*" title="Nama hanya boleh berisi huruf dan spasi.">
                                     @error('state.nama_belakang')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -76,8 +76,8 @@
 
                                 <div class="col-md-6 mb-3">
                                     <label for="no_ktp" class="form-label">{{ __('No. KTP') }} <span class="text-danger">*</span></label>
-                                    <input id="no_ktp" type="text" class="form-control @error('state.no_ktp') is-invalid @enderror" 
-                                        wire:model.defer="state.no_ktp" placeholder="Masukkan nomor KTP">
+                                    <input id="no_ktp" type="text" inputmode="numeric" class="form-control @error('state.no_ktp') is-invalid @enderror" 
+                                        wire:model.defer="state.no_ktp" placeholder="Masukkan 16 digit nomor KTP" pattern="\d{16}" title="No. KTP harus terdiri dari 16 digit angka." maxlength="16">
                                     @error('state.no_ktp')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -85,8 +85,8 @@
 
                                 <div class="col-md-6 mb-3">
                                     <label for="no_npwp" class="form-label">{{ __('No. NPWP (Opsional)') }}</label>
-                                    <input id="no_npwp" type="text" class="form-control @error('state.no_npwp') is-invalid @enderror" 
-                                        wire:model.defer="state.no_npwp" placeholder="Masukkan nomor NPWP (opsional)">
+                                    <input id="no_npwp" type="text" inputmode="numeric" class="form-control @error('state.no_npwp') is-invalid @enderror" 
+                                        wire:model.defer="state.no_npwp" placeholder="Masukkan 15 atau 16 digit nomor NPWP" pattern="\d{15,16}" title="No. NPWP harus terdiri dari 15 atau 16 digit angka." maxlength="16">
                                     @error('state.no_npwp')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -95,7 +95,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label for="tempat_lahir" class="form-label">{{ __('Tempat Lahir') }} <span class="text-danger">*</span></label>
                                     <input id="tempat_lahir" type="text" class="form-control @error('state.tempat_lahir') is-invalid @enderror" 
-                                        wire:model.defer="state.tempat_lahir" placeholder="Masukkan tempat lahir">
+                                        wire:model.defer="state.tempat_lahir" placeholder="Masukkan tempat lahir" pattern="[a-zA-Z\s\.'-]*" title="Tempat lahir hanya boleh berisi huruf dan spasi.">
                                     @error('state.tempat_lahir')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -112,8 +112,8 @@
 
                                 <div class="col-md-6 mb-3">
                                     <label for="no_telpon" class="form-label">{{ __('No. Telepon') }} <span class="text-danger">*</span></label>
-                                    <input id="no_telpon" type="text" class="form-control @error('state.no_telpon') is-invalid @enderror" 
-                                        wire:model.defer="state.no_telpon" placeholder="Masukkan nomor telepon">
+                                    <input id="no_telpon" type="text" inputmode="numeric" class="form-control @error('state.no_telpon') is-invalid @enderror" 
+                                        wire:model.defer="state.no_telpon" placeholder="Masukkan 9-15 digit nomor telepon" pattern="\d{9,15}" title="No. Telepon harus terdiri dari 9-15 digit angka." maxlength="15">
                                     @error('state.no_telpon')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -121,8 +121,8 @@
                                 
                                 <div class="col-md-6 mb-3">
                                     <label for="no_telpon_alternatif" class="form-label">{{ __('No. Telepon Alternatif') }}</label>
-                                    <input id="no_telpon_alternatif" type="text" class="form-control @error('state.no_telpon_alternatif') is-invalid @enderror" 
-                                        wire:model.defer="state.no_telpon_alternatif" placeholder="Masukkan nomor telepon alternatif">
+                                    <input id="no_telpon_alternatif" type="text" inputmode="numeric" class="form-control @error('state.no_telpon_alternatif') is-invalid @enderror" 
+                                        wire:model.defer="state.no_telpon_alternatif" placeholder="Masukkan 9-15 digit nomor telepon" pattern="\d{9,15}" title="No. Telepon harus terdiri dari 9-15 digit angka." maxlength="15">
                                     @error('state.no_telpon_alternatif')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -216,7 +216,7 @@
 
                                 <div class="col-12 mb-3">
                                     <label class="form-label fw-bold"><i class="mdi mdi-briefcase-outline me-2"></i>Riwayat Pengalaman Kerja</label>
-                                    <div id="work-experience-list"></div>
+                                <div id="work-experience-list" wire:ignore></div>
                                     <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="add-work-experience">
                                         <i class="mdi mdi-plus"></i> Tambah Pengalaman
                                     </button>
@@ -224,7 +224,7 @@
 
                                 <div class="col-12 mb-3">
                                     <label class="form-label fw-bold"><i class="mdi mdi-school-outline me-2"></i>Riwayat Pendidikan</label>
-                                    <div id="education-list"></div>
+                                <div id="education-list" wire:ignore></div>
                                     <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="add-education">
                                         <i class="mdi mdi-plus"></i> Tambah Pendidikan
                                     </button>
@@ -232,7 +232,7 @@
 
                                 <div class="col-12 mb-3">
                                     <label class="form-label fw-bold"><i class="mdi mdi-translate me-2"></i>Keterampilan Bahasa</label>
-                                    <div id="language-list"></div>
+                                <div id="language-list" wire:ignore></div>
                                     <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="add-language">
                                         <i class="mdi mdi-plus"></i> Tambah Bahasa
                                     </button>
@@ -474,35 +474,49 @@
                 });
             }, 5000);
 
-            // ===== Dynamic Work Experience =====
+            // ===== Dynamic Lists & Handlers =====
             const workList = document.getElementById('work-experience-list');
-            document.getElementById('add-work-experience').addEventListener('click', () => {
-                const tmpl = document.getElementById('work-experience-template').content.cloneNode(true);
-                workList.appendChild(tmpl);
-            });
+            const eduList  = document.getElementById('education-list');
+            const langList = document.getElementById('language-list');
+
+            function ensureAddHandlers(){
+                const addWorkBtn = document.getElementById('add-work-experience');
+                if (addWorkBtn && !addWorkBtn.dataset.handlerAttached){
+                    addWorkBtn.addEventListener('click', () => {
+                        const tmpl = document.getElementById('work-experience-template').content.cloneNode(true);
+                        workList.appendChild(tmpl);
+                    });
+                    addWorkBtn.dataset.handlerAttached = '1';
+                }
+                const addEduBtn = document.getElementById('add-education');
+                if (addEduBtn && !addEduBtn.dataset.handlerAttached){
+                    addEduBtn.addEventListener('click', () => {
+                        const tmpl = document.getElementById('education-template').content.cloneNode(true);
+                        eduList.appendChild(tmpl);
+                    });
+                    addEduBtn.dataset.handlerAttached = '1';
+                }
+                const addLangBtn = document.getElementById('add-language');
+                if (addLangBtn && !addLangBtn.dataset.handlerAttached){
+                    addLangBtn.addEventListener('click', () => {
+                        const tmpl = document.getElementById('language-template').content.cloneNode(true);
+                        langList.appendChild(tmpl);
+                    });
+                    addLangBtn.dataset.handlerAttached = '1';
+                }
+            }
+            ensureAddHandlers();
+
+            // Delegated remove handlers (idempotent)
             workList.addEventListener('click', (e) => {
                 if (e.target.classList.contains('remove-work-experience')) {
                     e.target.closest('.work-experience-item').remove();
                 }
             });
-
-            // ===== Dynamic Education =====
-            const eduList = document.getElementById('education-list');
-            document.getElementById('add-education').addEventListener('click', () => {
-                const tmpl = document.getElementById('education-template').content.cloneNode(true);
-                eduList.appendChild(tmpl);
-            });
             eduList.addEventListener('click', (e) => {
                 if (e.target.classList.contains('remove-education')) {
                     e.target.closest('.education-item').remove();
                 }
-            });
-
-            // ===== Dynamic Language =====
-            const langList = document.getElementById('language-list');
-            document.getElementById('add-language').addEventListener('click', () => {
-                const tmpl = document.getElementById('language-template').content.cloneNode(true);
-                langList.appendChild(tmpl);
             });
             langList.addEventListener('click', (e) => {
                 if (e.target.classList.contains('remove-language')) {
@@ -643,6 +657,112 @@
                 specInput.value = JSON.stringify(specData);
                 specInput.dispatchEvent(new Event('input'));
             }, true);
+        });
+
+        // Scroll ke error pertama setelah validasi Livewire gagal
+        document.addEventListener('livewire:load', function () {
+            if (window.Livewire && window.Livewire.hook) {
+                window.Livewire.hook('message.processed', (message, component) => {
+                    // Cari field pertama yang invalid di dalam form
+                    const form = document.getElementById('kandidat-form');
+                    if (!form) return;
+                    const firstInvalid = form.querySelector('.is-invalid');
+                    if (firstInvalid) {
+                        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        try { firstInvalid.focus({ preventScroll: true }); } catch(_) {}
+                    }
+
+                    // Re-attach add handlers after Livewire patch
+                    try { ensureAddHandlers(); } catch(_){}
+
+                    // Re-populate dynamic lists (work/education/language) after Livewire re-render
+                    try {
+                        const parseJson = (val, fallback) => { try { return JSON.parse(val || ''); } catch(_) { return fallback; } };
+
+                        const workList = document.getElementById('work-experience-list');
+                        const eduList  = document.getElementById('education-list');
+                        const langList = document.getElementById('language-list');
+
+                        const workHidden = document.getElementById('riwayat_pengalaman_kerja');
+                        const eduHidden  = document.getElementById('riwayat_pendidikan');
+                        const langHidden = document.getElementById('kemampuan_bahasa');
+                        const specHidden = document.getElementById('informasi_spesifik');
+
+                        // Prefer hidden input (state) if filled; fallback to localStorage if empty
+                        let workData = parseJson(workHidden?.value, null);
+                        let eduData  = parseJson(eduHidden?.value, null);
+                        let langData = parseJson(langHidden?.value, null);
+                        if (!Array.isArray(workData)) workData = parseJson(localStorage.getItem('work_experiences'), []);
+                        if (!Array.isArray(eduData))  eduData  = parseJson(localStorage.getItem('education_history'), []);
+                        if (!Array.isArray(langData)) langData = parseJson(localStorage.getItem('language_skills'), []);
+                        const specData = (function(){
+                            const fromHidden = parseJson(specHidden?.value, null);
+                            if (fromHidden && typeof fromHidden === 'object') return fromHidden;
+                            return parseJson(localStorage.getItem('specific_info'), {});
+                        })();
+
+                        const workTpl = document.getElementById('work-experience-template');
+                        const eduTpl  = document.getElementById('education-template');
+                        const langTpl = document.getElementById('language-template');
+
+                        if (workList && Array.isArray(workData)) {
+                            workList.innerHTML = '';
+                            workData.forEach(item => {
+                                const tmpl = workTpl.content.cloneNode(true);
+                                const el = tmpl.querySelector('.work-experience-item');
+                                el.querySelector('[name="work_start[]"]').value = item.start || '';
+                                el.querySelector('[name="work_end[]"]').value = item.end || '';
+                                el.querySelector('[name="company_name[]"]').value = item.company || '';
+                                el.querySelector('[name="company_business[]"]').value = item.business || '';
+                                el.querySelector('[name="position[]"]').value = item.position || '';
+                                el.querySelector('[name="reason[]"]').value = item.reason || '';
+                                workList.appendChild(tmpl);
+                            });
+                        }
+
+                        if (eduList && Array.isArray(eduData)) {
+                            eduList.innerHTML = '';
+                            eduData.forEach(item => {
+                                const tmpl = eduTpl.content.cloneNode(true);
+                                const el = tmpl.querySelector('.education-item');
+                                el.querySelector('[name="edu_start[]"]').value = item.start || '';
+                                el.querySelector('[name="edu_end[]"]').value = item.end || '';
+                                el.querySelector('[name="edu_name[]"]').value = item.name || '';
+                                el.querySelector('[name="edu_major[]"]').value = item.major || '';
+                                el.querySelector('[name="edu_level[]"]').value = item.level || '';
+                                eduList.appendChild(tmpl);
+                            });
+                        }
+
+                        if (langList && Array.isArray(langData)) {
+                            langList.innerHTML = '';
+                            langData.forEach(item => {
+                                const tmpl = langTpl.content.cloneNode(true);
+                                const el = tmpl.querySelector('.language-item');
+                                el.querySelector('[name="language_name[]"]').value = item.language || '';
+                                el.querySelector('[name="speaking[]"]').value = item.speaking || '';
+                                el.querySelector('[name="reading[]"]').value = item.reading || '';
+                                el.querySelector('[name="writing[]"]').value = item.writing || '';
+                                langList.appendChild(tmpl);
+                            });
+                        }
+
+                        // Restore specific info
+                        try {
+                            const pernah = document.getElementById('pernah-bekerja');
+                            const lokasiWrapper = document.getElementById('lokasi-wrapper');
+                            if (pernah && specData && specData.pernah) {
+                                pernah.value = specData.pernah;
+                                lokasiWrapper.style.display = (pernah.value === 'Ya') ? 'block' : 'none';
+                            }
+                            const lokasi = document.getElementById('lokasi-bekerja');
+                            const info   = document.getElementById('info-lowongan');
+                            if (lokasi) lokasi.value = specData?.lokasi || '';
+                            if (info)   info.value   = specData?.info   || '';
+                        } catch(_){}
+                    } catch(_) { /* ignore */ }
+                });
+            }
         });
     </script>
     @endpush

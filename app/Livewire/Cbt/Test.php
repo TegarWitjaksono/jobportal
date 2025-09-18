@@ -26,6 +26,7 @@ class Test extends Component
     
     public $maxQuestions = 25; // Maximum number of questions
     public $testDuration = 30; // in minutes
+    public $passingGrade = 70; // percent
 
     protected $listeners = ['timeUp' => 'completeTest', 'proctorEvent' => 'handleProctorEvent'];
 
@@ -36,6 +37,7 @@ class Test extends Component
                 if ($s = CbtSetting::query()->first()) {
                     $this->maxQuestions = (int) ($s->max_questions ?? $this->maxQuestions);
                     $this->testDuration = (int) ($s->test_duration ?? $this->testDuration);
+                    $this->passingGrade = (int) ($s->passing_grade ?? $this->passingGrade);
                 }
             }
         } catch (\Throwable $e) {
@@ -397,7 +399,8 @@ class Test extends Component
     public function render()
     {
         return view('livewire.cbt.test', [
-            'totalQuestions' => $this->questions->count()
+            'totalQuestions' => $this->questions->count(),
+            'passingGrade' => (int) $this->passingGrade,
         ]);
     }
 }

@@ -102,10 +102,14 @@
                         <div class="modal-body">
                             {{-- Header kandidat dengan avatar --}}
                             <div class="d-flex align-items-center mb-3">
-                                @php $photo = optional(optional($selectedKandidat)->user)->profile_photo_url ?? null; @endphp
+                                @php 
+                                    // Gunakan foto profil kandidat seperti di halaman profil
+                                    $photo = optional($selectedKandidat)->profile_photo_url ?? null; 
+                                    $fullName = trim((optional($selectedKandidat)->nama_depan ? optional($selectedKandidat)->nama_depan : '') . ' ' . (optional($selectedKandidat)->nama_belakang ? optional($selectedKandidat)->nama_belakang : ''));
+                                @endphp
                                 <div class="avatar avatar-md rounded-circle bg-light d-flex align-items-center justify-content-center me-3" style="width:48px;height:48px;overflow:hidden;">
                                     @if($photo)
-                                        <img src="{{ $photo }}" alt="Avatar" style="width:48px;height:48px;object-fit:cover;">
+                                        <img src="{{ $photo }}" alt="{{ $fullName ?: 'Avatar' }}" style="width:48px;height:48px;object-fit:contain;background-color:#f8f9fa;">
                                     @else
                                         <i class="mdi mdi-account-outline fs-4 text-muted"></i>
                                     @endif
