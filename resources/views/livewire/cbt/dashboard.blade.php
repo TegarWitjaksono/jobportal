@@ -116,10 +116,16 @@
                                                         $scoreTone = $isPassed ? 'text-success' : 'text-danger';
                                                         $scoreSurface = $isPassed ? 'bg-soft-success' : 'bg-soft-danger';
                                                     @endphp
+                                                    @php
+                                                        $progress = max(0, min(100, $scoreValue)); // clamp 0–100
+                                                    @endphp
+
                                                     <div class="w-100">
-                                                        <div class="text-center p-3 {{ $scoreSurface }} rounded-3 border {{ $isPassed ? 'border-success-subtle' : 'border-danger-subtle' }} shadow-sm">
-                                                            <div class="small text-muted fw-semibold">Skor Psikotes</div>
-                                                            <div class="h4 fw-bold {{ $scoreTone }} mb-0">{{ number_format($scoreValue, 1) }}<span class="fs-6">%</span></div>
+                                                        <div class="badge {{ $isPassed ? 'bg-soft-success text-success' : 'bg-soft-danger text-danger' }} rounded-pill px-3 py-2">
+                                                            <i class="mdi {{ $isPassed ? 'mdi-check-all' : 'mdi-close-octagon-outline' }} me-1"></i>
+                                                            <strong>{{ number_format($scoreValue, 1) }}%</strong>
+                                                            <span class="vr mx-2"></span>
+                                                            {{ $isPassed ? 'Lulus' : 'Gagal' }}
                                                         </div>
                                                     </div>
                                                 @elseif($ongoingTest && $canStartTest)

@@ -4531,3 +4531,43 @@ footer .footer-bar {
 .footer-logo{max-height:52px; width:auto;}
 /* Footer active link */
 footer .footer-list li a.active { color: #ffffff; font-weight: 600; }
+
+.score-card{
+  --card-bg: rgba(255,255,255,.6);
+  background: var(--card-bg);
+  backdrop-filter: blur(8px);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.score-card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0,0,0,.10);
+}
+/* Dark theme support (mengikuti .dark yang sudah ada di navbar kamu) */
+.dark .score-card{ --card-bg: rgba(17,24,39,.55); }
+
+/* Progress ring modern (conic-gradient) */
+.score-ring{
+  --size: 56px;
+  width: var(--size); height: var(--size);
+  color: currentColor; /* ikut warna dari {{ $scoreTone }} */
+}
+.score-ring .ring{
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  background:
+    conic-gradient(currentColor calc(var(--p) * 1%), rgba(0,0,0,.08) 0);
+  /* buat jadi cincin: lubangi tengah */
+  -webkit-mask: radial-gradient(farthest-side, transparent 63%, #000 64%);
+          mask: radial-gradient(farthest-side, transparent 63%, #000 64%);
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.08));
+}
+.score-ring i{ pointer-events: none; }
+
+/* Util translate-middle tanpa Bootstrap helper tambahan */
+.top-50{ top: 50%; } .start-50{ left: 50%; }
+.translate-middle{ transform: translate(-50%, -50%); }
+
+/* Prefer reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .score-card{ transition: none; }
+}
