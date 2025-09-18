@@ -55,7 +55,7 @@
                                                 : (optional($officer)->profile_photo_url ?? optional($user)->profile_photo_url);
                                         @endphp
                                         <div class="position-relative d-inline-block">
-                                            <img src="{{ $currentPhotoUrl }}" alt="{{ optional($officer)->full_name ?? $user->name }}" class="rounded-circle object-cover border" style="width: 96px; height: 96px;">
+                                            <img id="profile-photo-preview" src="{{ $currentPhotoUrl }}" alt="{{ optional($officer)->full_name ?? $user->name }}" class="rounded-circle border" style="width: 112px; height: 112px; object-fit: contain; background-color: #f8f9fa;">
                                             <span class="position-absolute top-50 start-50 translate-middle d-none" wire:loading.class.remove="d-none" wire:target="photo">
                                                 <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
                                             </span>
@@ -64,26 +64,69 @@
                                         <span class="badge {{ $user->role_badge_class }} px-3 py-1 mt-2">{{ $user->role_badge_label }}</span>
                                     </div>
 
-                                    <form wire:submit.prevent="saveProfilePhoto" class="mb-4">
-                                        <div class="d-flex flex-wrap justify-content-center gap-2">
-                                            <label class="btn btn-outline-primary mb-0" for="officer-photo">
-                                                <i class="mdi mdi-camera me-1"></i>{{ __('Pilih Foto Baru') }}
-                                                <input type="file" id="officer-photo" class="d-none" wire:model.live="photo" accept="image/*">
-                                            </label>
-                                            @if(optional($officer)->profile_photo_path)
-                                                <button type="button" class="btn btn-outline-danger" wire:click="removeProfilePhoto" wire:loading.attr="disabled" wire:target="removeProfilePhoto">
-                                                    <i class="mdi mdi-trash-can-outline me-1"></i>{{ __('Hapus Foto') }}
-                                                </button>
-                                            @endif
-                                            <button type="submit" class="btn btn-primary" wire:loading.attr="disabled" wire:target="saveProfilePhoto, photo">
-                                                <i class="mdi mdi-content-save me-1"></i>{{ __('Simpan Foto') }}
-                                            </button>
+                                    <div x-data="{ photo: @entangle('photo').live }"
+                                         x-init="$watch('photo', value => {
+                                            let modalEl = document.getElementById('photoPreviewModal');
+                                            if (!modalEl) return;
+                                            let modal = bootstrap.Modal.getInstance(modalEl);
+                                            if (!modal) {
+                                                modal = new bootstrap.Modal(modalEl, {
+                                                    backdrop: 'static',
+                                                    keyboard: false
+                                                });
+                                            }
+                                            if (value && !document.querySelector('.modal.show')) {
+                                                modal.show();
+                                            } else if (!value && modal._isShown) {
+                                                modal.hide();
+                                            }
+                                         })">
+                                        <div class="mb-4">
+                                            <div class="d-flex flex-wrap justify-content-center gap-2">
+                                                <label class="btn btn-outline-primary mb-0" for="officer-photo" title="{{ __('Pilih Foto Baru') }}">
+                                                    <i class="mdi mdi-camera"></i>
+                                                    <input type="file" id="officer-photo" class="d-none" wire:model.live="photo" accept="image/*">
+                                                </label>
+                                                @if(optional($officer)->profile_photo_path && !$photo)
+                                                    <button type="button" class="btn btn-outline-danger" wire:click="removeProfilePhoto" @click="document.getElementById('profile-photo-preview').src = 'https://ui-avatars.com/api/?name={{ urlencode(optional($officer)->full_name ?? $user->name) }}&color=7F9CF5&background=EBF4FF'" wire:loading.attr="disabled" wire:target="removeProfilePhoto" title="{{ __('Hapus Foto') }}">
+                                                        <i class="mdi mdi-trash-can-outline"></i>
+                                                    </button>
+                                                @endif
+                                            </div>
+                                            <p class="text-muted small mt-2 mb-0">{{ __('Format yang didukung: JPG, JPEG, PNG. Maksimal 2 MB.') }}</p>
+                                            @error('photo')
+                                                <div class="text-danger small mt-2">{{ $message }}</div>
+                                            @enderror
                                         </div>
-                                        <p class="text-muted small mt-2 mb-0">{{ __('Format yang didukung: JPG, JPEG, PNG. Maksimal 2 MB.') }}</p>
-                                        @error('photo')
-                                            <div class="text-danger small mt-2">{{ $message }}</div>
-                                        @enderror
-                                    </form>
+
+                                        <!-- Modal -->
+                                        <div wire:ignore.self class="modal fade" id="photoPreviewModal" tabindex="-1" aria-labelledby="photoPreviewModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="photoPreviewModalLabel">{{ __('Pratinjau Foto Profil') }}</h5>
+                                                        <button type="button" class="btn-close" wire:click="$set('photo', null)"></button>
+                                                    </div>
+                                                    <div class="modal-body text-center">
+                                                        @if ($photo && !$errors->has('photo'))
+                                                            <p>{{ __('Anda akan mengunggah foto ini:') }}</p>
+                                                            <img src="{{ $photo->temporaryUrl() }}" class="img-fluid rounded-3" style="max-height: 300px;" alt="{{ __('Pratinjau') }}">
+                                                        @endif
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-secondary" wire:click="$set('photo', null)">{{ __('Batal') }}</button>
+                                                        <button type="button" class="btn btn-primary" wire:click="saveProfilePhoto" wire:loading.attr="disabled" wire:target="saveProfilePhoto, photo">
+                                                            <span wire:loading.remove wire:target="saveProfilePhoto, photo"><i class="mdi mdi-content-save me-1"></i>{{ __('Simpan & Unggah') }}</span>
+                                                            <div wire:loading wire:target="saveProfilePhoto, photo">
+                                                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                                <span>{{ __('Menyimpan...') }}</span>
+                                                            </div>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     <div class="mb-3">
                                         <p class="text-muted small mb-1">{{ __('Email') }}</p>

@@ -51,7 +51,7 @@ class ShowProfile extends Component
     public function saveProfilePhoto(): void
     {
         if (! $this->kandidat) {
-            $this->addError('photo', __('Profil kandidat belum tersedia.')); // Guard when kandidat record missing
+            $this->addError('photo', __('Profil kandidat belum tersedia.'));
             return;
         }
 
@@ -64,7 +64,17 @@ class ShowProfile extends Component
             'photo' => ['image', 'max:2048'],
         ]);
 
-        $this->kandidat->updateProfilePhoto($this->photo);
+        $user = Auth::user();
+        $filename = $this->photo->store('profile-photos', 'public');
+
+        // Save to Kandidat
+        $this->kandidat->forceFill(['profile_photo_path' => $filename])->save();
+        
+        // Save to User as well for consistency
+        if ($user) {
+            $user->forceFill(['profile_photo_path' => $filename])->save();
+        }
+
         $this->kandidat->refresh();
         $this->photo = null;
 
@@ -73,11 +83,21 @@ class ShowProfile extends Component
 
     public function removeProfilePhoto(): void
     {
-        if (! $this->kandidat || ! $this->kandidat->profile_photo_path) {
-            return;
+        $user = Auth::user();
+
+        // For Kandidat
+        if ($this->kandidat && $this->kandidat->profile_photo_path) {
+            Storage::disk('public')->delete($this->kandidat->profile_photo_path);
+            $this->kandidat->forceFill(['profile_photo_path' => null])->save();
         }
 
-        $this->kandidat->deleteProfilePhoto();
+        // For User
+        if ($user && $user->profile_photo_path) {
+            Storage::disk('public')->delete($user->profile_photo_path);
+            $user->forceFill(['profile_photo_path' => null])->save();
+        }
+
+        // Refresh the model
         $this->kandidat->refresh();
         $this->photo = null;
 
