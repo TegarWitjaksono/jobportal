@@ -66,8 +66,6 @@
                                             </select>
                                             <x-custom-input-error for="negara" />
                                         </div>
-                                        
-                                        
                                     </div>
 
                                     <!-- Full Width Buttons -->
