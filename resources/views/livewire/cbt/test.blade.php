@@ -65,9 +65,17 @@
                                         <i class="mdi mdi-check-circle-outline text-primary me-2 mt-1 flex-shrink-0"></i>
                                         <span>Gunakan tombol navigasi untuk berpindah antar soal</span>
                                     </li>
-                                    <li class="d-flex align-items-start mb-0">
+                                    <li class="d-flex align-items-start mb-2">
                                         <i class="mdi mdi-check-circle-outline text-primary me-2 mt-1 flex-shrink-0"></i>
                                         <span>Anda dapat menandai soal untuk ditinjau kembali</span>
+                                    </li>
+                                    <li class="d-flex align-items-start mb-2">
+                                        <i class="mdi mdi-check-circle-outline text-primary me-2 mt-1 flex-shrink-0"></i>
+                                        <span>Pastikan kamera Anda aktif selama tes berlangsung (jika diminta)</span>
+                                    </li>
+                                    <li class="d-flex align-items-start mb-0">
+                                        <i class="mdi mdi-check-circle-outline text-primary me-2 mt-1 flex-shrink-0"></i>
+                                        <span>Gunakan mode layar penuh selama ujian. <strong>Jangan keluar dari fullscreen (ESC)</strong> karena tindakan ini akan langsung mengakhiri ujian.</span>
                                     </li>
                                 </ul>
                             </div>
@@ -393,7 +401,12 @@
             <div id="proctor-camera" class="proctor-camera shadow border rounded-3 bg-white">
                 <div class="d-flex align-items-center justify-content-between mb-2">
                     <small class="fw-semibold text-muted">Kamera Ujian</small>
-                    <small id="proctor-status" class="text-muted">Memuat kamera…</small>
+                    <div class="d-flex align-items-center gap-2">
+                        <small id="proctor-status" class="text-muted">Memuat kamera…</small>
+                        <span id="proctor-detect-count" class="badge bg-soft-danger text-danger" title="Deteksi kamera">
+                            0/3
+                        </span>
+                    </div>
                 </div>
                 <div class="ratio ratio-4x3 bg-light rounded overflow-hidden">
                     <video id="proctorVideo" autoplay playsinline muted></video>
@@ -839,7 +852,7 @@
             z-index: 1060;
             padding: .75rem;
         }
-        .proctor-camera video { width: 100%; height: 100%; object-fit: cover; }
+        .proctor-camera video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
         .proctor-warning {
             position: fixed;
             left: 50%;
@@ -853,6 +866,12 @@
             z-index: 1065;
             box-shadow: 0 6px 16px rgba(0,0,0,.12);
         }
+        .proctor-warning.blink { animation: blink-warning 1s ease-in-out infinite; }
+        @keyframes blink-warning {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        #proctor-detect-count.badge { min-width: 3.25rem; text-align: center; }
         .proctor-flash {
             animation: proctor-flash 1s ease-in-out 3;
         }
@@ -938,10 +957,30 @@
                 const camEl = document.getElementById('proctor-camera');
                 const statusEl = document.getElementById('proctor-status');
                 const video = document.getElementById('proctorVideo');
+                const detectCountEl = document.getElementById('proctor-detect-count');
 
                 let audioCtx = null; let lastBeep = 0; let proctorMuted = false;
                 let alarmOsc = null; let alarmGain = null; let alarmTimer = null; let currentWarnMsg = '';
                 const violations = new Set();
+                let persistentWarning = false;
+                let cameraDetectCount = 0;
+                let forcedExitScheduled = false;
+
+                function updateDetectCounter(){
+                    if(!detectCountEl) return;
+                    const max = 3;
+                    const val = Math.min(cameraDetectCount, max);
+                    detectCountEl.textContent = `${val}/${max}`;
+                    detectCountEl.classList.remove('bg-soft-danger','text-danger','bg-soft-warning','text-warning','bg-soft-success','text-success');
+                    if(val >= 3){
+                        detectCountEl.classList.add('bg-soft-danger','text-danger');
+                    } else if(val === 2){
+                        detectCountEl.classList.add('bg-soft-warning','text-warning');
+                    } else {
+                        detectCountEl.classList.add('bg-soft-danger','text-danger');
+                    }
+                }
+                updateDetectCounter();
 
                 // expose simple control to pause/resume alarms and blocking
                 window.Proctor = window.Proctor || {};
@@ -979,7 +1018,13 @@
                 function updateAlarmAndWarning(){
                     if (proctorMuted) {
                         stopAlarm();
-                        warnEl.style.display = 'none';
+                        // Saat muted, sembunyikan alarm suara, tapi jika persistentWarning aktif, tetap tampilkan banner
+                        if (persistentWarning) {
+                            warnEl.style.display = 'block';
+                            if (currentWarnMsg) warnText.textContent = currentWarnMsg;
+                        } else {
+                            warnEl.style.display = 'none';
+                        }
                         return;
                     }
                     if (violations.size > 0){
@@ -988,7 +1033,13 @@
                         if (currentWarnMsg) warnText.textContent = currentWarnMsg;
                     } else {
                         stopAlarm();
-                        warnEl.style.display = 'none';
+                        if (persistentWarning) {
+                            // Pertahankan banner tetap tampil walau tidak ada pelanggaran aktif
+                            warnEl.style.display = 'block';
+                            if (currentWarnMsg) warnText.textContent = currentWarnMsg;
+                        } else {
+                            warnEl.style.display = 'none';
+                        }
                     }
                 }
 
@@ -1073,7 +1124,25 @@
                         screenshot: 'Tindakan screenshot terdeteksi. Hindari perekaman layar.',
                         print: 'Mencetak halaman tidak diizinkan selama ujian.',
                     };
-                    const msg = messageMap[type] || 'Perilaku mencurigakan terdeteksi.';
+                    let msg = messageMap[type] || 'Perilaku mencurigakan terdeteksi.';
+                    // Kamera: hitung pelanggaran dan beri peringatan/keluarkan jika perlu
+                    if(type === 'face_count'){
+                        cameraDetectCount++;
+                        updateDetectCounter();
+                        if(cameraDetectCount === 2){
+                            msg = 'Peringatan: Deteksi kamera 2 kali. Jika terulang, ujian akan diakhiri.';
+                            persistentWarning = true;
+                            try { warnEl.classList.add('blink'); } catch(_e){}
+                        }
+                        if(cameraDetectCount >= 3 && !forcedExitScheduled){
+                            forcedExitScheduled = true;
+                            msg = 'Deteksi kamera 3 kali. Ujian diakhiri.';
+                            try { document.exitFullscreen && document.exitFullscreen(); } catch(_e){}
+                            try { window.Proctor && window.Proctor.disable(); } catch(_e){}
+                            try { window.stopProctorCamera && window.stopProctorCamera(); } catch(_e){}
+                            setTimeout(()=>{ try { @this.call('completeTest'); } catch(_e){} }, 300);
+                        }
+                    }
                     currentWarnMsg = msg; showWarning(msg);
                     // enrich meta with evidence when appropriate
                     try {
@@ -1088,7 +1157,7 @@
                     activateViolation(type, meta);
                     startAlarm();
                     if(window.Livewire && window.Livewire.emit){
-                        try { window.Livewire.emit('proctorViolation', { type, meta, at: new Date().toISOString() }); } catch(e) {}
+                        try { window.Livewire.emit('proctorEvent', { type, meta, at: new Date().toISOString() }); } catch(e) {}
                     }
                 }
 
@@ -1097,9 +1166,15 @@
                     document.documentElement.requestFullscreen().catch(()=>{});
                 }
                 document.addEventListener('fullscreenchange', ()=>{
-                    if(proctorMuted) return;
                     if(!document.fullscreenElement){
+                        // Langsung akhiri ujian saat keluar dari fullscreen
                         reportViolation('fullscreen_exit');
+                        if (!forcedExitScheduled) {
+                            forcedExitScheduled = true;
+                            try { window.Proctor && window.Proctor.disable(); } catch(_e){}
+                            try { window.stopProctorCamera && window.stopProctorCamera(); } catch(_e){}
+                            setTimeout(()=>{ try { @this.call('completeTest'); } catch(_e){} }, 200);
+                        }
                     } else {
                         clearViolation('fullscreen_exit');
                     }
@@ -1189,26 +1264,26 @@
                 }
                 window.stopProctorCamera = stopProctorCamera;
 
-                // Face detection with fallback to face-api.js (CDN)
+                // Face detection with fallback to face-api.js (local -> CDN)
                 function setupFaceCheck(){
                     const hasFD = 'FaceDetector' in window;
                     if(hasFD){
                         let detector; try { detector = new window.FaceDetector({ fastMode: true }); } catch(e){ detector = null; }
                         if(!detector) { loadFaceApiAndRun(); return; }
                         statusEl.textContent = 'Kamera aktif - deteksi wajah';
-                    let consecAnomaly = 0;
+                    let lastFaceViolationAt = 0;
+                    const faceViolationCooldownMs = 3000; // throttle to avoid burst
                     const check = async ()=>{
                         try {
                             const faces = await detector.detect(video);
                             const count = faces?.length ?? 0;
                             if(count !== 1){
-                                consecAnomaly++;
-                                if(consecAnomaly >= 2){
+                                const now = Date.now();
+                                if (now - lastFaceViolationAt > faceViolationCooldownMs){
+                                    lastFaceViolationAt = now;
                                     reportViolation('face_count', { count });
-                                    consecAnomaly = 0;
                                 }
                             } else {
-                                consecAnomaly = 0;
                                 clearViolation('face_count');
                             }
                         } catch(e){ /* ignore */ }
@@ -1231,13 +1306,21 @@
                     try {
                         // Load library if needed
                         if(!window.faceapi){
-                            await loadScript('https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.2/dist/face-api.min.js');
+                            // try local first, then CDN
+                            try {
+                                await loadScript('{{ asset('js/face-api.min.js') }}');
+                            } catch(_e){
+                                await loadScript('https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.2/dist/face-api.min.js');
+                            }
                         }
-                        const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.2/model/';
-                        // Load tiny face detector (fast, enough for presence count)
-                        await Promise.all([
-                            faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-                        ]);
+                        // Try local models first, then CDN
+                        const LOCAL_MODEL_URL = '{{ asset('models/face-api') }}/';
+                        const CDN_MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.2/model/';
+                        try {
+                            await faceapi.nets.tinyFaceDetector.loadFromUri(LOCAL_MODEL_URL);
+                        } catch(_m){
+                            await faceapi.nets.tinyFaceDetector.loadFromUri(CDN_MODEL_URL);
+                        }
                         statusEl.textContent = 'Kamera aktif - deteksi wajah';
                         runFaceApiChecks();
                     } catch(err){
@@ -1247,7 +1330,8 @@
                 }
 
                 function runFaceApiChecks(){
-                    let consecAnomaly = 0;
+                    let lastFaceViolationAt = 0;
+                    const faceViolationCooldownMs = 3000;
                     const options = new faceapi.TinyFaceDetectorOptions({
                         inputSize: 256,
                         scoreThreshold: 0.5,
@@ -1257,13 +1341,12 @@
                             const detections = await faceapi.detectAllFaces(video, options);
                             const count = (detections || []).length;
                             if(count !== 1){
-                                consecAnomaly++;
-                                if(consecAnomaly >= 2){
+                                const now = Date.now();
+                                if (now - lastFaceViolationAt > faceViolationCooldownMs){
+                                    lastFaceViolationAt = now;
                                     reportViolation('face_count', { count });
-                                    consecAnomaly = 0;
                                 }
                             } else {
-                                consecAnomaly = 0;
                                 clearViolation('face_count');
                             }
                         } catch(e){ /* ignore */ }

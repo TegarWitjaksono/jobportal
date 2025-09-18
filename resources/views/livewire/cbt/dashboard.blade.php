@@ -55,6 +55,20 @@
                                 </div>
                             </div>
 
+                            <div class="alert alert-warning border-warning-subtle shadow-sm mb-4" role="alert">
+                                <div class="d-flex align-items-start">
+                                    <i class="mdi mdi-alert-circle-outline me-2 mt-1"></i>
+                                    <div>
+                                        <div class="fw-semibold mb-1">Petunjuk Pengerjaan</div>
+                                        <ul class="mb-0 ps-3">
+                                            <li>Pastikan koneksi internet stabil dan izinkan akses kamera.</li>
+                                            <li>Kerjakan di lingkungan yang tenang dan nyaman.</li>
+                                            <li>Gunakan mode layar penuh selama ujian. <strong>Jangan keluar dari fullscreen (ESC)</strong> karena tindakan ini akan langsung <strong>mengakhiri ujian</strong>.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
                             @forelse($lamarans as $lamaran)
                                 @php
                                     $l = $lamaran->lowongan;

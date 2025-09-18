@@ -371,6 +371,23 @@ class Test extends Component
                 'meta' => $eventData ? (array) $eventData : null,
                 'evidence_path' => $evidencePath,
             ]);
+
+            // Jika pelanggaran adalah face_count (deteksi kamera), hitung dan akhiri saat >= 3
+            try {
+                $type = $eventData['type'] ?? null;
+                if ($type === 'face_count' && $this->testResult && is_null($this->testResult->completed_at)) {
+                    $count = \App\Models\ProctorEvent::query()
+                        ->where('user_id', auth()->id())
+                        ->where('test_result_id', $this->testResult->id)
+                        ->where('type', 'face_count')
+                        ->count();
+                    if ($count >= 3) {
+                        $this->completeTest();
+                    }
+                }
+            } catch (\Throwable $e) {
+                // ignore counting error
+            }
         } catch (\Throwable $e) {
             // Log error silently or handle as needed
             \Illuminate\Support\Facades\Log::error('Proctor event handling failed: ' . $e->getMessage());
