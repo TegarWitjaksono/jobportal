@@ -170,7 +170,7 @@
 
     @elseif($testCompleted)
         <div class="container py-5">
-            <div x-data x-init="window.stopProctorCamera && window.stopProctorCamera()"></div>
+            <div x-data x-init="try { window.Proctor && window.Proctor.disable(); window.__PROCTOR_DISABLED = true; } catch(e){}; window.stopProctorCamera && window.stopProctorCamera()"></div>
             <div class="row justify-content-center">
                 <div class="col-lg-10">
                     <div class="card shadow-lg border-0 rounded-3">
@@ -948,6 +948,7 @@
         (function(){
             let initialized = false;
             function initProctor(){
+                if (window.__PROCTOR_DISABLED) { return; }
                 // only start when test area is present
                 const root = document.getElementById('proctor-active');
                 if(!root) return;
@@ -958,30 +959,38 @@
                 const camEl = document.getElementById('proctor-camera');
                 const statusEl = document.getElementById('proctor-status');
                 const video = document.getElementById('proctorVideo');
-                const detectCountEl = document.getElementById('proctor-detect-count');
+                let detectCountEl = document.getElementById('proctor-detect-count');
 
                 let audioCtx = null; let lastBeep = 0; let proctorMuted = false;
                 let alarmOsc = null; let alarmGain = null; let alarmTimer = null; let currentWarnMsg = '';
                 const violations = new Set();
                 let persistentWarning = false;
-                let cameraDetectCount = 0;
+                let cameraDetectCount = (window.__cameraDetectCount || 0);
                 let forcedExitScheduled = false;
 
-                function updateDetectCounter(){
-                    if(!detectCountEl) return;
+                function writeDetectBadge(val){
+                    if(!detectCountEl || !detectCountEl.isConnected){
+                        detectCountEl = document.getElementById('proctor-detect-count');
+                        if(!detectCountEl) return;
+                    }
                     const max = 3;
-                    const val = Math.min(cameraDetectCount, max);
-                    detectCountEl.textContent = `${val}/${max}`;
+                    const v = Math.min(val, max);
+                    detectCountEl.textContent = `${v}/${max}`;
                     detectCountEl.classList.remove('bg-soft-danger','text-danger','bg-soft-warning','text-warning','bg-soft-success','text-success');
-                    if(val >= 3){
+                    if(v >= 3){
                         detectCountEl.classList.add('bg-soft-danger','text-danger');
-                    } else if(val === 2){
+                    } else if(v === 2){
                         detectCountEl.classList.add('bg-soft-warning','text-warning');
                     } else {
                         detectCountEl.classList.add('bg-soft-danger','text-danger');
                     }
                 }
+                function updateDetectCounter(){ writeDetectBadge(cameraDetectCount); }
+                function refreshDetectBadge(){ writeDetectBadge(window.__cameraDetectCount || 0); }
                 updateDetectCounter();
+                // Periodically refresh badge to resist DOM swaps
+                try { clearInterval(window.__PROCTOR_BADGE_TIMER); } catch(_) {}
+                window.__PROCTOR_BADGE_TIMER = setInterval(refreshDetectBadge, 1000);
 
                 // expose simple control to pause/resume alarms and blocking
                 window.Proctor = window.Proctor || {};
@@ -1103,6 +1112,51 @@
                     } catch(e){ return null; }
                 }
 
+                async function ensureHtml2Canvas(){
+                    if (window.html2canvas) return true;
+                    try {
+                        await loadScript('{{ asset('js/html2canvas.min.js') }}');
+                    } catch(_e){
+                        try {
+                            await loadScript('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js');
+                        } catch(__e) { return false; }
+                    }
+                    return !!window.html2canvas;
+                }
+
+                async function captureDomScreenshot(){
+                    try {
+                        const ok = await ensureHtml2Canvas();
+                        if (!ok) return null;
+                        const canvas = await window.html2canvas(document.body, { useCORS: true, logging: false, scale: (window.devicePixelRatio||1) });
+                        return canvas.toDataURL('image/png');
+                    } catch(e){ return null; }
+                }
+
+                async function captureEvidenceFor(type, meta){
+                    try {
+                        let img = null;
+                        if (type === 'fullscreen_exit' || type === 'window_blur' || type === 'tab_hidden'){
+                            img = await captureDomScreenshot();
+                            if (!img) { img = captureFrame(); }
+                        } else {
+                            img = captureFrame();
+                        }
+                        if (img) { return Object.assign({}, meta||{}, { image_data: img }); }
+                        return meta||{};
+                    } catch(e){ return meta||{}; }
+                }
+
+                async function persistProctor(payload){
+                    if (window.__PROCTOR_DISABLED) return;
+                    try {
+                        // Prefer direct server call to avoid being dropped before redirect
+                        return await @this.call('handleProctorEvent', payload);
+                    } catch(e){
+                        try { if (window.Livewire && window.Livewire.emit) window.Livewire.emit('proctorEvent', payload); } catch(_e){}
+                    }
+                }
+
                 // track last clicked link (if any) for context
                 (function(){
                     document.addEventListener('click', (e)=>{
@@ -1111,8 +1165,8 @@
                     }, { capture: true });
                 })();
 
-                function reportViolation(type, meta={}){
-                    if (proctorMuted) return;
+                async function reportViolation(type, meta={}){
+                    if (proctorMuted || window.__PROCTOR_DISABLED) return;
                     const messageMap = {
                         tab_hidden: 'Jangan berpindah tab atau meminimalkan jendela saat ujian berlangsung.',
                         window_blur: 'Jendela tidak aktif. Kembali ke halaman ujian.',
@@ -1127,8 +1181,10 @@
                     };
                     let msg = messageMap[type] || 'Perilaku mencurigakan terdeteksi.';
                     // Kamera: hitung pelanggaran dan beri peringatan/keluarkan jika perlu
+                    let willForceExit = false;
                     if(type === 'face_count'){
                         cameraDetectCount++;
+                        window.__cameraDetectCount = cameraDetectCount;
                         updateDetectCounter();
                         if(cameraDetectCount === 2){
                             msg = 'Peringatan: Deteksi kamera 2 kali. Jika terulang, ujian akan diakhiri.';
@@ -1136,29 +1192,29 @@
                             try { warnEl.classList.add('blink'); } catch(_e){}
                         }
                         if(cameraDetectCount >= 3 && !forcedExitScheduled){
-                            forcedExitScheduled = true;
+                            willForceExit = true;
                             msg = 'Deteksi kamera 3 kali. Ujian diakhiri.';
-                            try { document.exitFullscreen && document.exitFullscreen(); } catch(_e){}
-                            try { window.Proctor && window.Proctor.disable(); } catch(_e){}
-                            try { window.stopProctorCamera && window.stopProctorCamera(); } catch(_e){}
-                            setTimeout(()=>{ try { @this.call('completeTest'); } catch(_e){} }, 300);
                         }
                     }
                     currentWarnMsg = msg; showWarning(msg);
                     // enrich meta with evidence when appropriate
                     try {
-                        if(type === 'face_count'){
-                            const img = captureFrame();
-                            if(img){ meta = Object.assign({}, meta, { image_data: img }); }
-                        }
                         if(type === 'tab_hidden'){
                             meta = Object.assign({ last_url: window.__lastClickedHref || null }, meta || {});
+                        }
+                        if(['face_count','fullscreen_exit','window_blur','tab_hidden','screenshot','print'].includes(type)){
+                            meta = await captureEvidenceFor(type, meta);
                         }
                     } catch(_e){}
                     activateViolation(type, meta);
                     startAlarm();
-                    if(window.Livewire && window.Livewire.emit){
-                        try { window.Livewire.emit('proctorEvent', { type, meta, at: new Date().toISOString() }); } catch(e) {}
+                    try { await persistProctor({ type, meta, at: new Date().toISOString() }); } catch(e) {}
+                    if (willForceExit && !forcedExitScheduled){
+                        forcedExitScheduled = true;
+                        try { window.Proctor && window.Proctor.disable(); window.__PROCTOR_DISABLED = true; } catch(_e){}
+                        try { window.stopProctorCamera && window.stopProctorCamera(); } catch(_e){}
+                        try { document.exitFullscreen && document.exitFullscreen(); } catch(_e){}
+                        setTimeout(()=>{ try { @this.call('completeTest'); } catch(_e){} }, 150);
                     }
                 }
 
@@ -1166,15 +1222,19 @@
                 if(document.documentElement.requestFullscreen){
                     document.documentElement.requestFullscreen().catch(()=>{});
                 }
-                document.addEventListener('fullscreenchange', ()=>{
+                document.addEventListener('fullscreenchange', async ()=>{
+                    if (window.__PROCTOR_DISABLED) return;
                     if(!document.fullscreenElement){
-                        // Langsung akhiri ujian saat keluar dari fullscreen
-                        reportViolation('fullscreen_exit');
+                        // Ambil bukti screenshot DOM (fallback ke frame kamera) dan simpan ke server terlebih dahulu
+                        const meta = await captureEvidenceFor('fullscreen_exit', {});
+                        const payload = { type: 'fullscreen_exit', meta, at: new Date().toISOString() };
+                        try { await persistProctor(payload); } catch(_e){}
+                        // Lalu akhiri ujian
                         if (!forcedExitScheduled) {
                             forcedExitScheduled = true;
                             try { window.Proctor && window.Proctor.disable(); } catch(_e){}
                             try { window.stopProctorCamera && window.stopProctorCamera(); } catch(_e){}
-                            setTimeout(()=>{ try { @this.call('completeTest'); } catch(_e){} }, 200);
+                            setTimeout(()=>{ try { @this.call('completeTest'); } catch(_e){} }, 150);
                         }
                     } else {
                         clearViolation('fullscreen_exit');
@@ -1183,15 +1243,15 @@
 
                 // Visibility / focus
                 document.addEventListener('visibilitychange', ()=>{
-                    if(proctorMuted) return;
+                    if(proctorMuted || window.__PROCTOR_DISABLED) return;
                     if(document.hidden){ reportViolation('tab_hidden'); } else { clearViolation('tab_hidden'); }
                 });
-                window.addEventListener('blur', ()=>{ if(proctorMuted) return; reportViolation('window_blur'); });
-                window.addEventListener('focus', ()=>{ if(proctorMuted) return; clearViolation('window_blur'); });
+                window.addEventListener('blur', ()=>{ if(proctorMuted || window.__PROCTOR_DISABLED) return; reportViolation('window_blur'); });
+                window.addEventListener('focus', ()=>{ if(proctorMuted || window.__PROCTOR_DISABLED) return; clearViolation('window_blur'); });
 
                 // Block common shortcuts
                 window.addEventListener('keydown', (e)=>{
-                    if(proctorMuted) return;
+                    if(proctorMuted || window.__PROCTOR_DISABLED) return;
                     const k = e.key?.toLowerCase();
                     if(
                         e.key === 'F5' || e.key === 'F12' ||
@@ -1211,23 +1271,23 @@
                         setTimeout(()=>clearViolation('screenshot'), 4000);
                     }
                 }, { capture: true });
-                window.addEventListener('contextmenu', (e)=>{ if(proctorMuted) return; e.preventDefault(); reportViolation('context_menu'); setTimeout(()=>clearViolation('context_menu'), 2500); }, { capture: true });
+                window.addEventListener('contextmenu', (e)=>{ if(proctorMuted || window.__PROCTOR_DISABLED) return; e.preventDefault(); reportViolation('context_menu'); setTimeout(()=>clearViolation('context_menu'), 2500); }, { capture: true });
 
                 // Block copy/cut/paste inside test area
                 const cbtArea = document.getElementById('cbt-area');
                 if (cbtArea){
-                    ['copy','cut'].forEach(evt => cbtArea.addEventListener(evt, (e)=>{ if(proctorMuted) return; e.preventDefault(); reportViolation('copy'); setTimeout(()=>clearViolation('copy'), 3000); }, { capture: true }));
-                    cbtArea.addEventListener('paste', (e)=>{ if(proctorMuted) return; e.preventDefault(); reportViolation('copy'); setTimeout(()=>clearViolation('copy'), 3000); }, { capture: true });
-                    cbtArea.addEventListener('selectstart', (e)=>{ if(proctorMuted) return; e.preventDefault(); }, { capture: true });
-                    cbtArea.addEventListener('dragstart', (e)=>{ if(proctorMuted) return; e.preventDefault(); }, { capture: true });
+                    ['copy','cut'].forEach(evt => cbtArea.addEventListener(evt, (e)=>{ if(proctorMuted || window.__PROCTOR_DISABLED) return; e.preventDefault(); reportViolation('copy'); setTimeout(()=>clearViolation('copy'), 3000); }, { capture: true }));
+                    cbtArea.addEventListener('paste', (e)=>{ if(proctorMuted || window.__PROCTOR_DISABLED) return; e.preventDefault(); reportViolation('copy'); setTimeout(()=>clearViolation('copy'), 3000); }, { capture: true });
+                    cbtArea.addEventListener('selectstart', (e)=>{ if(proctorMuted || window.__PROCTOR_DISABLED) return; e.preventDefault(); }, { capture: true });
+                    cbtArea.addEventListener('dragstart', (e)=>{ if(proctorMuted || window.__PROCTOR_DISABLED) return; e.preventDefault(); }, { capture: true });
                 }
 
                 // Printing treated as screenshot attempt
-                window.addEventListener('beforeprint', ()=>{ if(proctorMuted) return; reportViolation('print'); });
-                window.addEventListener('afterprint', ()=>{ if(proctorMuted) return; clearViolation('print'); });
+                window.addEventListener('beforeprint', ()=>{ if(proctorMuted || window.__PROCTOR_DISABLED) return; reportViolation('print'); });
+                window.addEventListener('afterprint', ()=>{ if(proctorMuted || window.__PROCTOR_DISABLED) return; clearViolation('print'); });
 
                 // Prevent navigation away
-                window.addEventListener('beforeunload', (e)=>{ if(proctorMuted) return; e.preventDefault(); e.returnValue=''; });
+                window.addEventListener('beforeunload', (e)=>{ if(proctorMuted || window.__PROCTOR_DISABLED) return; e.preventDefault(); e.returnValue=''; });
 
                 // Camera init
                 async function initCamera(){
@@ -1326,7 +1386,8 @@
                         runFaceApiChecks();
                     } catch(err){
                         // If even CDN fails, we silently proceed with camera-only
-                        statusEl.textContent = 'Kamera aktif';
+                        statusEl.textContent = 'Kamera aktif - deteksi tidak tersedia';
+                        try { if (detectCountEl) detectCountEl.classList.add('d-none'); } catch(_) {}
                     }
                 }
 
@@ -1371,6 +1432,7 @@
                 if(window.Livewire && window.Livewire.hook){
                     window.Livewire.hook('message.processed', (message, component)=>{
                         if(document.getElementById('proctor-active')) initProctor();
+                        try { refreshDetectBadge(); } catch(_) {}
                     });
                 }
             });

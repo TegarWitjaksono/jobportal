@@ -45,6 +45,138 @@
                 </div>
             </div>
 
+            {{-- Proctoring Report --}}
+            <div class="card border-0 shadow rounded-3 mb-4">
+                <div class="card-header bg-soft-danger text-danger border-0 rounded-top-3">
+                    <!-- Top bar: title + actions -->
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <h6 class="mb-0 d-flex align-items-center"><i class="mdi mdi-cctv me-2"></i>Laporan Proctoring (Mencurigakan)</h6>
+                            <span class="badge {{ count($proctorEvents) ? 'bg-soft-danger text-danger' : 'bg-soft-secondary text-muted' }}" aria-live="polite">
+                                {{ count($proctorEvents) }} temuan
+                            </span>
+                        </div>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Aksi">
+                            <button type="button" class="btn btn-soft-secondary" title="Urutkan" wire:click="$set('proctorSort', '{{ $proctorSort === 'desc' ? 'asc' : 'desc' }}')" wire:loading.attr="disabled">
+                                <i class="mdi mdi-sort"></i> {{ $proctorSort === 'desc' ? 'Terbaru' : 'Terlama' }}
+                            </button>
+                            <button type="button" class="btn btn-soft-primary" title="Unduh CSV" wire:click="exportProctorCsv" wire:loading.attr="disabled" wire:target="exportProctorCsv">
+                                <span class="position-relative">
+                                    <i class="mdi mdi-download"></i> Export CSV
+                                    <span class="spinner-border spinner-border-sm text-primary ms-2" role="status" aria-hidden="true" wire:loading wire:target="exportProctorCsv"></span>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                    @if(!empty($proctorSummary))
+                        <div class="mt-2 d-flex flex-wrap align-items-center gap-2">
+                            @foreach($proctorSummary as $t => $c)
+                                <span class="badge bg-soft-danger text-danger" title="{{ $t }}">
+                                    <i class="mdi mdi-alert-outline me-1"></i>{{ $t }}: {{ $c }}
+                                </span>
+                            @endforeach
+                        </div>
+                    @endif
+                    <!-- Filters bottom row -->
+                    <div class="mt-2 pt-2 border-top border-danger-subtle">
+                        <div class="d-flex justify-content-between align-items-center d-md-none">
+                            <button class="btn btn-link btn-sm px-0" type="button" data-bs-toggle="collapse" data-bs-target="#proctorFilters" aria-expanded="false" aria-controls="proctorFilters">
+                                <i class="mdi mdi-filter-variant"></i> Tampilkan Filter
+                            </button>
+                        </div>
+                        <div id="proctorFilters" class="collapse d-md-block">
+                            <div class="d-flex align-items-center gap-2 flex-wrap proctor-toolbar">
+                                <select class="form-select form-select-sm w-auto" wire:model.live="proctorType" title="Filter jenis temuan">
+                                    <option value="all">Semua jenis</option>
+                                    @foreach($proctorTypes as $t)
+                                        <option value="{{ $t }}">{{ $t }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="form-check" title="Hanya tampilkan temuan yang memiliki bukti gambar">
+                                    <input id="onlyEvidence" class="form-check-input" type="checkbox" wire:model.live="proctorOnlyWithEvidence">
+                                    <label class="form-check-label" for="onlyEvidence">Hanya bukti</label>
+                                </div>
+                                <div class="d-flex align-items-center gap-1" title="Batasi rentang waktu temuan">
+                                    <input type="datetime-local" class="form-control form-control-sm" wire:model.live="proctorFromDate" placeholder="Dari" aria-label="Dari tanggal">
+                                    <span class="small text-muted">s/d</span>
+                                    <input type="datetime-local" class="form-control form-control-sm" wire:model.live="proctorToDate" placeholder="Sampai" aria-label="Sampai tanggal">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body position-relative">
+                    @if(empty($proctorEvents))
+                        <div class="text-center text-muted py-4">
+                            <i class="mdi mdi-check-circle-outline d-block mb-2" style="font-size: 28px;"></i>
+                            <div class="small">Tidak ada temuan mencurigakan untuk sesi ini.</div>
+                        </div>
+                    @else
+                        <div class="table-responsive" wire:loading.class="opacity-50" wire:target="proctorType,proctorOnlyWithEvidence,proctorFromDate,proctorToDate,proctorSort">
+                            <table class="table table-sm table-hover align-middle mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th style="width: 160px;" class="text-nowrap">Waktu</th>
+                                        <th>Jenis</th>
+                                        <th>Detail</th>
+                                        <th style="width: 200px;">Bukti</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                @foreach($proctorEvents as $e)
+                                    <tr>
+                                        <td class="text-muted small text-nowrap">{{ $e['time'] ?? '-' }}</td>
+                                        <td>
+                                            <span class="badge bg-soft-danger text-danger text-uppercase">{{ $e['type'] }}</span>
+                                        </td>
+                                        <td class="small">
+                                            @php 
+                                                $m = $e['meta'] ?? []; 
+                                                $mm = is_array($m) && isset($m['meta']) && is_array($m['meta']) ? $m['meta'] : $m;
+                                            @endphp
+                                            @if(is_array($mm) && !empty($mm))
+                                                <ul class="list-inline mb-0">
+                                                    @if(isset($mm['count']))
+                                                        <li class="list-inline-item me-3">
+                                                            <span class="text-muted">Wajah terdeteksi:</span> <span class="fw-semibold">{{ $mm['count'] }}</span>
+                                                        </li>
+                                                    @endif
+                                                    @if(!empty($mm['last_url']))
+                                                        <li class="list-inline-item me-3 text-truncate" style="max-width:300px">
+                                                            <span class="text-muted">Last URL:</span> <a href="{{ $mm['last_url'] }}" target="_blank" rel="noopener">{{ $mm['last_url'] }}</a>
+                                                        </li>
+                                                    @endif
+                                                    @if(!empty($m['at']))
+                                                        <li class="list-inline-item text-muted">Client time: {{ $m['at'] }}</li>
+                                                    @endif
+                                                </ul>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if(!empty($e['evidence']))
+                                                <a href="{{ $e['evidence'] }}" target="_blank" rel="noopener" class="d-inline-block" title="Buka bukti di tab baru">
+                                                    <img src="{{ $e['evidence'] }}" alt="Evidence" class="img-fluid rounded border" style="max-height:120px;">
+                                                </a>
+                                                <div class="small mt-1">
+                                                    <a href="{{ $e['evidence'] }}" download class="link-secondary text-decoration-none">
+                                                        <i class="mdi mdi-download me-1"></i>Unduh
+                                                    </a>
+                                                </div>
+                                            @else
+                                                <span class="text-muted small">Tidak ada</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
             <div class="card border-0 shadow rounded-3" x-data="{mode:'accordion'}">
                 <div class="card-header bg-soft-primary text-primary border-0 rounded-top-3 d-flex justify-content-between align-items-center">
                     <h6 class="mb-0 d-flex align-items-center"><i class="mdi mdi-clipboard-list-outline me-2"></i>Review Jawaban</h6>
@@ -167,4 +299,13 @@
             </div>
         </div>
     </section>
+    <style>
+/* Proctor toolbar responsive tweaks */
+.proctor-toolbar .form-select-sm,
+.proctor-toolbar .form-control-sm { min-width: 160px; }
+@media (max-width: 767.98px){
+  .proctor-toolbar .form-select-sm,
+  .proctor-toolbar .form-control-sm { min-width: 100%; }
+}
+    </style>
 </div>

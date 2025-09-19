@@ -312,17 +312,42 @@
                                                                     </div>
                                                                     <span class="ms-2 fw-medium">Psikotes</span>
                                                                 </div>
-                                                                <div class="d-flex align-items-center gap-2">
+                                                                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-end">
                                                                     @php
                                                                         $resId = $uid ? ($resultMap[$uid] ?? null) : null;
+                                                                        // Fallback: cari hasil terbaru yang sudah selesai bila map belum terisi
+                                                                        if (!$resId && $uid) {
+                                                                            $__res = \App\Models\TestResult::where('user_id', $uid)
+                                                                                ->whereNotNull('completed_at')
+                                                                                ->latest('completed_at')
+                                                                                ->first();
+                                                                            $resId = optional($__res)->id;
+                                                                        }
+                                                                        $violations = $uid ? ($proctorCountMap[$uid] ?? 0) : 0;
+                                                                        $thumb = $uid ? ($proctorThumbMap[$uid] ?? null) : null;
                                                                     @endphp
-                                                                    @if($resId)
-                                                                        <a href="{{ route('test-results.show', $resId) }}" target="_blank" rel="noopener"
-                                                                           class="btn btn-sm btn-soft-info"
-                                                                           data-bs-toggle="tooltip" title="Review Psikotes">
-                                                                            <i class="mdi mdi-file-eye-outline"></i>
-                                                                        </a>
+                                                                    @if($violations > 0)
+                                                                        <span class="badge {{ $violations >= 3 ? 'bg-soft-danger text-danger' : 'bg-soft-warning text-warning' }}" data-bs-toggle="tooltip" title="Pelanggaran proctor: {{ $violations }}">
+                                                                            <i class="mdi mdi-alert-outline me-1"></i>{{ $violations >= 3 ? '3+ pelanggaran' : ($violations.' pelanggaran') }}
+                                                                        </span>
+                                                                        @if($thumb)
+                                                                            <img src="{{ $thumb }}" alt="Bukti" class="thumb-evidence" onerror="this.style.display='none'" data-bs-toggle="tooltip" title="Bukti terakhir">
+                                                                        @endif
                                                                     @endif
+                                                                    <div class="btn-group btn-group-sm" role="group" aria-label="Aksi Psikotes">
+                                                                        @if($resId)
+                                                                            <a href="{{ route('test-results.show', $resId) }}" target="_blank" rel="noopener"
+                                                                               class="btn btn-soft-info d-inline-flex align-items-center"
+                                                                               data-bs-toggle="tooltip" title="Review Psikotes">
+                                                                                <i class="mdi mdi-file-eye-outline"></i>
+                                                                            </a>
+                                                                        @endif
+                                                                        @if($violations > 0)
+                                                                            <button type="button" class="btn btn-soft-danger d-inline-flex align-items-center" wire:click="openProctor({{ $uid }})" data-bs-toggle="tooltip" title="Lihat detail proctor">
+                                                                                <i class="mdi mdi-cctv"></i>
+                                                                            </button>
+                                                                        @endif
+                                                                    </div>
 
                                                                     @if(!$canPsikotes)
                                                                         <small class="text-muted">Setelah interview</small>
@@ -337,12 +362,46 @@
                                                                                 <div class="text-muted">Jadwal Psikotes:</div>
                                                                                 <div class="fw-medium">{{ \Carbon\Carbon::parse($psikotesProgress->waktu_pelaksanaan)->format('d M Y, H:i') }}</div>
                                                                                 <div class="text-muted small">Berakhir: {{ \Carbon\Carbon::parse($psikotesProgress->waktu_selesai)->format('d M Y, H:i') }}</div>
+                                                                                @php 
+                                                                                    $v = $uid ? ($proctorCountMap[$uid] ?? 0) : 0; 
+                                                                                    $th = $uid ? ($proctorThumbMap[$uid] ?? null) : null;
+                                                                                @endphp
+                                                                                @if($v >= 1)
+                                                                                    <div class="mt-2 d-flex align-items-center gap-2 flex-wrap">
+                                                                                        <span class="badge {{ $v >= 3 ? 'bg-soft-danger text-danger' : 'bg-soft-warning text-warning' }}">
+                                                                                            <i class="mdi mdi-alert-outline me-1"></i>
+                                                                                            {{ $v >= 3 ? '3+ pelanggaran terdeteksi' : ($v.' pelanggaran terdeteksi') }}
+                                                                                        </span>
+                                                                                        {{-- thumbnail bukti di detail dihilangkan sesuai permintaan --}}
+                                                                                    </div>
+                                                                                @endif
                                                                             </div>
                                                                             @if($psikotesCompleted)
-                                                                                <span class="badge bg-soft-success text-success p-2">
-                                                                                    <i class="mdi mdi-check-circle-outline me-1"></i>
-                                                                                    Sudah Dikerjakan
-                                                                                </span>
+                                                                                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-end action-buttons">
+                                                                                    <span class="badge bg-soft-success text-success p-2">
+                                                                                        <i class="mdi mdi-check-circle-outline me-1"></i>
+                                                                                        Sudah Dikerjakan
+                                                                                    </span>
+                                                                                    @php
+                                                                                        $__uid = $uid ?? (optional(optional($lamaran->kandidat)->user)->id ?? null);
+                                                                                        $__resId = $__uid ? ($resultMap[$__uid] ?? null) : null;
+                                                                                        if (!$__resId && $__uid) {
+                                                                                            $__r = \App\Models\TestResult::where('user_id', $__uid)
+                                                                                                ->whereNotNull('completed_at')
+                                                                                                ->latest('completed_at')
+                                                                                                ->first();
+                                                                                            $__resId = optional($__r)->id;
+                                                                                        }
+                                                                                    @endphp
+                                                                                    {{-- Aksi Review & Cek Kecurangan dipusatkan di header atas saja --}}
+                                                                                    @if($__resId)
+                                                                                        @php
+                                                                                            $__v = $__uid ? ($proctorCountMap[$__uid] ?? 0) : 0;
+                                                                                            $__th = $__uid ? ($proctorThumbMap[$__uid] ?? null) : null;
+                                                                                        @endphp
+                                                                                    {{-- thumbnail bukti di detail dihilangkan sesuai permintaan --}}
+                                                                                    @endif
+                                                                                </div>
                                                                             @elseif(!$isRecruiter && !$isCompleted)
                                                                                 <button type="button" class="btn btn-sm btn-soft-secondary" wire:click="preparePsikotesSchedule({{ $psikotesProgress->id }})">
                                                                                     <i class="mdi mdi-pencil"></i>
@@ -1031,6 +1090,11 @@
         padding: 4px 8px;
     }
 
+    /* Proctor actions */
+    .thumb-evidence { width: 28px; height: 28px; object-fit: cover; border: 1px solid #e9ecef; border-radius: 6px; }
+    .action-buttons .btn { min-height: 30px; }
+    .btn-soft-info, .btn-soft-danger { display: inline-flex; align-items: center; }
+
     @media (max-width: 768px) {
         .recruitment-flow {
             min-width: 250px;
@@ -1041,58 +1105,75 @@
         }
     }
     </style>
-</div>
 
     {{-- Proctor Modal --}}
     @if($proctorModal)
-    <div class="modal fade show" style="display:block; background-color: rgba(0,0,0,0.5);" tabindex="-1">
+    <div class="modal fade show" style="display:block; background-color: rgba(0,0,0,0.5);" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="proctorModalTitle" wire:keydown.escape.window="closeProctor" wire:click.self="closeProctor">
         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content rounded shadow-lg">
                 <div class="modal-header bg-soft-danger text-danger border-0">
-                    <h5 class="modal-title d-flex align-items-center mb-0"><i class="mdi mdi-alert-outline me-2"></i>Laporan Proctoring {{ $proctorUserName ? ' - '.$proctorUserName : '' }}</h5>
+                    <h5 id="proctorModalTitle" class="modal-title d-flex align-items-center mb-0"><i class="mdi mdi-alert-outline me-2"></i>Laporan Proctoring {{ $proctorUserName ? ' - '.$proctorUserName : '' }}</h5>
                     <button type="button" class="btn-close" wire:click="closeProctor"></button>
                 </div>
                 <div class="modal-body">
-                    @if(empty($proctorEvents))
-                        <div class="text-muted">Belum ada pelanggaran tercatat.</div>
-                    @else
-                        <div class="table-responsive">
-                            <table class="table table-sm align-middle">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 140px;">Waktu</th>
-                                        <th>Jenis</th>
-                                        <th>Detail</th>
-                                        <th style="width: 160px;">Bukti</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                @foreach($proctorEvents as $e)
-                                    <tr>
-                                        <td class="text-muted small">{{ $e['time'] ?? '-' }}</td>
-                                        <td><span class="badge bg-soft-danger text-danger text-uppercase">{{ $e['type'] }}</span></td>
-                                        <td class="small">
-                                            @php $m = $e['meta'] ?? []; @endphp
-                                            @if(is_array($m) && !empty($m))
-                                                @if(!empty($m['count']))<div>Faces: {{ $m['count'] }}</div>@endif
-                                                @if(!empty($m['last_url']))<div>Last URL: <a href="{{ $m['last_url'] }}" target="_blank" rel="noopener">{{ $m['last_url'] }}</a></div>@endif
-                                            @else
-                                                <span class="text-muted">-</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if(!empty($e['evidence']))
-                                                <img src="{{ $e['evidence'] }}" alt="Evidence" class="img-fluid rounded border" style="max-height:120px;">
-                                            @else
-                                                <span class="text-muted small">Tidak ada</span>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @endif
+                    <div class="text-center my-4" wire:loading wire:target="openProctor">
+                        <div class="spinner-border text-danger" role="status"><span class="visually-hidden">Loading...</span></div>
+                    </div>
+                    <div wire:loading.remove wire:target="openProctor">
+                        @if(empty($proctorEvents))
+                            <div class="text-muted">Belum ada pelanggaran tercatat.</div>
+                        @else
+                            @if(!empty($proctorSummary))
+                                <div class="mb-2 d-flex flex-wrap align-items-center gap-2">
+                                    @foreach($proctorSummary as $t => $c)
+                                        <span class="badge bg-soft-danger text-danger">
+                                            <i class="mdi mdi-alert-outline me-1"></i>{{ $t }}: {{ $c }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @endif
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 140px;">Waktu</th>
+                                            <th>Jenis</th>
+                                            <th>Detail</th>
+                                            <th style="width: 160px;">Bukti</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach($proctorEvents as $e)
+                                        <tr>
+                                            <td class="text-muted small">{{ $e['time'] ?? '-' }}</td>
+                                            <td><span class="badge bg-soft-danger text-danger text-uppercase">{{ $e['type'] }}</span></td>
+                                            <td class="small">
+                                                @php 
+                                                    $m = $e['meta'] ?? []; 
+                                                    $mm = is_array($m) && isset($m['meta']) && is_array($m['meta']) ? $m['meta'] : $m;
+                                                @endphp
+                                                @if(is_array($mm) && !empty($mm))
+                                                    @if(isset($mm['count']))<div>Faces: {{ $mm['count'] }}</div>@endif
+                                                    @if(!empty($mm['last_url']))<div>Last URL: <a href="{{ $mm['last_url'] }}" target="_blank" rel="noopener">{{ $mm['last_url'] }}</a></div>@endif
+                                                    @if(!empty($m['at']))<div class="text-muted">Client time: {{ $m['at'] }}</div>@endif
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if(!empty($e['evidence']))
+                                                    <img src="{{ $e['evidence'] }}" alt="Evidence" class="img-fluid rounded border" style="max-height:120px;" onerror="this.style.display='none'">
+                                                @else
+                                                    <span class="text-muted small">Tidak ada</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endif
+                    </div>
                 </div>
                 <div class="modal-footer border-0">
                     <button type="button" class="btn btn-soft-secondary" wire:click="closeProctor">Tutup</button>
@@ -1101,3 +1182,4 @@
         </div>
     </div>
     @endif
+</div>

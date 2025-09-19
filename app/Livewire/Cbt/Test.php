@@ -359,11 +359,34 @@ class Test extends Component
             $evidencePath = null;
             
             // Handle image evidence if provided
-            if (isset($eventData['image_data'])) {
-                $imageData = $eventData['image_data'];
-                $evidencePath = 'proctor/evidence/'.auth()->id().'_'.time().'_'.uniqid().'.png';
-                \Illuminate\Support\Facades\Storage::disk('public')->put($evidencePath, base64_decode($imageData));
-                unset($eventData['image_data']);
+            $rawImage = $eventData['image_data']
+                ?? ($eventData['meta']['image_data'] ?? null);
+            if ($rawImage) {
+                $mime = 'image/png';
+                $data = $rawImage;
+                if (is_string($rawImage) && str_starts_with($rawImage, 'data:')) {
+                    // data URI format: data:<mime>;base64,<payload>
+                    if (preg_match('~^data:([^;]+);base64,(.*)$~', $rawImage, $m)) {
+                        $mime = $m[1] ?? 'image/png';
+                        $data = $m[2] ?? '';
+                    }
+                }
+                $binary = base64_decode($data);
+                if ($binary !== false) {
+                    $ext = 'png';
+                    if (str_contains($mime, 'jpeg') || str_contains($mime, 'jpg')) { $ext = 'jpg'; }
+                    elseif (str_contains($mime, 'webp')) { $ext = 'webp'; }
+                    elseif (str_contains($mime, 'gif')) { $ext = 'gif'; }
+                    $evidencePath = 'proctor/evidence/' . auth()->id() . '_' . time() . '_' . uniqid() . '.' . $ext;
+                    \Illuminate\Support\Facades\Storage::disk('public')->put($evidencePath, $binary);
+                }
+                // Remove image_data from meta to keep payload small
+                if (isset($eventData['meta']['image_data'])) {
+                    unset($eventData['meta']['image_data']);
+                }
+                if (isset($eventData['image_data'])) {
+                    unset($eventData['image_data']);
+                }
             }
 
             \App\Models\ProctorEvent::create([

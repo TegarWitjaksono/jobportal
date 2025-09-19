@@ -16,6 +16,7 @@ use App\Models\ProctorEvent;
 use App\Services\ZoomService;
 use Illuminate\Support\Carbon;
 use App\Notifications\LamaranDecisionNotification;
+use Illuminate\Support\Facades\Storage;
 
 class Index extends Component
 {
@@ -64,6 +65,7 @@ class Index extends Component
     public $proctorModal = false;
     public $proctorEvents = [];
     public $proctorUserName = null;
+    public $proctorSummary = [];
 
 
     public function mount()
@@ -86,6 +88,23 @@ class Index extends Component
             ->latest();
     }
 
+    private function buildEvidenceUrl(?string $path): ?string
+    {
+        if (!$path) return null;
+        try {
+            if (Storage::disk('public')->exists($path)) {
+                return asset('storage/' . ltrim($path, '/'));
+            }
+        } catch (\Throwable $e) {}
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+        if (str_starts_with($path, '/storage/')) {
+            return $path;
+        }
+        return asset('storage/' . ltrim($path, '/'));
+    }
+
     public function render()
     {
         $lamaran = $this->getLamaranQuery()->paginate(10);
@@ -100,6 +119,7 @@ class Index extends Component
 
         $resultMap = [];
         $proctorCountMap = [];
+        $proctorThumbMap = [];
         if (!empty($userIds)) {
             $results = TestResult::whereIn('user_id', $userIds)
                 ->orderByRaw('CASE WHEN completed_at IS NULL THEN 1 ELSE 0 END ASC')
@@ -119,12 +139,28 @@ class Index extends Component
                 ->groupBy('user_id')
                 ->pluck('c','user_id');
             foreach ($userIds as $uid) { $proctorCountMap[$uid] = (int) ($counts[$uid] ?? 0); }
+
+            // Latest evidence thumbnail per user (if any)
+            $latestIds = ProctorEvent::selectRaw('MAX(id) as id, user_id')
+                ->whereIn('user_id', $userIds)
+                ->whereNotNull('evidence_path')
+                ->groupBy('user_id')
+                ->pluck('id','user_id');
+            if ($latestIds->isNotEmpty()) {
+                $events = ProctorEvent::whereIn('id', $latestIds->values())->get();
+                foreach ($events as $e) {
+                    if ($e->evidence_path) {
+                        $proctorThumbMap[$e->user_id] = $this->buildEvidenceUrl($e->evidence_path);
+                    }
+                }
+            }
         }
 
         return view('livewire.officer.lamaran-lowongan.index', [
             'lamaranList' => $lamaran,
             'resultMap' => $resultMap,
             'proctorCountMap' => $proctorCountMap,
+            'proctorThumbMap' => $proctorThumbMap,
         ]);
     }
 
@@ -441,11 +477,19 @@ class Index extends Component
                 return [
                     'type' => $e->type,
                     'meta' => $e->meta,
-                    'evidence' => $e->evidence_path ? (\Illuminate\Support\Facades\Storage::disk('public')->url($e->evidence_path)) : null,
+                    'evidence' => $e->evidence_path ? ($this->buildEvidenceUrl($e->evidence_path)) : null,
                     'time' => optional($e->created_at)->format('d M Y H:i:s'),
                 ];
             })->toArray();
         $this->proctorEvents = $events;
+        // Build summary counts per type
+        $summary = [];
+        foreach ($events as $row) {
+            $t = $row['type'] ?? 'unknown';
+            $summary[$t] = ($summary[$t] ?? 0) + 1;
+        }
+        ksort($summary);
+        $this->proctorSummary = $summary;
         $this->proctorModal = true;
     }
 
@@ -454,6 +498,7 @@ class Index extends Component
         $this->proctorModal = false;
         $this->proctorEvents = [];
         $this->proctorUserName = null;
+        $this->proctorSummary = [];
     }
 
     /**
