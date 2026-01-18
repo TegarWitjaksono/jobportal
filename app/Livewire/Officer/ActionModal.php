@@ -13,6 +13,7 @@ class ActionModal extends Component
     public $officerData = [];
     protected $officerRepository;
     public $mode = 'edit'; // 'edit' atau 'deactivate'
+    public $supervisors = [];
 
     protected $listeners = [
         'editOfficer' => 'openEditModal',
@@ -30,6 +31,7 @@ class ActionModal extends Component
         $this->officerId = $id;
         $officer = $this->officerRepository->findOfficer($id);
         $this->officerData = $officer->toArray();
+        $this->supervisors = $this->officerRepository->getAllOfficersForSupervisorSelection();
         $this->show = true;
     }
 
@@ -39,7 +41,7 @@ class ActionModal extends Component
             'officerData.nama_depan' => 'required',
             'officerData.nama_belakang' => 'nullable',
             'officerData.nik' => 'required',
-            'officerData.atasan_id' => 'nullable|integer',
+            'officerData.atasan_id' => 'nullable|exists:officers,id',
             'officerData.jabatan' => 'required',
             'officerData.doh' => 'required|date',
             'officerData.lokasi_penugasan' => 'required',
@@ -111,7 +113,9 @@ class ActionModal extends Component
 
     public function render()
     {
-        return view('livewire.officer.action-modal');
+        return view('livewire.officer.action-modal', [
+            'supervisors' => $this->supervisors,
+        ]);
     }
 }
 

@@ -98,13 +98,13 @@
                                 @error('officerData.area') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-md-6">
-                                {{-- NOTE: GET OFFICER FOR ATASAN USING USER ID --}}
+                                {{-- NOTE: GET OFFICER FOR ATASAN USING OFFICER ID --}}
                                 <label class="form-label">{{ __('Supervisor') }}</label>
                                 <select class="form-select @error('officerData.atasan_id') is-invalid @enderror"
                                         wire:model.defer="officerData.atasan_id">
                                     <option value="">{{ __('No Supervisor (Top Level)') }}</option>
                                     @foreach($supervisors ?? [] as $supervisor)
-                                        <option value="{{ $supervisor->user_id }}">{{ $supervisor->nama_depan . ' ' . $supervisor->nama_belakang }}</option>
+                                        <option value="{{ $supervisor->id }}">{{ $supervisor->nama_depan . ' ' . $supervisor->nama_belakang }}</option>
                                     @endforeach
                                 </select>
                                 @error('officerData.atasan_id') <div class="invalid-feedback">{{ $message }}</div> @enderror

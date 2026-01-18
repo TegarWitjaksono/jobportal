@@ -15,7 +15,7 @@
                         <select wire:model.defer="officerData.atasan_id" class="form-control mb-2">
                             <option value="">{{ __('No Supervisor (Top Level)') }}</option>
                             @foreach($supervisors ?? [] as $supervisor)
-                                <option value="{{ $supervisor->user_id }}">{{ $supervisor->nama_depan . ' ' . $supervisor->nama_belakang }}</option>
+                                <option value="{{ $supervisor->id }}">{{ $supervisor->nama_depan . ' ' . $supervisor->nama_belakang }}</option>
                             @endforeach
                         </select>
                         <input type="text" wire:model.defer="officerData.jabatan" class="form-control mb-2" placeholder="Position">

@@ -34,7 +34,7 @@ class CreateModal extends Component
             'officerData.jabatan' => 'required',
             'officerData.doh' => 'required|date',
             'officerData.area' => 'required|in:1,2,3',
-            'officerData.atasan_id' => 'nullable|exists:officers,user_id',
+            'officerData.atasan_id' => 'nullable|exists:officers,id',
             'selectedLocation' => 'required_unless:newLocationName,null',
             'newLocationName' => 'required_if:selectedLocation,custom|min:3',
             'userData.email' => 'required|email|unique:users,email',
